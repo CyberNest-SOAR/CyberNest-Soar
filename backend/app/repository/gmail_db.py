@@ -1,278 +1,201 @@
-import psycopg2
-from psycopg2.extras import Json
-from typing import List, Dict, Optional, Any
-import base64
-from email.utils import parsedate_to_datetime
-import re
-from google_apis import create_service
+"""PostgreSQL-backed repository for email records."""
+
+from __future__ import annotations
+
+from contextlib import contextmanager
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import psycopg
+from psycopg.types.json import Json
 
 
-class GmailStorageManager:
-    
-    def __init__(self, db_config: Dict[str, str], client_secret_file: str = "client_secret.json"):
-        self.db_config = db_config
-        self.client_secret_file = client_secret_file
-        self.gmail_service = create_service(
-            client_secret_file, 
-            "gmail", 
-            "v1", 
-            ["https://mail.google.com/"]
-        )
-        self.conn = None
-        
-    def connect_db(self):
-        if self.conn is None or self.conn.closed:
-            self.conn = psycopg2.connect(**self.db_config)
-        return self.conn
-    
-    def close_db(self):
-        if self.conn and not self.conn.closed:
-            self.conn.close()
-            
-    def _clean_body(self, body: str) -> str:
-        clean = re.sub(r'<[^>]+>', '', body)
-        clean = re.sub(r'\s+', ' ', clean).strip()
-        return clean
-    
-    def _parse_email_data(self, message: Dict) -> Dict[str, Any]:
-        headers = {h['name']: h['value'] for h in message['payload']['headers']}
-        
-        body = ""
-        if 'parts' in message['payload']:
-            for part in message['payload']['parts']:
-                if part['mimeType'] == 'text/plain':
-                    body = base64.urlsafe_b64decode(
-                        part['body'].get('data', '')
-                    ).decode('utf-8', errors='ignore')
-                    break
-        elif 'body' in message['payload'] and 'data' in message['payload']['body']:
-            body = base64.urlsafe_b64decode(
-                message['payload']['body']['data']
-            ).decode('utf-8', errors='ignore')
-        
-        date_str = headers.get('Date', '')
-        try:
-            date = parsedate_to_datetime(date_str) if date_str else None
-        except:
-            date = None
-        
-        return {
-            'gmail_id': message['id'],
-            'subject': headers.get('Subject', ''),
-            'sender': headers.get('From', ''),
-            'recipients': headers.get('To', ''),
-            'snippet': message.get('snippet', ''),
-            'body': self._clean_body(body),
-            'has_attachments': any(
-                'filename' in part and part['filename'] 
-                for part in message['payload'].get('parts', [])
-            ),
-            'date': date,
-            'is_starred': 'STARRED' in message.get('labelIds', []),
-            'labels': message.get('labelIds', []),
-            'raw_headers': headers
-        }
-    
-    def fetch_and_store_emails(self, query: str = '', max_results: int = 100, folder_name: str = "INBOX") -> int:
-        try:
-            label_ids = None
-            if folder_name:
-                label_results = self.gmail_service.users().labels().list(userId='me').execute()
-                labels = label_results.get('labels', [])
-                folder_label_id = next(
-                    (label['id'] for label in labels if label['name'].lower() == folder_name.lower()),
-                    None
-                )
-                if folder_label_id:
-                    label_ids = [folder_label_id]
-            
-            results = self.gmail_service.users().messages().list(
-                userId='me',
-                q=query,
-                labelIds=label_ids,
-                maxResults=max_results
-            ).execute()
-            
-            messages = results.get('messages', [])
-            stored_count = 0
-            
-            conn = self.connect_db()
-            cursor = conn.cursor()
-            
-            for msg in messages:
-                try:
-                    full_msg = self.gmail_service.users().messages().get(
-                        userId='me',
-                        id=msg['id'],
-                        format='full'
-                    ).execute()
-                    
-                    email_data = self._parse_email_data(full_msg)
-                    
-                    cursor.execute("""
-                        INSERT INTO emails (
-                            gmail_id, subject, sender, recipients, snippet,
-                            body, has_attachments, date, is_starred, labels, raw_headers
-                        ) VALUES (
-                            %(gmail_id)s, %(subject)s, %(sender)s, %(recipients)s,
-                            %(snippet)s, %(body)s, %(has_attachments)s, %(date)s,
-                            %(is_starred)s, %(labels)s, %(raw_headers)s
-                        )
-                        ON CONFLICT (gmail_id) DO UPDATE SET
-                            subject = EXCLUDED.subject,
-                            is_starred = EXCLUDED.is_starred,
-                            labels = EXCLUDED.labels
-                    """, {**email_data, 'raw_headers': Json(email_data['raw_headers'])})
-                    
-                    stored_count += 1
-                    
-                except Exception as e:
-                    print(f"Error fetching message {msg['id']}: {e}")
-                    continue
-            
-            conn.commit()
-            cursor.close()
-            
-            return stored_count
-            
-        except Exception as error:
-            print(f"An error occurred: {error}")
-            return 0
-    
-    def insert_email(self, email_data: Dict[str, Any]) -> Optional[int]:
-        conn = self.connect_db()
+CREATE_TABLE_SQL = """
+CREATE TABLE IF NOT EXISTS emails (
+    id SERIAL PRIMARY KEY,
+    gmail_id TEXT UNIQUE NOT NULL,
+    subject TEXT,
+    sender TEXT,
+    recipients TEXT,
+    snippet TEXT,
+    body TEXT,
+    has_attachments BOOLEAN DEFAULT FALSE,
+    date TIMESTAMPTZ,
+    is_starred BOOLEAN DEFAULT FALSE,
+    labels TEXT[],
+    analysis JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+"""
+
+
+class EmailRepository:
+    """Thin wrapper around psycopg for storing analysed emails."""
+
+    def __init__(self, database_url: str):
+        self.database_url = database_url
+        self._conn: Optional[psycopg.extensions.connection] = None
+
+    def connect(self) -> psycopg.extensions.connection:
+        if self._conn is None or self._conn.closed:
+            self._conn = psycopg.connect(self.database_url)
+        return self._conn
+
+    def close(self) -> None:
+        if self._conn and not self._conn.closed:
+            self._conn.close()
+
+    @contextmanager
+    def cursor(self):
+        conn = self.connect()
         cursor = conn.cursor()
-        
         try:
-            cursor.execute("""
+            yield cursor
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            cursor.close()
+
+    def init_schema(self) -> None:
+        with self.cursor() as cursor:
+            cursor.execute(CREATE_TABLE_SQL)
+
+    def upsert_email(
+        self,
+        *,
+        gmail_id: str,
+        subject: Optional[str],
+        sender: Optional[str],
+        recipients: List[str],
+        snippet: Optional[str],
+        body: Optional[str],
+        has_attachments: bool,
+        date: Optional[datetime],
+        is_starred: bool,
+        labels: List[str],
+        analysis: Optional[Dict[str, Any]],
+    ) -> int:
+        recipients_value = ", ".join(recipients) if recipients else None
+        labels_value = labels if labels else None
+
+        with self.cursor() as cursor:
+            cursor.execute(
+                """
                 INSERT INTO emails (
-                    gmail_id, subject, sender, recipients, snippet,
-                    body, has_attachments, date, is_starred, labels, raw_headers
+                    gmail_id, subject, sender, recipients, snippet, body,
+                    has_attachments, date, is_starred, labels, analysis
                 ) VALUES (
-                    %(gmail_id)s, %(subject)s, %(sender)s, %(recipients)s,
-                    %(snippet)s, %(body)s, %(has_attachments)s, %(date)s,
-                    %(is_starred)s, %(labels)s, %(raw_headers)s
+                    %(gmail_id)s, %(subject)s, %(sender)s, %(recipients)s, %(snippet)s,
+                    %(body)s, %(has_attachments)s, %(date)s, %(is_starred)s, %(labels)s, %(analysis)s
                 )
+                ON CONFLICT (gmail_id) DO UPDATE SET
+                    subject = EXCLUDED.subject,
+                    sender = EXCLUDED.sender,
+                    recipients = EXCLUDED.recipients,
+                    snippet = EXCLUDED.snippet,
+                    body = EXCLUDED.body,
+                    has_attachments = EXCLUDED.has_attachments,
+                    date = EXCLUDED.date,
+                    is_starred = EXCLUDED.is_starred,
+                    labels = EXCLUDED.labels,
+                    analysis = EXCLUDED.analysis
                 RETURNING id
-            """, {**email_data, 'raw_headers': Json(email_data.get('raw_headers', {}))})
-            
-            email_id = cursor.fetchone()[0]
-            conn.commit()
-            cursor.close()
-            
-            return email_id
-            
-        except psycopg2.IntegrityError:
-            conn.rollback()
-            cursor.close()
-            print(f"Email with gmail_id {email_data.get('gmail_id')} already exists")
+                """,
+                {
+                    "gmail_id": gmail_id,
+                    "subject": subject,
+                    "sender": sender,
+                    "recipients": recipients_value,
+                    "snippet": snippet,
+                    "body": body,
+                    "has_attachments": has_attachments,
+                    "date": date,
+                    "is_starred": is_starred,
+                    "labels": labels_value,
+                    "analysis": Json(analysis) if analysis else None,
+                },
+            )
+
+            record_id = cursor.fetchone()[0]
+
+        return record_id
+
+    def get_email(self, gmail_id: str) -> Optional[Dict[str, Any]]:
+        with self.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT id, gmail_id, subject, sender, recipients, snippet, body,
+                       has_attachments, date, is_starred, labels, analysis, created_at
+                FROM emails
+                WHERE gmail_id = %s
+                """,
+                (gmail_id,),
+            )
+            row = cursor.fetchone()
+
+        if not row:
             return None
-    
-    def update_email(self, gmail_id: str, updates: Dict[str, Any]) -> bool:
-        if not updates:
-            return False
-        
-        set_clause = ", ".join([f"{key} = %({key})s" for key in updates.keys()])
-        
-        conn = self.connect_db()
-        cursor = conn.cursor()
-        
-        try:
-            cursor.execute(f"""
-                UPDATE emails
-                SET {set_clause}
-                WHERE gmail_id = %(gmail_id)s
-            """, {**updates, 'gmail_id': gmail_id})
-            
-            success = cursor.rowcount > 0
-            conn.commit()
-            cursor.close()
-            
-            return success
-            
-        except Exception as e:
-            conn.rollback()
-            cursor.close()
-            print(f"Error updating email: {e}")
-            return False
-    
+
+        return self._row_to_dict(row)
+
+    def list_emails(self, *, limit: int, offset: int = 0) -> List[Dict[str, Any]]:
+        with self.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT id, gmail_id, subject, sender, recipients, snippet, body,
+                       has_attachments, date, is_starred, labels, analysis, created_at
+                FROM emails
+                ORDER BY date DESC NULLS LAST, created_at DESC
+                LIMIT %s OFFSET %s
+                """,
+                (limit, offset),
+            )
+            rows = cursor.fetchall()
+
+        return [self._row_to_dict(row) for row in rows]
+
     def delete_email(self, gmail_id: str) -> bool:
-        conn = self.connect_db()
-        cursor = conn.cursor()
-        
-        try:
+        with self.cursor() as cursor:
             cursor.execute("DELETE FROM emails WHERE gmail_id = %s", (gmail_id,))
-            success = cursor.rowcount > 0
-            conn.commit()
-            cursor.close()
-            
-            return success
-            
-        except Exception as e:
-            conn.rollback()
-            cursor.close()
-            print(f"Error deleting email: {e}")
-            return False
-    
-    def get_email(self, gmail_id: str) -> Optional[Dict]:
-        conn = self.connect_db()
-        cursor = conn.cursor()
-        
-        cursor.execute("SELECT * FROM emails WHERE gmail_id = %s", (gmail_id,))
-        row = cursor.fetchone()
-        
-        if row:
-            columns = [desc[0] for desc in cursor.description]
-            cursor.close()
-            return dict(zip(columns, row))
-        
-        cursor.close()
-        return None
-    
-    def search_emails(self, filters: Dict[str, Any], limit: int = 50) -> List[Dict]:
-        conn = self.connect_db()
-        cursor = conn.cursor()
-        
-        where_clauses = []
-        params = {}
-        
-        for key, value in filters.items():
-            if key in ['sender', 'subject', 'recipients']:
-                where_clauses.append(f"{key} ILIKE %({key})s")
-                params[key] = f"%{value}%"
-            elif key == 'is_starred':
-                where_clauses.append(f"{key} = %({key})s")
-                params[key] = value
-            elif key == 'has_label':
-                where_clauses.append(f"%({key})s = ANY(labels)")
-                params[key] = value
-        
-        where_clause = " AND ".join(where_clauses) if where_clauses else "1=1"
-        
-        cursor.execute(f"""
-            SELECT * FROM emails
-            WHERE {where_clause}
-            ORDER BY date DESC
-            LIMIT %(limit)s
-        """, {**params, 'limit': limit})
-        
-        columns = [desc[0] for desc in cursor.description]
-        results = [dict(zip(columns, row)) for row in cursor.fetchall()]
-        cursor.close()
-        
-        return results
-    
-    def sync_starred_status(self, gmail_id: str) -> bool:
-        try:
-            msg = self.gmail_service.users().messages().get(
-                userId='me',
-                id=gmail_id,
-                format='minimal'
-            ).execute()
-            
-            is_starred = 'STARRED' in msg.get('labelIds', [])
-            return self.update_email(gmail_id, {'is_starred': is_starred})
-            
-        except Exception as e:
-            print(f"Error syncing starred status: {e}")
-            return False
+            return cursor.rowcount > 0
+
+    def _row_to_dict(self, row) -> Dict[str, Any]:
+        (
+            record_id,
+            gmail_id,
+            subject,
+            sender,
+            recipients,
+            snippet,
+            body,
+            has_attachments,
+            date,
+            is_starred,
+            labels,
+            analysis,
+            created_at,
+        ) = row
+
+        recipients_list = [item.strip() for item in recipients.split(",")] if recipients else []
+        labels_list = list(labels) if labels else []
+
+        return {
+            "id": record_id,
+            "gmail_id": gmail_id,
+            "subject": subject,
+            "sender": sender,
+            "recipients": recipients_list,
+            "snippet": snippet,
+            "body": body,
+            "has_attachments": has_attachments,
+            "date": date,
+            "is_starred": is_starred,
+            "labels": labels_list,
+            "analysis": analysis,
+            "created_at": created_at,
+        }
+
+    def __del__(self) -> None:  # pragma: no cover - defensive cleanup
+        self.close()

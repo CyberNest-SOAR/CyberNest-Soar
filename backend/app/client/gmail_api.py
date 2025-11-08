@@ -7,13 +7,22 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
+from email.utils import parsedate_to_datetime
+
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
 
 
-def create_service(client_secret_file, api_name, api_version, scopes, prefix=""):
+def create_service(
+    client_secret_file,
+    api_name,
+    api_version,
+    scopes,
+    prefix="",
+    token_dir="token files",
+):
     CLIENT_SECRET_FILE = client_secret_file
     API_SERVICE_NAME = api_name
     API_VERSION = api_version
@@ -21,7 +30,6 @@ def create_service(client_secret_file, api_name, api_version, scopes, prefix="")
 
     creds = None
     working_dir = os.getcwd()
-    token_dir = "token files"
     token_file = f"token_{API_SERVICE_NAME}_{API_VERSION}{prefix}.json"
 
     ### Check if token dir exists first, if not, create the folder
@@ -109,9 +117,13 @@ def clean_email_body(body):
 
 
 def init_gmail_service(
-    client_file, api_name="gmail", api_version="v1", scopes=["https://mail.google.com/"]
+    client_file,
+    api_name="gmail",
+    api_version="v1",
+    scopes=["https://mail.google.com/"],
+    token_dir="token files",
 ):
-    return create_service(client_file, api_name, api_version, scopes)
+    return create_service(client_file, api_name, api_version, scopes, token_dir=token_dir)
 
 
 def _extract_body(payload):
@@ -187,6 +199,12 @@ def get_email_messages(
     return messages[:max_results] if max_results else messages
 
 
+def _split_addresses(value: str | None) -> list[str]:
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
 def get_email_message_details(service, msg_id):
     message = (
         service.users().messages().get(userId="me", id=msg_id, format="full").execute()
@@ -204,9 +222,9 @@ def get_email_message_details(service, msg_id):
     sender = next(
         (header["value"] for header in headers if header["name"] == "From"), "No sender"
     )
-    recipients = next(
+    recipients_raw = next(
         (header["value"] for header in headers if header["name"] == "To"),
-        "No recipients",
+        "",
     )
     snippet = message.get("snippet", "No snippet")
     has_attachments = any(
@@ -221,15 +239,22 @@ def get_email_message_details(service, msg_id):
     label = ", ".join(message.get("labelIds", []))
     body = _extract_body(payload)
     cleaned_body = clean_email_body(body)
+    parsed_date = None
+    try:
+        parsed_date = parsedate_to_datetime(date) if date else None
+    except (TypeError, ValueError):
+        parsed_date = None
 
     return {
+        "gmail_id": msg_id,
         "subject": subject,
         "sender": sender,
-        "recipients": recipients,
+        "recipients": _split_addresses(recipients_raw),
         "body": cleaned_body,
         "snippet": snippet,
         "has_attachments": has_attachments,
         "date": date,
         "star": star,
-        "label": label,
+        "labels": message.get("labelIds", []),
+        "parsed_date": parsed_date,
     }
