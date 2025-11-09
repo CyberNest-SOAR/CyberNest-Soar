@@ -23,6 +23,7 @@ class EmailAnalysis(BaseModel):
     keyword_score: Optional[float] = None
     composite_score: float
     model_label: str
+    model_config = {"protected_namespaces": ()}
 
 
 class EmailRecord(BaseModel):
