@@ -2,8 +2,8 @@
 /shelf/
 /workspace.xml
 client_secret.json
-__pycache__
-token files
-
+__pycache__/
+token files/
+client_secret.json/
 # Ignore virtual environment
-.venv
+.venv/
