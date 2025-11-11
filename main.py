@@ -6,10 +6,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from config.settings import settings
-from controllers.classification import router as classification_router
-from controllers.emails import router
-from services.email_service import EmailService
+from backend.app.config.settings import settings
+from backend.app.controllers.classification import router as classification_router
+from backend.app.controllers.emails import router
+from backend.app.services.email_service import EmailService
 
 
 @asynccontextmanager

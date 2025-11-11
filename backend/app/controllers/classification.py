@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
 
-from models.email_models import EmailAnalysis, EmailPayload, EmailRecord
-from services.email_service import EmailService
+from backend.app.models.email_models import EmailAnalysis, EmailPayload, EmailRecord
+from backend.app.services.email_service import EmailService
 
 
 router = APIRouter(prefix="/api/ai", tags=["classification"])

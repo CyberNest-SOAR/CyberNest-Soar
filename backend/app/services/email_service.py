@@ -6,21 +6,21 @@ from datetime import datetime, timezone
 from typing import List
 from uuid import uuid4
 
-from ai.phishing_model import get_detector
-from client.gmail_api import (
+from backend.app.ai.phishing_model import get_detector
+from backend.app.client.gmail_api import (
     get_email_message_details,
     get_email_messages,
     init_gmail_service,
 )
-from config.settings import Settings
-from models.email_models import (
+from backend.app.config.settings import Settings
+from backend.app.models.email_models import (
     EmailAnalysis,
     EmailCreateResponse,
     EmailPayload,
     EmailRecord,
     EmailSyncResponse,
 )
-from repository.gmail_db import EmailRepository
+from backend.app.repository.gmail_db import EmailRepository
 
 
 class EmailService:
