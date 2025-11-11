@@ -1,8 +1,9 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+client_secret.json
+__pycache__
+token files
 
 # Ignore virtual environment
-.venv/
-
-__pycache__
+.venv

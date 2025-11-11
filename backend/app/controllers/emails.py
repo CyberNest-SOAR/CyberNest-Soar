@@ -21,6 +21,15 @@ def get_email_service(request: Request) -> EmailService:
     return service
 
 
+@router.post("/emails/sync", response_model=EmailSyncResponse)
+def sync_gmail(
+    max_results: int | None = Query(None, ge=1, le=500),
+    service: EmailService = Depends(get_email_service),
+) -> EmailSyncResponse:
+    """Pull the latest emails from Gmail and analyse each message."""
+
+    return service.sync_with_gmail(max_results=max_results)
+
 @router.post("/emails", response_model=EmailCreateResponse, status_code=status.HTTP_201_CREATED)
 def submit_email(
     payload: EmailPayload,
@@ -51,11 +60,3 @@ def get_email(
     return record
 
 
-@router.post("/emails/sync", response_model=EmailSyncResponse)
-def sync_gmail(
-    max_results: int | None = Query(None, ge=1, le=500),
-    service: EmailService = Depends(get_email_service),
-) -> EmailSyncResponse:
-    """Pull the latest emails from Gmail and analyse each message."""
-
-    return service.sync_with_gmail(max_results=max_results)
