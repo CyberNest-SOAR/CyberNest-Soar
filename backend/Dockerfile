@@ -11,6 +11,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy app code
 COPY . .
 
+
+# Copy artifacts (models, vectorizers, etc.)
+COPY artifacts/ ./artifacts/
+
 # Prevent log buffering
 ENV PYTHONUNBUFFERED=1
 

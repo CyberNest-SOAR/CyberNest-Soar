@@ -108,8 +108,10 @@ class SklearnDetector:
         if not self.is_ready():
             raise RuntimeError("Sklearn model is not ready; train the detector first.")
 
-        combined_text = f"{subject} {body}".strip()
-        features = self.vectorizer.transform([combined_text])
+        combined_text = f"{subject} {body}".strip() 
+        cleaned_text = self._clean_text(combined_text)
+
+        features = self.vectorizer.transform([cleaned_text])
         proba = float(self.model.predict_proba(features)[0][1])
         label = "suspicious" if proba >= self.threshold else "safe"
 
