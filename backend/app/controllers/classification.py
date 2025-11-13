@@ -26,12 +26,17 @@ try:
         model_path=str(MODEL_PATH),
         vectorizer_path=str(VECTORIZER_PATH)
     )
-    log.info(f"Phishing detector loaded successfully from {ARTIFACTS_DIR.resolve()}")
+
     if not detector_instance.is_ml_ready():
-        log.warning("ML model is NOT ready. Falling back to Heuristics.")
+        raise RuntimeError("ML model not ready or improperly initialized")
+
+    log.info(f"✅ Phishing ML detector loaded successfully from {ARTIFACTS_DIR.resolve()}")
+
 except Exception as e:
-    log.error(f"Failed to load the phishing model: {e}")
+    log.critical(f"❌ Failed to initialize the phishing ML model: {e}")
     detector_instance = None
+    raise
+
 
 def get_detector_dependency() -> PhishingDetector:
     if detector_instance is None:
