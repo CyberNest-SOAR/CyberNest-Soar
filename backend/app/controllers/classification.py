@@ -6,9 +6,9 @@ import logging
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
 
-from backend.app.models.email_models import EmailAnalysis, EmailPayload, EmailRecord
-from backend.app.services.email_service import EmailService
-from backend.app.ai.phishing_model import get_detector, PhishingDetector
+from ..models.email_models import EmailAnalysis, EmailPayload, EmailRecord
+from ..services.email_service import EmailService
+from ..ai.phishing_model import get_detector, PhishingDetector
 
 log = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/ai", tags=["classification"])

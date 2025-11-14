@@ -21,7 +21,7 @@ def create_service(
     api_version,
     scopes,
     prefix="",
-    token_dir="token files",
+    token_dir="token_files",
 ):
     CLIENT_SECRET_FILE = client_secret_file
     API_SERVICE_NAME = api_name
@@ -121,7 +121,7 @@ def init_gmail_service(
     api_name="gmail",
     api_version="v1",
     scopes=["https://mail.google.com/"],
-    token_dir="token files",
+    token_dir="token_files",
 ):
     return create_service(client_file, api_name, api_version, scopes, token_dir=token_dir)
 

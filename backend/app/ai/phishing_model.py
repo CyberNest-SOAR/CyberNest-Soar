@@ -112,13 +112,20 @@ class SklearnDetector:
         cleaned_text = self._clean_text(combined_text)
 
         features = self.vectorizer.transform([cleaned_text])
-        proba = float(self.model.predict_proba(features)[0][1])
+        proba_array = self.model.predict_proba(features)[0]
+        if len(proba_array) == 2:
+            proba = float(proba_array[1])
+        else:
+            # single-class edge case
+            proba = 1.0 if self.model.classes_[0] == 1 else 0.0
+        print(proba)
+
         label = "suspicious" if proba >= self.threshold else "safe"
 
         return {
             "engine": "ml",
-            "probability": round(proba, 3),
-            "composite_score": round(proba, 3),
+            "probability": float(round(proba, 3)),
+            "composite_score": float(round(proba, 3)),
             "model_label": label,
         }
 

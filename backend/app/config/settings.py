@@ -27,7 +27,7 @@ class Settings(BaseSettings):
         description="Maximum number of emails to fetch per sync",
     )
     token_directory: str = Field(
-        default="token files",
+        default="token_files",
         description="Directory for cached Google OAuth tokens",
     )
     model_artifact_path: Path = Field(

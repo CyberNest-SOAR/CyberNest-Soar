@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Dict, List, Optional
-
+import numpy
 from pydantic import BaseModel, EmailStr, Field
 
 
