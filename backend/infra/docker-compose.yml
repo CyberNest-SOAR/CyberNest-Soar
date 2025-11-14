@@ -1,4 +1,4 @@
-services:
+﻿services:
   db:
     image: postgres:15
     container_name: soar_db
@@ -19,7 +19,7 @@ services:
 
   api:
     build:
-      context: ../backend
+      context: ..
       dockerfile: Dockerfile
     container_name: soar_api
     restart: unless-stopped
@@ -27,20 +27,20 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/soar_db
-      - GOOGLE_CLIENT_SECRET_FILE=client_secret.json
+      - GOOGLE_CLIENT_SECRET_FILE=/app/client_secret/client_secret.json
       - GMAIL_SYNC_FOLDER=INBOX
-      - GOOGLE_TOKEN_DIR=token files
-      - MODEL_ARTIFACT_PATH=artifacts/phishing_model.joblib
-      - VECTORIZER_ARTIFACT_PATH=artifacts/phishing_vectorizer.joblib
-      - TRAINING_DATA_PATH=data/data.csv
+      - GOOGLE_TOKEN_DIR=/app/token_files
+      - MODEL_ARTIFACT_PATH=/app/artifacts/phishing_model.joblib
+      - VECTORIZER_ARTIFACT_PATH=/app/artifacts/tfidf_vectorizer.joblib
+      - TRAINING_DATA_PATH=/app/data/data.csv
     depends_on:
       db:
         condition: service_healthy
     volumes:
-      - ../backend/token files:/app/token files
-      - ../backend/artifacts:/app/artifacts
-      - ../backend/data:/app/data
-      - ../backend/client_secret.json:/app/client_secret.json
+      - ../token_files:/app/token_files:rw
+      - ../artifacts:/app/artifacts:rw
+      - ../data:/app/data:rw
+      - ../client_secret:/app/client_secret:ro
 
   pgadmin:
     image: dpage/pgadmin4

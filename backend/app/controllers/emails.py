@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
-from backend.app.models.email_models import (
+from ..models.email_models import (
     EmailCreateResponse,
     EmailPayload,
     EmailRecord,
     EmailSyncResponse,
 )
-from backend.app.services.email_service import EmailService
+from ..services.email_service import EmailService
 
 
 router = APIRouter(prefix="/api", tags=["emails"])

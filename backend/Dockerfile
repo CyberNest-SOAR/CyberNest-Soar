@@ -8,12 +8,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app code
+# Copy app code (includes artifacts, data, client_secret.json, etc.)
 COPY . .
-
-
-# Copy artifacts (models, vectorizers, etc.)
-COPY artifacts/ ./artifacts/
 
 # Prevent log buffering
 ENV PYTHONUNBUFFERED=1
