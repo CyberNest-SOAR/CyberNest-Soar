@@ -40,12 +40,12 @@ def submit_email(
     return service.create_manual_email(payload)
 
 
-@router.get("/emails", response_model=list[EmailPayload])
+@router.get("/emails", response_model=list[EmailRecord])
 def list_emails(
     limit: int = Query(20, ge=1, le=200),
     offset: int = Query(0, ge=0),
     service: EmailService = Depends(get_email_service),
-) -> list[EmailPayload]:
+) -> list[EmailRecord]:
     return service.list_emails(limit=limit, offset=offset)
 
 
