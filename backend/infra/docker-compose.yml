@@ -37,10 +37,9 @@
       db:
         condition: service_healthy
     volumes:
-      - ../backend/token_files:/app/token_files:rw
-      - ../backend/artifacts:/app/artifacts:rw
-      - ../backend/data:/app/data:rw
-      - ../backend/client_secret:/app/client_secret:ro
+      # Mount entire backend directory for instant code iteration during development.
+      # Changes to Python files, config, etc. are reflected immediately without rebuilds.
+      - ../backend:/app:rw
 
   pgadmin:
     image: dpage/pgadmin4

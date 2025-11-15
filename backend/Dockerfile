@@ -17,5 +17,6 @@ ENV PYTHONUNBUFFERED=1
 # Expose API port
 EXPOSE 8000
 
-# Run FastAPI app by default
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run FastAPI app with auto-reload for development convenience.
+# The `--reload` flag watches for file changes and restarts the server.
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

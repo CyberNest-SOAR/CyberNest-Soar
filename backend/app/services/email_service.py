@@ -1,10 +1,16 @@
-"""Business logic around email ingestion and analysis."""
+"""Business logic around email ingestion and analysis.
+
+This service coordinates Gmail access, phishing analysis, and persistence.
+It logs important lifecycle events and analysis results to help operators
+understand what the backend is doing during syncs or manual submissions.
+"""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import List
 from uuid import uuid4
+import logging
 
 from ..ai.phishing_model import get_detector
 from ..client.gmail_api import (
@@ -22,6 +28,8 @@ from ..models.email_models import (
 )
 from ..repository.gmail_db import EmailRepository
 
+log = logging.getLogger(__name__)
+
 
 class EmailService:
     """Coordinate Gmail access, phishing analysis, and persistence."""
@@ -33,17 +41,27 @@ class EmailService:
             str(settings.model_artifact_path),
             str(settings.vectorizer_artifact_path),
         )
+        log.info("EmailService initialized; model=%s vectorizer=%s",
+                 settings.model_artifact_path, settings.vectorizer_artifact_path)
         self.repository.init_schema()
 
     def _analyse(self, subject: str | None, body: str | None) -> EmailAnalysis:
         subject = subject or ""
         body = body or ""
-        analysis_payload = self.detector.analyse(subject, body)
-        return EmailAnalysis(**analysis_payload)
+        try:
+            analysis_payload = self.detector.analyse(subject, body)
+            log.debug("Analysis payload: %s", analysis_payload)
+            return EmailAnalysis(**analysis_payload)
+        except Exception as e:
+            log.exception("Analysis failed for subject=%s: %s", subject, e)
+            raise
 
     def create_manual_email(self, payload: EmailPayload) -> EmailCreateResponse:
         gmail_id = f"manual-{uuid4().hex}"
         analysis = self._analyse(payload.subject, payload.body)
+
+        log.info("Creating manual email record %s (sender=%s) with label=%s",
+                 gmail_id, payload.sender, analysis.model_dump().get("model_label"))
 
         record_id = self.repository.upsert_email(
             gmail_id=gmail_id,
@@ -89,12 +107,19 @@ class EmailService:
 
         analysed = 0
 
+        log.info("Starting Gmail sync (target=%s) for folder=%s", target, self.settings.gmail_sync_folder)
+
         for message in messages:
             details = get_email_message_details(service, message["id"])
             if not details:
                 continue
 
-            analysis = self._analyse(details.get("subject"), details.get("body"))
+            try:
+                analysis = self._analyse(details.get("subject"), details.get("body"))
+            except Exception:
+                # Continue processing other messages even if analysis fails for one
+                log.exception("Skipping message %s due to analysis failure", message["id"])
+                continue
 
             self.repository.upsert_email(
                 gmail_id=details["gmail_id"],
@@ -111,6 +136,8 @@ class EmailService:
             )
 
             analysed += 1
+            if analysed % 50 == 0 and analysed > 0:
+                log.info("Processed %d messages so far", analysed)
 
         return EmailSyncResponse(
             synced=len(messages),
@@ -175,6 +202,7 @@ class EmailService:
         subject = record.get("subject") or ""
         body = record.get("body") or ""
         analysis = self._analyse(subject, body)
+        log.info("Re-classified email %s -> %s", gmail_id, analysis.model_dump().get("model_label"))
 
         # Ensure recipients is a list
         recipients = record.get("recipients", [])

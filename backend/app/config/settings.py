@@ -30,13 +30,18 @@ class Settings(BaseSettings):
         default="token_files",
         description="Directory for cached Google OAuth tokens",
     )
+    # Resolve artifacts directory relative to the package root so settings
+    # are not sensitive to the current working directory when the app is run.
+    _package_root = Path(__file__).resolve().parents[2]
+    _default_artifacts = _package_root / "artifacts"
+
     model_artifact_path: Path = Field(
-        default=Path("artifacts/phishing_model.joblib"),
+        default=_default_artifacts / "phishing_model.joblib",
         description="Location of phishing ML model artifact",
     )
     vectorizer_artifact_path: Path = Field(
-        default=Path("artifacts/phishing_vectorizer.joblib"),
-        description="Location of persisted TF-IDF vectorizer",
+        default=_default_artifacts / "tfidf_vectorizer.joblib",
+        description="Location of persisted TF-IDF vectorizer (tfidf_vectorizer.joblib)",
     )
     training_data_path: Path = Field(
         default=Path("data/data.csv"),

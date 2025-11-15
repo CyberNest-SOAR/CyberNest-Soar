@@ -182,6 +182,41 @@ After training, the API automatically loads the persisted artifacts.
 
 ---
 
+## 📝 Logging and Accessing Logs
+
+The backend configures a centralized logger which writes to both the console
+and a rotating file under `backend/logs/soar.log` (5MB per file, 3 backups).
+
+
+How to view logs locally
+
+1. Tail the log file:
+
+```bash
+tail -f backend/logs/soar.log
+```
+
+2. Show the last N lines:
+
+```bash
+tail -n 200 backend/logs/soar.log
+```
+
+When running with Docker / Docker Compose
+
+```bash
+docker compose logs -f backend
+```
+
+If you run `uvicorn` directly the console will contain the same log messages.
+
+Notes
+
+  issues), logging falls back to console only and a warning appears on startup.
+ You can adjust log level by changing `app/config/logging_config.py` or setting an
+  environment variable in your deployment/docker-compose to control verbosity.
+
+
 ## 👥 Team
 
 | Name       | Role                        |

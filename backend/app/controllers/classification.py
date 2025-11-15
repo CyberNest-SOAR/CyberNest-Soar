@@ -13,40 +13,43 @@ from ..ai.phishing_model import get_detector, PhishingDetector
 log = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/ai", tags=["classification"])
 
-# =======================================================================
-# AI MODEL LOADING
-# =======================================================================
-
-ARTIFACTS_DIR = Path("artifacts")
+ARTIFACTS_DIR = Path(__file__).resolve().parents[2] / "artifacts"
 MODEL_PATH = ARTIFACTS_DIR / "phishing_model.joblib"
 VECTORIZER_PATH = ARTIFACTS_DIR / "tfidf_vectorizer.joblib"
 
+# Attempt to create a shared detector but do NOT raise during import-time failures.
+# Import-time exceptions can prevent the FastAPI app from starting; instead keep
+# `detector_instance` as `None` and let request-time dependency handling raise
+# a clear HTTP error when a request tries to use the detector.
 try:
     detector_instance = get_detector(
         model_path=str(MODEL_PATH),
-        vectorizer_path=str(VECTORIZER_PATH)
+        vectorizer_path=str(VECTORIZER_PATH),
     )
 
-    if not detector_instance.is_ml_ready():
-        raise RuntimeError("ML model not ready or improperly initialized")
-
-    log.info(f"✅ Phishing ML detector loaded successfully from {ARTIFACTS_DIR.resolve()}")
+    if detector_instance.is_ml_ready():
+        log.info(
+            "Phishing ML detector loaded successfully",
+        )
+    else:
+        log.warning(
+            "Phishing ML detector artifacts not ready — falling back to heuristic at runtime",
+        )
 
 except Exception as e:
-    log.critical(f"❌ Failed to initialize the phishing ML model: {e}")
+    log.critical(f"Failed to initialize the phishing ML model at import time: {e}")
     detector_instance = None
-    raise
 
 
 def get_detector_dependency() -> PhishingDetector:
     if detector_instance is None:
-        log.error("Detector instance is not available!")
-        raise RuntimeError("AI Phishing Detector is not initialized.")
+        log.error("Detector instance is not available for requests; ML unavailable")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI Phishing Detector is not initialized or ML artifacts are missing.",
+        )
     return detector_instance
 
-# =======================================================================
-# EXISTING ENDPOINTS
-# =======================================================================
 
 def get_email_service(request: Request) -> EmailService:
     """Dependency to get the email service from app state."""
@@ -84,10 +87,6 @@ def classify_email_by_id(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         )
-
-# =======================================================================
-# NEW ENDPOINT (For AI Task)
-# =======================================================================
 
 @router.post(
     "/classify-payload", 

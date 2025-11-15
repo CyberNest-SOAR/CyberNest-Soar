@@ -1,4 +1,15 @@
-"""ML-backed phishing detection with heuristic fallback."""
+"""ML-backed phishing detection.
+
+This module implements a persisted Scikit-learn detector which loads a
+serialized RandomForest model and TF-IDF vectorizer from disk. The file
+paths are supplied by the caller and are logged during load attempts to
+make failures easy to diagnose.
+
+Notes for readers:
+- The detector will raise a `RuntimeError` from `analyse()` when artifacts
+    are missing or failed to load. The calling code should catch this and
+    decide whether to fallback to heuristics or return a service error.
+"""
 
 from __future__ import annotations
 
@@ -6,6 +17,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
+import logging
 
 import joblib
 import pandas as pd
@@ -16,65 +28,7 @@ from sklearn.model_selection import train_test_split
 from spellchecker import SpellChecker
 
 
-SUSPICIOUS_KEYWORDS = {
-    "prize",
-    "winner",
-    "offer",
-    "urgent",
-    "password",
-    "bank",
-    "verify",
-    "account",
-    "alert",
-    "click",
-}
-
-
-class HeuristicDetector:
-    """Simple, explainable scoring for phishing emails."""
-
-    def __init__(self, spelling_threshold: float = 0.18, keyword_weight: float = 0.4):
-        self.spellchecker = SpellChecker()
-        self.spelling_threshold = spelling_threshold
-        self.keyword_weight = keyword_weight
-
-    @staticmethod
-    def _tokenise(text: str) -> List[str]:
-        return re.findall(r"[a-zA-Z']+", text.lower())
-
-    def _spelling_score(self, tokens: Iterable[str]) -> float:
-        tokens = list(tokens)
-        if not tokens:
-            return 0.0
-        misspelled = self.spellchecker.unknown(tokens)
-        return len(misspelled) / len(tokens)
-
-    def _keyword_score(self, tokens: Iterable[str]) -> float:
-        tokens = list(tokens)
-        if not tokens:
-            return 0.0
-        matches = sum(1 for token in tokens if token in SUSPICIOUS_KEYWORDS)
-        return matches / len(tokens)
-
-    def analyse(self, subject: str, body: str) -> Dict[str, float | str]:
-        tokens = self._tokenise(f"{subject} {body}")
-        spelling_score = self._spelling_score(tokens)
-        keyword_score = self._keyword_score(tokens)
-
-        composite_score = min(
-            1.0,
-            spelling_score * (1 - self.keyword_weight) + keyword_score * self.keyword_weight,
-        )
-
-        label = "suspicious" if composite_score >= self.spelling_threshold else "safe"
-
-        return {
-            "engine": "heuristic",
-            "spelling_score": round(spelling_score, 3),
-            "keyword_score": round(keyword_score, 3),
-            "composite_score": round(composite_score, 3),
-            "model_label": label,
-        }
+log = logging.getLogger(__name__)
 
 
 class SklearnDetector:
@@ -94,10 +48,25 @@ class SklearnDetector:
         self._load_artifacts()
 
     def _load_artifacts(self) -> None:
+        # Log paths being attempted to help with troubleshooting
+        log.debug("SklearnDetector loading artifacts, model_path=%s, vectorizer_path=%s",
+                  self.model_path, self.vectorizer_path)
+
         if self.model_path.exists() and self.vectorizer_path.exists():
-            self.model = joblib.load(self.model_path)
-            self.vectorizer = joblib.load(self.vectorizer_path)
+            try:
+                self.model = joblib.load(self.model_path)
+                self.vectorizer = joblib.load(self.vectorizer_path)
+                log.info("Loaded sklearn artifacts from disk")
+            except Exception:
+                log.exception("Failed to load sklearn artifacts; disabling ML detector")
+                self.model = None
+                self.vectorizer = None
         else:
+            log.warning(
+                "Sklearn artifacts not found (model_exists=%s, vectorizer_exists=%s)",
+                self.model_path.exists(),
+                self.vectorizer_path.exists(),
+            )
             self.model = None
             self.vectorizer = None
 
@@ -118,9 +87,9 @@ class SklearnDetector:
         else:
             # single-class edge case
             proba = 1.0 if self.model.classes_[0] == 1 else 0.0
-        print(proba)
 
         label = "suspicious" if proba >= self.threshold else "safe"
+        log.debug("ML analysis probability=%s label=%s", proba, label)
 
         return {
             "engine": "ml",
@@ -168,7 +137,7 @@ class SklearnDetector:
 
 
 class PhishingDetector:
-    """High-level detector that prefers ML but falls back to heuristics."""
+    """High-level ML"""
 
     def __init__(
         self,
@@ -177,12 +146,14 @@ class PhishingDetector:
         threshold: float = 0.5,
     ):
         self.sklearn_detector = SklearnDetector(model_path, vectorizer_path, threshold)
-        self.heuristic_detector = HeuristicDetector()
 
     def analyse(self, subject: str, body: str) -> Dict[str, float | str]:
         if self.sklearn_detector.is_ready():
+            log.debug("PhishingDetector delegating to SklearnDetector")
             return self.sklearn_detector.analyse(subject, body)
-        return self.heuristic_detector.analyse(subject, body)
+
+        log.error("ML detector not ready when analyse() called")
+        raise RuntimeError("No analysis method is currently available.")
 
     def train(self, data_path: Path) -> Dict[str, str]:
         return self.sklearn_detector.train(data_path)

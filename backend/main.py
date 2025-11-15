@@ -10,6 +10,11 @@ from app.config.settings import settings
 from app.controllers.classification import router as classification_router
 from app.controllers.emails import router
 from app.services.email_service import EmailService
+from app.config.logging_config import configure_logging
+
+
+# Configure logging as early as possible so module imports log consistently.
+configure_logging()
 
 
 @asynccontextmanager
