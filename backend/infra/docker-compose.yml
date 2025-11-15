@@ -19,7 +19,7 @@
 
   api:
     build:
-      context: ..
+      context: ../backend
       dockerfile: Dockerfile
     container_name: soar_api
     restart: unless-stopped
@@ -37,10 +37,10 @@
       db:
         condition: service_healthy
     volumes:
-      - ../token_files:/app/token_files:rw
-      - ../artifacts:/app/artifacts:rw
-      - ../data:/app/data:rw
-      - ../client_secret:/app/client_secret:ro
+      - ../backend/token_files:/app/token_files:rw
+      - ../backend/artifacts:/app/artifacts:rw
+      - ../backend/data:/app/data:rw
+      - ../backend/client_secret:/app/client_secret:ro
 
   pgadmin:
     image: dpage/pgadmin4

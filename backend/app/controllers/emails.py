@@ -58,5 +58,3 @@ def get_email(
     if not record:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Email not found")
     return record
-
-
