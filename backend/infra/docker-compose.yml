@@ -19,7 +19,7 @@
 
   api:
     build:
-      context: ../backend
+      context: ..
       dockerfile: Dockerfile
     container_name: soar_api
     restart: unless-stopped
