@@ -39,7 +39,7 @@
     volumes:
       # Mount entire backend directory for instant code iteration during development.
       # Changes to Python files, config, etc. are reflected immediately without rebuilds.
-      - ../backend:/app:rw
+      - ..:/app:rw
 
   pgadmin:
     image: dpage/pgadmin4
