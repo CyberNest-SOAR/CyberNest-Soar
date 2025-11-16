@@ -37,9 +37,14 @@
       db:
         condition: service_healthy
     volumes:
-      # Mount entire backend directory for instant code iteration during development.
-      # Changes to Python files, config, etc. are reflected immediately without rebuilds.
-      - ..:/app:rw
+      # Mount only the data/config/artifacts directories for persistence.
+      # App code is baked into the image. Rebuild image if you want code changes.
+      # For dev mode with auto-reload, use: docker-compose -f docker-compose.dev.yml up
+      - ../token_files:/app/token_files:rw
+      - ../artifacts:/app/artifacts:rw
+      - ../data:/app/data:rw
+      - ../client_secret:/app/client_secret:ro
+      - ../logs:/app/logs:rw
 
   pgadmin:
     image: dpage/pgadmin4
