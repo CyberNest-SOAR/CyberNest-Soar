@@ -9,3 +9,28 @@
 2025-11-16 01:06:33 INFO     [app.controllers.classification:102] Analysis result: suspicious (Score: 0.922)
 2025-11-16 01:10:40 INFO     [googleapiclient.discovery_cache:49] file_cache is only supported with oauth2client<4.0.0
 2025-11-16 01:10:41 INFO     [app.services.email_service:110] Starting Gmail sync (target=25) for folder=INBOX
+2025-11-22 21:02:32 INFO     [app.ai.phishing_model:59] Loaded sklearn artifacts from disk
+2025-11-22 21:02:32 INFO     [app.services.email_service:44] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-11-23 15:25:11 INFO     [app.ai.phishing_model:59] Loaded sklearn artifacts from disk
+2025-11-23 15:25:11 INFO     [app.services.email_service:44] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-11-23 15:53:18 INFO     [app.ai.phishing_model:59] Loaded sklearn artifacts from disk
+2025-11-23 15:53:18 INFO     [app.services.email_service:44] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-11-23 17:50:46 INFO     [app.controllers.classification:100] Received direct classification request for sender: nayra@example.com...
+2025-11-23 17:50:46 INFO     [app.controllers.classification:102] Analysis result: suspicious (Score: 0.655)
+2025-11-27 17:21:01 INFO     [app.ai.phishing_model:59] Loaded sklearn artifacts from disk
+2025-11-27 17:21:01 INFO     [app.services.email_service:44] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-11-27 17:21:37 INFO     [app.ai.phishing_model:61] Loaded sklearn artifacts from disk
+2025-11-27 17:21:37 INFO     [app.services.email_service:44] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-11-27 17:27:56 INFO     [app.controllers.classification:100] Received direct classification request for sender: nayra@example.com...
+2025-11-27 17:27:56 INFO     [app.controllers.classification:102] Analysis result: suspicious (Score: 0.922)
+2025-11-27 17:42:16 INFO     [app.controllers.classification:100] Received direct classification request for sender: nayra@example.com...
+2025-11-27 17:42:16 INFO     [app.controllers.classification:102] Analysis result: safe (Score: 0.02)
+2025-11-27 17:50:55 INFO     [app.ai.phishing_model:61] Loaded sklearn artifacts from disk
+2025-11-27 17:50:55 INFO     [app.services.email_service:44] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-11-27 17:53:22 INFO     [app.controllers.classification:100] Received direct classification request for sender: user@example.com...
+2025-11-27 17:53:22 INFO     [app.controllers.classification:102] Analysis result: suspicious (Score: 0.915)
+2025-11-29 17:13:02 INFO     [app.ai.phishing_model:61] Loaded sklearn artifacts from disk
+2025-11-29 17:13:02 INFO     [app.services.email_service:44] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-11-29 17:14:01 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2025-11-29 17:14:01 INFO     [app.services.email_service:44] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-11-29 17:17:00 INFO     [app.controllers.classification:100] Received direct classification request for sender: user@example.com...

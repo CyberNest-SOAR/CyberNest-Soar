@@ -13,6 +13,7 @@ from uuid import uuid4
 import logging
 
 from ..ai.phishing_model import get_detector
+from ..services.enrichment_service import enrichment_features
 from ..client.gmail_api import (
     get_email_message_details,
     get_email_messages,
@@ -27,6 +28,7 @@ from ..models.email_models import (
     EmailSyncResponse,
 )
 from ..repository.gmail_db import EmailRepository
+from ..repository.feedback_repo import save_feedback
 
 log = logging.getLogger(__name__)
 
@@ -225,6 +227,30 @@ class EmailService:
         )
 
         return analysis
+
+    def submit_feedback(self, gmail_id: str, user_label: str) -> None:
+        """Capture user feedback for an analysed email and persist enrichment."""
+        record = self.repository.get_email(gmail_id)
+        if not record:
+            raise ValueError(f"Email with ID {gmail_id} not found")
+
+        # Prefer stored enrichment; recompute if missing
+        analysis_data = record.get("analysis") or {}
+        enrichment = analysis_data.get("enrichment")
+        if not enrichment:
+            subject = record.get("subject") or ""
+            body = record.get("body") or ""
+            enrichment = enrichment_features(subject, body)
+
+        save_feedback(
+            case_id=gmail_id,
+            subject=record.get("subject", ""),
+            body=record.get("body", ""),
+            user_label=user_label,
+            enrichment=enrichment,
+        )
+
+        log.info("Captured feedback for gmail_id=%s label=%s", gmail_id, user_label)
 
     def close(self) -> None:
         self.repository.close()

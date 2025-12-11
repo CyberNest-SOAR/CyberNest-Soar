@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any, Literal
 import numpy
 from pydantic import BaseModel, EmailStr, Field
 
@@ -21,6 +21,10 @@ class EmailAnalysis(BaseModel):
     probability: Optional[float] = None
     spelling_score: Optional[float] = None
     keyword_score: Optional[float] = None
+    
+    enrichment: Optional[Dict[str, Any]] = None  # NEW
+    case_id: Optional[str] = None
+
     composite_score: float
     model_label: str
     model_config = {"protected_namespaces": ()}
@@ -46,6 +50,14 @@ class EmailCreateResponse(BaseModel):
     record_id: int
     gmail_id: str
     analysis: EmailAnalysis
+
+
+class FeedbackPayload(BaseModel):
+    """User feedback on a model decision."""
+
+    # gmail_id is provided in the path param, so here we only need the label/comment
+    user_label: Literal["safe", "suspicious", "phishing"]
+    comment: Optional[str] = Field(default=None, max_length=500)
 
 
 class EmailSyncResponse(BaseModel):

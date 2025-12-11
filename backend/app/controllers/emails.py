@@ -9,6 +9,7 @@ from ..models.email_models import (
     EmailPayload,
     EmailRecord,
     EmailSyncResponse,
+    FeedbackPayload,
 )
 from ..services.email_service import EmailService
 
@@ -58,3 +59,20 @@ def get_email(
     if not record:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Email not found")
     return record
+
+
+@router.post("/emails/{gmail_id}/feedback", status_code=status.HTTP_200_OK)
+def submit_feedback(
+    gmail_id: str,
+    payload: FeedbackPayload,
+    service: EmailService = Depends(get_email_service),
+):
+    """Capture user feedback on a previously analysed email."""
+
+    try:
+        service.submit_feedback(gmail_id=gmail_id, user_label=payload.user_label)
+        return {"status": "ok", "gmail_id": gmail_id, "user_label": payload.user_label}
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    except Exception as exc:  # pragma: no cover - safety net
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
