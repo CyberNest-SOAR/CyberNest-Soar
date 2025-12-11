@@ -9,13 +9,13 @@ import seaborn as sns
 from sklearn.metrics import confusion_matrix
 import pandas as pd
 
-from backend.app.ai.phishing_model import get_detector
+from app.ai.phishing_model import get_detector
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 DATA_PATH = Path("data/data.csv")
-ARTIFACTS_DIR = Path("backend/artifacts")
+ARTIFACTS_DIR = Path("artifacts")
 MODEL_PATH = ARTIFACTS_DIR / "phishing_model.joblib"
 VECTORIZER_PATH = ARTIFACTS_DIR / "tfidf_vectorizer.joblib"
 FEEDBACK_PATH = Path("data/feedback.csv")
@@ -113,14 +113,14 @@ def train():
         report = detector.train(tmp_path)
         log.info("--- Training completed successfully! ---")
         log.info("--- Classification Report ---")
-        print(report['report'])  # ✅ نحافظ على الـ output القديم
+        print(report['report'])
 
-        # ✅ لو train رجّع y_true و y_pred (هنضيفها في phishing_model.py)
+        # Generate visualizations if test data is available
         if "y_true" in report and "y_pred" in report:
             y_true = report["y_true"]
             y_pred = report["y_pred"]
 
-            # رسم توزيع الفئات
+            # Plot class distribution
             plt.figure(figsize=(5,4), dpi=150)
             sns.countplot(x=y_true)
             plt.title("Class Distribution (Test Split)")
@@ -131,7 +131,7 @@ def train():
             plt.close()
             log.info(f"Saved class distribution plot to {ARTIFACTS_DIR / 'class_distribution.png'}")
 
-            # رسم مصفوفة الالتباس
+            # Plot confusion matrix
             cm = confusion_matrix(y_true, y_pred, labels=[0,1])
             plt.figure(figsize=(5,4), dpi=150)
             sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",

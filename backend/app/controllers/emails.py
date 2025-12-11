@@ -67,11 +67,16 @@ def submit_feedback(
     payload: FeedbackPayload,
     service: EmailService = Depends(get_email_service),
 ):
-    """Capture user feedback on a previously analysed email."""
+    """Capture user feedback: True if model classification was correct, False if wrong."""
 
     try:
-        service.submit_feedback(gmail_id=gmail_id, user_label=payload.user_label)
-        return {"status": "ok", "gmail_id": gmail_id, "user_label": payload.user_label}
+        service.submit_feedback(gmail_id=gmail_id, is_correct=payload.is_correct)
+        return {
+            "status": "ok", 
+            "gmail_id": gmail_id, 
+            "is_correct": payload.is_correct,
+            "message": "Feedback captured successfully"
+        }
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     except Exception as exc:  # pragma: no cover - safety net

@@ -34,3 +34,47 @@
 2025-11-29 17:14:01 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
 2025-11-29 17:14:01 INFO     [app.services.email_service:44] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
 2025-11-29 17:17:00 INFO     [app.controllers.classification:100] Received direct classification request for sender: user@example.com...
+2025-12-11 12:55:21 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2025-12-11 12:55:21 INFO     [app.services.email_service:44] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-12-11 13:11:01 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2025-12-11 13:11:01 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-12-11 13:20:03 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2025-12-11 13:20:03 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-12-11 13:31:01 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2025-12-11 13:31:01 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-12-11 13:43:05 ERROR    [app.services.email_service:58] Analysis failed for subject=prize: X has 5008 features, but RandomForestClassifier is expecting 5000 features as input.
+Traceback (most recent call last):
+  File "/app/app/services/email_service.py", line 54, in _analyse
+    analysis_payload = self.detector.analyse(subject, body)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/app/ai/phishing_model.py", line 224, in analyse
+    return self.sklearn_detector.analyse(subject, body)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/app/ai/phishing_model.py", line 126, in analyse
+    proba_array = self.model.predict_proba(features)[0]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sklearn/ensemble/_forest.py", line 946, in predict_proba
+    X = self._validate_X_predict(X)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sklearn/ensemble/_forest.py", line 641, in _validate_X_predict
+    X = self._validate_data(
+        ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sklearn/base.py", line 654, in _validate_data
+    self._check_n_features(X, reset=reset)
+  File "/usr/local/lib/python3.11/site-packages/sklearn/base.py", line 443, in _check_n_features
+    raise ValueError(
+ValueError: X has 5008 features, but RandomForestClassifier is expecting 5000 features as input.
+2025-12-11 13:56:42 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2025-12-11 13:56:42 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-12-11 13:57:49 INFO     [app.services.email_service:65] Creating manual email record manual-0d095604c37a436fb4ab479d7bc5def4 (sender=nayra@example.com) with label=suspicious
+2025-12-11 14:09:28 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2025-12-11 14:09:28 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-12-11 14:11:01 INFO     [app.services.email_service:68] Creating manual email record manual-f951864dd44a423ea1cedb105451b227 (sender=namme@example.com) with label=suspicious
+2025-12-11 14:24:11 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2025-12-11 14:24:11 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2025-12-11 14:25:42 INFO     [app.services.email_service:68] Creating manual email record manual-443f4f9c03874326967d5b71f60eff31 (sender=namme@example.com) with label=suspicious
+2025-12-11 14:27:16 INFO     [app.services.email_service:270] Captured feedback for gmail_id=manual-443f4f9c03874326967d5b71f60eff31 is_correct=True -> label=suspicious
+2025-12-11 14:28:52 INFO     [app.services.email_service:68] Creating manual email record manual-4f1ce09dae5d4f17a7751eda73f2637c (sender=meme@example.com) with label=suspicious
+2025-12-11 14:34:45 INFO     [app.services.email_service:270] Captured feedback for gmail_id=manual-4f1ce09dae5d4f17a7751eda73f2637c is_correct=True -> label=suspicious
+2025-12-11 14:36:43 INFO     [app.services.email_service:68] Creating manual email record manual-1887392f98904ce69b0973a5b68f9b23 (sender=gge@example.com) with label=suspicious
+2025-12-11 14:37:47 INFO     [app.services.email_service:270] Captured feedback for gmail_id=manual-1887392f98904ce69b0973a5b68f9b23 is_correct=False -> label=safe

@@ -61,6 +61,9 @@ class EmailService:
     def create_manual_email(self, payload: EmailPayload) -> EmailCreateResponse:
         gmail_id = f"manual-{uuid4().hex}"
         analysis = self._analyse(payload.subject, payload.body)
+        
+        # Add case_id to analysis
+        analysis.case_id = gmail_id
 
         log.info("Creating manual email record %s (sender=%s) with label=%s",
                  gmail_id, payload.sender, analysis.model_dump().get("model_label"))
@@ -228,14 +231,28 @@ class EmailService:
 
         return analysis
 
-    def submit_feedback(self, gmail_id: str, user_label: str) -> None:
-        """Capture user feedback for an analysed email and persist enrichment."""
+    def submit_feedback(self, gmail_id: str, is_correct: bool) -> None:
+        """Capture user feedback: True if model was correct, False if wrong."""
         record = self.repository.get_email(gmail_id)
         if not record:
             raise ValueError(f"Email with ID {gmail_id} not found")
 
-        # Prefer stored enrichment; recompute if missing
+        # Get model's prediction
         analysis_data = record.get("analysis") or {}
+        model_label = analysis_data.get("model_label", "safe")
+        
+        # Determine correct label based on feedback
+        if is_correct:
+            # Model was correct, keep same label
+            user_label = model_label
+        else:
+            # Model was wrong, flip the label
+            if model_label == "safe":
+                user_label = "phishing"  # If model said safe but wrong, it's phishing
+            else:
+                user_label = "safe"  # If model said suspicious/phishing but wrong, it's safe
+
+        # Prefer stored enrichment; recompute if missing
         enrichment = analysis_data.get("enrichment")
         if not enrichment:
             subject = record.get("subject") or ""
@@ -250,7 +267,8 @@ class EmailService:
             enrichment=enrichment,
         )
 
-        log.info("Captured feedback for gmail_id=%s label=%s", gmail_id, user_label)
+        log.info("Captured feedback for gmail_id=%s is_correct=%s -> label=%s", 
+                 gmail_id, is_correct, user_label)
 
     def close(self) -> None:
         self.repository.close()

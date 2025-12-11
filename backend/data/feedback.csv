@@ -1,0 +1,4 @@
+case_id,subject,body,user_label,subject_len,text_len,num_urls,has_shortener,num_exclamations,num_upper_words,num_suspicious_words,html_ratio,domains_in_text
+manual-443f4f9c03874326967d5b71f60eff31,prize,"i really LOVE YOU sooo much , you win a big prize",suspicious,5,55,0,0,0,2,0,0.0,
+manual-4f1ce09dae5d4f17a7751eda73f2637c,prize,you won a PRIZE with us congratulations,suspicious,5,45,0,0,0,1,0,0.0,
+manual-1887392f98904ce69b0973a5b68f9b23,Great work,you have done a great effort in work this week and we appreciate this,safe,10,80,0,0,0,0,0,0.0,

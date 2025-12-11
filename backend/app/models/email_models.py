@@ -22,11 +22,18 @@ class EmailAnalysis(BaseModel):
     spelling_score: Optional[float] = None
     keyword_score: Optional[float] = None
     
-    enrichment: Optional[Dict[str, Any]] = None  # NEW
+    enrichment: Optional[Dict[str, Any]] = None
     case_id: Optional[str] = None
 
     composite_score: float
     model_label: str
+    
+    # Feedback question for user
+    feedback_question: Optional[str] = Field(
+        default="Is this classification correct? Please provide feedback.",
+        description="Question to ask user for feedback"
+    )
+    
     model_config = {"protected_namespaces": ()}
 
 
@@ -55,8 +62,11 @@ class EmailCreateResponse(BaseModel):
 class FeedbackPayload(BaseModel):
     """User feedback on a model decision."""
 
-    # gmail_id is provided in the path param, so here we only need the label/comment
-    user_label: Literal["safe", "suspicious", "phishing"]
+    # Simple true/false: is the model's classification correct?
+    is_correct: bool = Field(
+        ..., 
+        description="True if model classification is correct, False if wrong"
+    )
     comment: Optional[str] = Field(default=None, max_length=500)
 
 

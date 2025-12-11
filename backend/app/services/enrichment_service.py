@@ -12,8 +12,12 @@ DOMAIN_RE = re.compile(r'\b([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b')
 SHORTENERS = {
     "bit.ly","tinyurl.com","t.co","goo.gl","ow.ly","is.gd","rebrand.ly","cutt.ly","shorturl.at"
 }
+
 SUSPICIOUS_WORDS = {
-    "verify","update","urgent","account","password","login","confirm","suspend","limited","security","alert"
+    "verify", "update", "urgent", "account", "password", "login", "confirm", "suspend", 
+    "limited", "security", "alert", "prize", "winner", "congratulations", "claim", 
+    "click", "act now", "immediate", "action required", "expire", "confirm identity",
+    "credit card", "bank", "paypal", "amazon", "apple", "microsoft", "free", "congratulate"
 }
 
 def extract_urls(text: str) -> List[str]:
