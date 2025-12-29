@@ -2,22 +2,75 @@
 #        PHISHING EMAIL RULES          #
 ########################################
 
-alert smtp any any -> any any (msg:"Possible Phishing Email - suspicious keywords"; content:"verify your account"; nocase; content:"click the link"; nocase; sid:900001; rev:1;)
-alert smtp any any -> any any (msg:"Phishing Email - known malicious domain"; content:"http://login-secure-update"; nocase; sid:900002; rev:1;)
-alert smtp any any -> any any (msg:"Phishing Attempt - Suspicious From header"; content:"From:"; content:"support@microsof.com"; nocase; sid:900003; rev:1;)
+alert smtp any any -> any any (
+    msg:"Possible Phishing Email - suspicious keywords";
+    content:"verify your account"; nocase;
+    content:"click the link"; nocase;
+    sid:900001; rev:1;
+)
+
+alert smtp any any -> any any (
+    msg:"Phishing Email - known malicious domain";
+    content:"http://login-secure-update"; nocase;
+    sid:900002; rev:1;
+)
+
+alert smtp any any -> any any (
+    msg:"Phishing Attempt - Suspicious From header";
+    content:"From:"; 
+    content:"support@microsof.com"; nocase;
+    sid:900003; rev:1;
+)
+
+
 
 ########################################
 #      BRUTE FORCE ATTACK RULES        #
 ########################################
 
-alert ssh any any -> any 22 (msg:"SSH brute-force attempt - authentication failures"; content:"Failed password"; nocase; threshold:type both, track by_src, count 5, seconds 60; sid:900010; rev:1;)
-alert http any any -> any any (msg:"HTTP Brute Force - repeated login attempts"; http.uri; content:"login"; nocase; threshold:type both, track by_src, count 10, seconds 60; sid:900011; rev:1;)
-alert ftp any any -> any 21 (msg:"FTP brute-force attempt"; content:"530 Login incorrect"; nocase; threshold:type both, track by_src, count 5, seconds 60; sid:900012; rev:1;)
+alert ssh any any -> any 22 (
+    msg:"SSH brute-force attempt - authentication failures";
+    content:"Failed password"; nocase;
+    threshold:type both, track by_src, count 5, seconds 60;
+    sid:900010; rev:1;
+)
+
+alert http any any -> any any (
+    msg:"HTTP Brute Force - repeated login attempts";
+    http.uri; content:"login"; nocase;
+    threshold:type both, track by_src, count 10, seconds 60;
+    sid:900011; rev:1;
+)
+
+alert ftp any any -> any 21 (
+    msg:"FTP brute-force attempt";
+    content:"530 Login incorrect"; nocase;
+    threshold:type both, track by_src, count 5, seconds 60;
+    sid:900012; rev:1;
+)
+
+
 
 ########################################
 #         DDOS ATTACK RULES            #
 ########################################
 
-alert tcp any any -> any any (msg:"Possible SYN Flood attack"; flags:S; threshold:type both, track by_dst, count 100, seconds 1; sid:900020; rev:1;)
-alert udp any any -> any any (msg:"Possible UDP Flood attack"; threshold:type both, track by_dst, count 200, seconds 1; sid:900021; rev:1;)
-alert icmp any any -> any any (msg:"Possible ICMP Ping Flood attack"; itype:8; threshold:type both, track by_dst, count 50, seconds 1; sid:900022; rev:1;)
+alert tcp any any -> any any (
+    msg:"Possible SYN Flood attack";
+    flags:S;
+    threshold:type both, track by_dst, count 100, seconds 1;
+    sid:900020; rev:1;
+)
+
+alert udp any any -> any any (
+    msg:"Possible UDP Flood attack";
+    threshold:type both, track by_dst, count 200, seconds 1;
+    sid:900021; rev:1;
+)
+
+alert icmp any any -> any any (
+    msg:"Possible ICMP Ping Flood attack";
+    itype:8;
+    threshold:type both, track by_dst, count 50, seconds 1;
+    sid:900022; rev:1;
+)
