@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Security Analyst App Design System - Dark Cyber Theme with Neon Accents */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Dark cyber security theme */
+    --background: 220 13% 9%;
+    --foreground: 220 9% 95%;
+
+    /* Cards and surfaces */
+    --card: 220 13% 12%;
+    --card-foreground: 220 9% 95%;
+
+    --popover: 220 13% 12%;
+    --popover-foreground: 220 9% 95%;
+
+    /* Cyber blue accent */
+    --primary: 210 100% 60%;
+    --primary-foreground: 220 13% 9%;
+
+    /* Darker secondary */
+    --secondary: 220 13% 15%;
+    --secondary-foreground: 220 9% 95%;
+
+    /* Muted elements */
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 9% 70%;
+
+    /* Green accent for success */
+    --accent: 120 100% 50%;
+    --accent-foreground: 220 13% 9%;
+
+    /* Red for threats/destructive */
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 220 9% 95%;
+
+    /* Borders and inputs */
+    --border: 220 13% 20%;
+    --input: 220 13% 15%;
+    --ring: 210 100% 60%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar theme */
+    --sidebar-background: 220 13% 8%;
+    --sidebar-foreground: 220 9% 90%;
+    --sidebar-primary: 210 100% 60%;
+    --sidebar-primary-foreground: 220 13% 9%;
+    --sidebar-accent: 220 13% 15%;
+    --sidebar-accent-foreground: 220 9% 95%;
+    --sidebar-border: 220 13% 20%;
+    --sidebar-ring: 210 100% 60%;
+
+    /* Cyber security specific colors */
+    --threat-high: 0 100% 60%;      /* Red for high threats */
+    --threat-medium: 30 100% 60%;   /* Orange for medium threats */
+    --threat-low: 60 100% 60%;      /* Yellow for low threats */
+    --safe: 120 100% 50%;           /* Green for safe/clean */
+    --cyber-blue: 210 100% 60%;     /* Neon blue accent */
+    --cyber-green: 120 100% 50%;    /* Neon green accent */
+    
+    /* Gradients */
+    --gradient-cyber: linear-gradient(135deg, hsl(210 100% 60%), hsl(120 100% 50%));
+    --gradient-threat: linear-gradient(135deg, hsl(0 100% 60%), hsl(30 100% 60%));
+    --gradient-card: linear-gradient(135deg, hsl(220 13% 12%), hsl(220 13% 15%));
+    
+    /* Shadows and glows */
+    --shadow-glow: 0 0 20px hsl(210 100% 60% / 0.3);
+    --shadow-threat: 0 0 20px hsl(0 100% 60% / 0.3);
+    --shadow-safe: 0 0 20px hsl(120 100% 50% / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-inter;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-grotesk;
+  }
+}
+
+@layer components {
+  /* Cyber security specific utility classes */
+  .threat-high {
+    @apply text-red-500;
+    color: hsl(var(--threat-high));
+  }
+  
+  .threat-medium {
+    @apply text-orange-500;
+    color: hsl(var(--threat-medium));
+  }
+  
+  .threat-low {
+    @apply text-yellow-500;
+    color: hsl(var(--threat-low));
+  }
+  
+  .safe {
+    @apply text-green-500;
+    color: hsl(var(--safe));
+  }
+  
+  .cyber-glow {
+    box-shadow: var(--shadow-glow);
+    border: 1px solid hsl(var(--cyber-blue) / 0.3);
+  }
+  
+  .threat-glow {
+    box-shadow: var(--shadow-threat);
+    border: 1px solid hsl(var(--threat-high) / 0.3);
+  }
+  
+  .safe-glow {
+    box-shadow: var(--shadow-safe);
+    border: 1px solid hsl(var(--safe) / 0.3);
+  }
+  
+  .gradient-cyber {
+    background: var(--gradient-cyber);
+  }
+  
+  .gradient-threat {
+    background: var(--gradient-threat);
+  }
+  
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+}
