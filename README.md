@@ -1,6 +1,6 @@
 ## Project info
 
-**URL**: https://habibakarm.github.io/SecurityOrchestration/
+**URL**: https://soar-app.netlify.app/
 
 Follow these steps:
 
