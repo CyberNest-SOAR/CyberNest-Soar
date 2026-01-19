@@ -53,6 +53,22 @@ class EmailRecord(BaseModel):
     created_at: datetime
 
 
+class EmailRecordBasic(BaseModel):
+    """Email record without analysis information."""
+    id: int
+    gmail_id: str
+    subject: Optional[str]
+    sender: Optional[str]
+    recipients: List[str]
+    snippet: Optional[str]
+    body: Optional[str]
+    has_attachments: bool
+    date: Optional[datetime]
+    is_starred: bool
+    labels: List[str] = Field(default_factory=list)
+    created_at: datetime
+
+
 class EmailCreateResponse(BaseModel):
     record_id: int
     gmail_id: str
