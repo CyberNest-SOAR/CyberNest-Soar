@@ -6,7 +6,7 @@ import logging
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
 
-from ..models.email_models import EmailAnalysis, EmailPayload, EmailRecord
+from ..models.email_models import EmailAnalysis, EmailPayload, EmailRecord, FeedbackPayload
 from ..services.email_service import EmailService
 from ..ai.phishing_model import get_detector, PhishingDetector
 
@@ -101,3 +101,26 @@ def classify_direct_payload(
     result = detector.analyse(request.subject, request.body)
     log.info(f"Analysis result: {result['model_label']} (Score: {result['composite_score']})")
     return result
+
+
+@router.post("/classify/{gmail_id}/feedback", status_code=status.HTTP_200_OK)
+def submit_feedback(
+    gmail_id: str,
+    payload: FeedbackPayload,
+    service: EmailService = Depends(get_email_service),
+):
+    """Capture user feedback: True if model classification was correct, False if wrong."""
+
+    try:
+        service.submit_feedback(gmail_id=gmail_id, is_correct=payload.is_correct)
+        return {
+            "status": "ok", 
+            "gmail_id": gmail_id, 
+            "is_correct": payload.is_correct,
+            "message": "Feedback captured successfully"
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    except Exception as exc:  # pragma: no cover - safety net
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
+    

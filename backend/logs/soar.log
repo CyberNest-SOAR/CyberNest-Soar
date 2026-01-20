@@ -78,3 +78,35 @@ ValueError: X has 5008 features, but RandomForestClassifier is expecting 5000 fe
 2025-12-11 14:34:45 INFO     [app.services.email_service:270] Captured feedback for gmail_id=manual-4f1ce09dae5d4f17a7751eda73f2637c is_correct=True -> label=suspicious
 2025-12-11 14:36:43 INFO     [app.services.email_service:68] Creating manual email record manual-1887392f98904ce69b0973a5b68f9b23 (sender=gge@example.com) with label=suspicious
 2025-12-11 14:37:47 INFO     [app.services.email_service:270] Captured feedback for gmail_id=manual-1887392f98904ce69b0973a5b68f9b23 is_correct=False -> label=safe
+2026-01-19 16:27:53 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 16:27:53 INFO     [app.services.email_service:46] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:38:02 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:38:02 INFO     [app.services.email_service:46] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:40:37 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:40:37 INFO     [app.services.email_service:46] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:47:48 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:47:48 INFO     [app.services.email_service:46] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:48:25 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:48:25 INFO     [app.services.email_service:46] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:49:01 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:49:01 INFO     [app.services.email_service:46] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:52:32 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:52:32 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:52:38 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:52:39 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:56:55 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:56:55 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:57:25 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:57:25 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:58:01 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:58:01 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:58:38 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:58:38 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-19 23:59:14 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-19 23:59:14 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-20 00:02:42 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-20 00:02:42 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-20 00:03:18 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-20 00:03:18 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
+2026-01-20 00:13:00 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-20 00:13:00 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
