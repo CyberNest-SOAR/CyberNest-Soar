@@ -2,76 +2,132 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Security Analyst App Design System - Dark Cyber Theme with Neon Accents */
+/* CyberNest-SOAR Design System - Premium Dark/Light Theme */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    /* Dark cyber security theme */
-    --background: 220 13% 9%;
-    --foreground: 220 9% 95%;
+    /* Light Mode - Clean & Professional */
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
 
-    /* Cards and surfaces */
-    --card: 220 13% 12%;
-    --card-foreground: 220 9% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
 
-    --popover: 220 13% 12%;
-    --popover-foreground: 220 9% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Cyber blue accent */
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 210 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar - Light */
+    --sidebar-background: 210 20% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 210 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 20% 94%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 210 100% 50%;
+
+    /* Threat colors - Light mode */
+    --threat-high: 0 84% 50%;
+    --threat-medium: 25 95% 50%;
+    --threat-low: 45 93% 47%;
+    --safe: 142 76% 36%;
+    --cyber-blue: 210 100% 50%;
+    --cyber-green: 142 76% 36%;
+
+    /* Gradients */
+    --gradient-cyber: linear-gradient(135deg, hsl(210 100% 50%), hsl(142 76% 36%));
+    --gradient-threat: linear-gradient(135deg, hsl(0 84% 50%), hsl(25 95% 50%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 20% 98%));
+
+    /* Shadows & glows */
+    --shadow-glow: 0 0 20px hsl(210 100% 50% / 0.15);
+    --shadow-threat: 0 0 20px hsl(0 84% 50% / 0.15);
+    --shadow-safe: 0 0 20px hsl(142 76% 36% / 0.15);
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  .dark {
+    /* Dark Mode - Cyber Security Theme */
+    --background: 222 47% 6%;
+    --foreground: 210 20% 98%;
+
+    --card: 222 47% 9%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 222 47% 9%;
+    --popover-foreground: 210 20% 98%;
+
     --primary: 210 100% 60%;
-    --primary-foreground: 220 13% 9%;
+    --primary-foreground: 222 47% 6%;
 
-    /* Darker secondary */
-    --secondary: 220 13% 15%;
-    --secondary-foreground: 220 9% 95%;
+    --secondary: 222 47% 12%;
+    --secondary-foreground: 210 20% 98%;
 
-    /* Muted elements */
-    --muted: 220 13% 15%;
-    --muted-foreground: 220 9% 70%;
+    --muted: 222 47% 12%;
+    --muted-foreground: 215 20% 65%;
 
-    /* Green accent for success */
-    --accent: 120 100% 50%;
-    --accent-foreground: 220 13% 9%;
+    --accent: 142 70% 45%;
+    --accent-foreground: 222 47% 6%;
 
-    /* Red for threats/destructive */
-    --destructive: 0 100% 60%;
-    --destructive-foreground: 220 9% 95%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 20% 98%;
 
-    /* Borders and inputs */
-    --border: 220 13% 20%;
-    --input: 220 13% 15%;
+    --border: 222 47% 15%;
+    --input: 222 47% 12%;
     --ring: 210 100% 60%;
 
-    --radius: 0.5rem;
-
-    /* Sidebar theme */
-    --sidebar-background: 220 13% 8%;
-    --sidebar-foreground: 220 9% 90%;
+    /* Sidebar - Dark */
+    --sidebar-background: 222 47% 5%;
+    --sidebar-foreground: 210 20% 90%;
     --sidebar-primary: 210 100% 60%;
-    --sidebar-primary-foreground: 220 13% 9%;
-    --sidebar-accent: 220 13% 15%;
-    --sidebar-accent-foreground: 220 9% 95%;
-    --sidebar-border: 220 13% 20%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 222 47% 12%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 222 47% 15%;
     --sidebar-ring: 210 100% 60%;
 
-    /* Cyber security specific colors */
-    --threat-high: 0 100% 60%;      /* Red for high threats */
-    --threat-medium: 30 100% 60%;   /* Orange for medium threats */
-    --threat-low: 60 100% 60%;      /* Yellow for low threats */
-    --safe: 120 100% 50%;           /* Green for safe/clean */
-    --cyber-blue: 210 100% 60%;     /* Neon blue accent */
-    --cyber-green: 120 100% 50%;    /* Neon green accent */
-    
-    /* Gradients */
-    --gradient-cyber: linear-gradient(135deg, hsl(210 100% 60%), hsl(120 100% 50%));
-    --gradient-threat: linear-gradient(135deg, hsl(0 100% 60%), hsl(30 100% 60%));
-    --gradient-card: linear-gradient(135deg, hsl(220 13% 12%), hsl(220 13% 15%));
-    
-    /* Shadows and glows */
-    --shadow-glow: 0 0 20px hsl(210 100% 60% / 0.3);
-    --shadow-threat: 0 0 20px hsl(0 100% 60% / 0.3);
-    --shadow-safe: 0 0 20px hsl(120 100% 50% / 0.3);
+    /* Threat colors - Dark mode (more vibrant) */
+    --threat-high: 0 84% 60%;
+    --threat-medium: 25 95% 55%;
+    --threat-low: 45 93% 52%;
+    --safe: 142 70% 50%;
+    --cyber-blue: 210 100% 60%;
+    --cyber-green: 142 70% 50%;
+
+    /* Gradients - Dark */
+    --gradient-cyber: linear-gradient(135deg, hsl(210 100% 60%), hsl(142 70% 50%));
+    --gradient-threat: linear-gradient(135deg, hsl(0 84% 60%), hsl(25 95% 55%));
+    --gradient-card: linear-gradient(135deg, hsl(222 47% 9%), hsl(222 47% 12%));
+
+    /* Shadows & glows - Dark */
+    --shadow-glow: 0 0 25px hsl(210 100% 60% / 0.25);
+    --shadow-threat: 0 0 25px hsl(0 84% 60% / 0.25);
+    --shadow-safe: 0 0 25px hsl(142 70% 50% / 0.25);
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+    --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
   }
 }
 
@@ -80,61 +136,153 @@
     @apply border-border;
   }
 
+  html {
+    @apply scroll-smooth;
+  }
+
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-background text-foreground font-inter antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-grotesk;
+    @apply font-grotesk tracking-tight;
   }
 }
 
 @layer components {
-  /* Cyber security specific utility classes */
-  .threat-high {
-    @apply text-red-500;
-    color: hsl(var(--threat-high));
+  /* Enhanced card styles */
+  .card-elevated {
+    @apply bg-card border border-border/50 rounded-xl;
+    box-shadow: var(--shadow-card);
   }
-  
-  .threat-medium {
-    @apply text-orange-500;
-    color: hsl(var(--threat-medium));
+
+  .card-elevated:hover {
+    box-shadow: var(--shadow-elevated);
   }
-  
-  .threat-low {
-    @apply text-yellow-500;
-    color: hsl(var(--threat-low));
-  }
-  
-  .safe {
-    @apply text-green-500;
-    color: hsl(var(--safe));
-  }
-  
+
+  /* Cyber glow effects */
   .cyber-glow {
     box-shadow: var(--shadow-glow);
-    border: 1px solid hsl(var(--cyber-blue) / 0.3);
+    @apply border border-cyber-blue/30;
   }
-  
+
+  .cyber-glow:hover {
+    box-shadow: 0 0 30px hsl(var(--cyber-blue) / 0.35);
+    @apply border-cyber-blue/50;
+  }
+
   .threat-glow {
     box-shadow: var(--shadow-threat);
-    border: 1px solid hsl(var(--threat-high) / 0.3);
+    @apply border border-threat-high/30;
   }
-  
+
   .safe-glow {
     box-shadow: var(--shadow-safe);
-    border: 1px solid hsl(var(--safe) / 0.3);
+    @apply border border-safe/30;
   }
-  
+
+  /* Gradient backgrounds */
   .gradient-cyber {
     background: var(--gradient-cyber);
   }
-  
+
   .gradient-threat {
     background: var(--gradient-threat);
   }
-  
+
   .gradient-card {
     background: var(--gradient-card);
   }
+
+  /* Status indicator colors */
+  .threat-high {
+    color: hsl(var(--threat-high));
+  }
+
+  .threat-medium {
+    color: hsl(var(--threat-medium));
+  }
+
+  .threat-low {
+    color: hsl(var(--threat-low));
+  }
+
+  .safe {
+    color: hsl(var(--safe));
+  }
+
+  /* Smooth transitions for theme switching */
+  .theme-transition {
+    @apply transition-colors duration-300 ease-in-out;
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    @apply bg-background/80 backdrop-blur-xl border border-border/50;
+  }
+
+  /* Pulse animation for alerts */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 15px hsl(var(--threat-high) / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 25px hsl(var(--threat-high) / 0.5);
+    }
+  }
+
+  .pulse-alert {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Subtle fade in animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  /* Stagger animation for lists */
+  .stagger-children > * {
+    @apply animate-fade-in;
+  }
+
+  .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+  .stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+  .stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+  .stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/30;
+}
+
+/* Focus ring styling */
+*:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
 }

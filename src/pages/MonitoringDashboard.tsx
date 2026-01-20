@@ -238,10 +238,10 @@ const MonitoringDashboard = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-grotesk font-bold text-foreground mb-2">
-            Monitoring Dashboard
+            Threat Visibility
           </h1>
           <p className="text-muted-foreground">
-            Monitor endpoints, servers, network devices, and company emails
+           Unified visibility across endpoints, servers, network devices, and corporate email
           </p>
         </div>
       </div>

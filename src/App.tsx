@@ -9,9 +9,7 @@ import { useAuth } from "./hooks/useAuth";
 // Import pages
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import PhishingEmails from "./pages/PhishingEmails";
-import DDoSAttacks from "./pages/DDoSAttacks";
-import BruteForce from "./pages/BruteForce";
+import ThreatIntelligence from "./pages/ThreatIntelligence";
 import LogsDashboard from "./pages/LogsDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import MonitoringDashboard from "./pages/MonitoringDashboard";
@@ -19,8 +17,10 @@ import PlaybookConfig from "./pages/PlaybookConfig";
 import Incidents from "./pages/Incidents";
 import Reports from "./pages/Reports";
 
+
 // Import layout components
 import AppLayout from "./components/AppLayout";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 const queryClient = new QueryClient();
 
@@ -28,30 +28,28 @@ const AppContent = () => {
   const { isAuthenticated, userRole, loading, signOut } = useAuth();
 
   if (loading) {
-    console.log("App: Loading auth state...");
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyber-blue"></div>
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 border-4 border-cyber-blue/30 border-t-cyber-blue rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground">Loading CyberNest-SOAR...</p>
+        </div>
       </div>
     );
   }
 
-  console.log("App: Auth state loaded - isAuthenticated:", isAuthenticated, "userRole:", userRole);
-
   return (
     <Routes>
-      {/* Login Route */}
       <Route 
         path="/login" 
         element={!isAuthenticated ? <Login /> : <Navigate to={userRole === "admin" ? "/admin-dashboard" : "/monitoring-dashboard"} replace />}
       />
       
-      {/* Protected Routes with Layout */}
       {isAuthenticated ? (
         <Route 
           path="/*" 
           element={
-            <SidebarProvider defaultOpen={false}>
+            <SidebarProvider defaultOpen={true}>
               <div className="min-h-screen flex w-full bg-background">
                 <AppLayout onLogout={signOut} userRole={userRole}>
                   <Routes>
@@ -60,17 +58,15 @@ const AppContent = () => {
                       element={<Navigate to={userRole === "admin" ? "/admin-dashboard" : "/monitoring-dashboard"} replace />} 
                     />
                     <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/phishing" element={<PhishingEmails />} />
-                    <Route path="/ddos" element={<DDoSAttacks />} />
-                    <Route path="/brute-force" element={<BruteForce />} />
+                    <Route path="/threat-intelligence" element={<ThreatIntelligence />} />
                     <Route path="/logs" element={<LogsDashboard />} />
-                    <Route path="/playbooks" element={<PlaybookConfig />} />
                     <Route path="/incidents" element={<Incidents />} />
                     <Route path="/reports" element={<Reports />} />
                     {userRole === "admin" ? (
                       <>
                         <Route path="/admin-dashboard" element={<AdminDashboard />} />
                         <Route path="/monitoring" element={<MonitoringDashboard />} />
+                        <Route path="/playbooks" element={<PlaybookConfig />} />
                       </>
                     ) : (
                       <Route path="/monitoring-dashboard" element={<MonitoringDashboard />} />
@@ -95,13 +91,15 @@ const AppContent = () => {
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
-      </TooltipProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="cybernest-theme">
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };
