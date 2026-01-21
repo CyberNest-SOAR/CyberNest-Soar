@@ -43,7 +43,7 @@ const bruteForceAttempts: BruteForceAttempt[] = [
     sourceIP: "185.220.101.42",
     country: "RU",
     status: "Blocked",
-    lastAttempt: "2024-01-15 14:23:45",
+    lastAttempt: "2025-01-15 14:23:45",
     successfulLogin: false,
     attackPattern: "Dictionary Attack"
   },
@@ -54,7 +54,7 @@ const bruteForceAttempts: BruteForceAttempt[] = [
     sourceIP: "103.224.182.245",
     country: "CN",
     status: "Active",
-    lastAttempt: "2024-01-15 14:45:12",
+    lastAttempt: "2025-01-15 14:45:12",
     successfulLogin: false,
     attackPattern: "Credential Stuffing"
   },
@@ -65,7 +65,7 @@ const bruteForceAttempts: BruteForceAttempt[] = [
     sourceIP: "45.142.214.191",
     country: "Unknown",
     status: "Monitoring",
-    lastAttempt: "2024-01-15 13:55:33",
+    lastAttempt: "2025-01-15 13:55:33",
     successfulLogin: false,
     attackPattern: "Brute Force"
   },
@@ -76,7 +76,7 @@ const bruteForceAttempts: BruteForceAttempt[] = [
     sourceIP: "94.156.35.72",
     country: "TR",
     status: "Locked",
-    lastAttempt: "2024-01-15 12:30:21",
+    lastAttempt: "2025-01-15 12:30:21",
     successfulLogin: false,
     attackPattern: "Hybrid Attack"
   },
@@ -87,7 +87,7 @@ const bruteForceAttempts: BruteForceAttempt[] = [
     sourceIP: "198.51.100.42",
     country: "US",
     status: "Blocked",
-    lastAttempt: "2024-01-15 11:15:07",
+    lastAttempt: "2025-01-15 11:15:07",
     successfulLogin: false,
     attackPattern: "Dictionary Attack"
   }
@@ -384,7 +384,17 @@ const BruteForce = () => {
           </Table>
         </CardContent>
       </Card>
+
+
+
+
+      
     </div>
+
+    
+
+
+
   );
 };
 

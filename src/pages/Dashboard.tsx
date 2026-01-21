@@ -87,7 +87,7 @@ export default function Dashboard() {
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-4xl font-bold">SOC Threat Intelligence System </h1>
+          <h1 className="text-4xl font-bold">Threat Analysis Dashboard </h1>
           <p className="text-muted-foreground text-sm">SOC Threat Monitoring & Analytics</p>
         </div>
         <div className="flex items-center gap-3">
@@ -275,28 +275,8 @@ export default function Dashboard() {
 
 
 
-        {/* ALERTS */}
-        <div key="alerts">
-          <Card>
-            <CardHeader>
-              <CardTitle>Active Alerts</CardTitle>
-              <CardDescription>Requires analyst attention</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="p-4 rounded-lg border border-critical/40 bg-critical/10 flex justify-between">
-                <div className="flex gap-3">
-                  <AlertTriangle className="text-critical" />
-                  <div>
-                    <p className="font-medium">High-Risk Phishing Campaign</p>
-                    <p className="text-xs text-muted-foreground">Finance department targeted</p>
-                  </div>
-                </div>
-                <Badge variant="destructive">Critical</Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
+       
+      
       </Grid>
     </div>
   );

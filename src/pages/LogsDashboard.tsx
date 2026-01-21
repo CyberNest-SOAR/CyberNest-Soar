@@ -20,25 +20,25 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 // Mock log data
 const systemLogs = [
-  { id: 1, timestamp: "2025-01-15 14:23:45", level: "info", source: "System", message: "Security scan completed successfully", icon: CheckCircle },
-  { id: 2, timestamp: "2025-01-15 14:20:12", level: "warning", source: "Network", message: "Unusual traffic pattern detected from IP 192.168.1.105", icon: AlertCircle },
-  { id: 3, timestamp: "2025-01-15 14:15:33", level: "error", source: "Authentication", message: "Failed login attempt for user: admin", icon: XCircle },
-  { id: 4, timestamp: "2025-01-15 14:10:08", level: "info", source: "Database", message: "Backup completed successfully", icon: CheckCircle },
-  { id: 5, timestamp: "2025-01-15 14:05:21", level: "critical", source: "Firewall", message: "DDoS attack blocked - 10,000 requests/sec", icon: XCircle },
+  { id: 1, timestamp: "2026-01-15 14:23:45", level: "info", source: "System", message: "Security scan completed successfully", icon: CheckCircle },
+  { id: 2, timestamp: "2026-01-15 14:20:12", level: "warning", source: "Network", message: "Unusual traffic pattern detected from IP 192.168.1.105", icon: AlertCircle },
+  { id: 3, timestamp: "2026-01-15 14:15:33", level: "error", source: "Authentication", message: "Failed login attempt for user: admin", icon: XCircle },
+  { id: 4, timestamp: "2026-01-15 14:10:08", level: "info", source: "Database", message: "Backup completed successfully", icon: CheckCircle },
+  { id: 5, timestamp: "2026-01-15 14:05:21", level: "critical", source: "Firewall", message: "DDoS attack blocked - 10,000 requests/sec", icon: XCircle },
 ];
 
 const incidentLogs = [
-  { id: 1, timestamp: "2025-01-15 14:25:00", type: "Phishing", status: "Resolved", analyst: "John Doe", action: "Email quarantined and sender blocked" },
-  { id: 2, timestamp: "2025-01-15 14:18:30", type: "Brute Force", status: "In Progress", analyst: "Jane Smith", action: "IP blocked, investigating source" },
-  { id: 3, timestamp: "2025-01-15 14:12:45", type: "DDoS", status: "Mitigated", analyst: "Mike Johnson", action: "Traffic filtered, rate limiting applied" },
-  { id: 4, timestamp: "2025-01-15 14:08:15", type: "Phishing", status: "Resolved", analyst: "Sarah Williams", action: "User notified, credentials reset" },
+  { id: 1, timestamp: "2026-01-15 14:25:00", type: "Phishing", status: "Resolved", analyst: "John Doe", action: "Email quarantined and sender blocked" },
+  { id: 2, timestamp: "2026-01-15 14:18:30", type: "Brute Force", status: "In Progress", analyst: "Jane Smith", action: "IP blocked, investigating source" },
+  { id: 3, timestamp: "2026-01-15 14:12:45", type: "DDoS", status: "Mitigated", analyst: "Mike Johnson", action: "Traffic filtered, rate limiting applied" },
+  { id: 4, timestamp: "2026-01-15 14:08:15", type: "Phishing", status: "Resolved", analyst: "Sarah Williams", action: "User notified, credentials reset" },
 ];
 
 const analystActions = [
-  { id: 1, timestamp: "2025-01-15 14:26:12", analyst: "John Doe", action: "Blocked sender: malicious@phishing.com", target: "Email Filter" },
-  { id: 2, timestamp: "2025-01-15 14:22:55", analyst: "Jane Smith", action: "Added IP to blacklist: 45.67.89.123", target: "Firewall Rules" },
-  { id: 3, timestamp: "2025-01-15 14:19:30", analyst: "Mike Johnson", action: "Enabled rate limiting on /api/login", target: "Web Application" },
-  { id: 4, timestamp: "2025-01-15 14:15:08", analyst: "Sarah Williams", action: "Reset password for compromised account", target: "User Management" },
+  { id: 1, timestamp: "2026-01-15 14:26:12", analyst: "John Doe", action: "Blocked sender: malicious@phishing.com", target: "Email Filter" },
+  { id: 2, timestamp: "2026-01-15 14:22:55", analyst: "Jane Smith", action: "Added IP to blacklist: 45.67.89.123", target: "Firewall Rules" },
+  { id: 3, timestamp: "2026-01-15 14:19:30", analyst: "Mike Johnson", action: "Enabled rate limiting on /api/login", target: "Web Application" },
+  { id: 4, timestamp: "2026-01-15 14:15:08", analyst: "Sarah Williams", action: "Reset password for compromised account", target: "User Management" },
 ];
 
 const LogsDashboard = () => {

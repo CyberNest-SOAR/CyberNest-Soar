@@ -21,14 +21,14 @@ const responseTimeData = [
 ];
 
 const threatTrendsData = [
-  { date: "2024-01-01", phishing: 25, ddos: 8, malware: 12, bruteforce: 15 },
-  { date: "2024-01-03", phishing: 30, ddos: 5, malware: 18, bruteforce: 22 },
-  { date: "2024-01-05", phishing: 28, ddos: 12, malware: 15, bruteforce: 18 },
-  { date: "2024-01-07", phishing: 35, ddos: 7, malware: 20, bruteforce: 25 },
-  { date: "2024-01-09", phishing: 42, ddos: 15, malware: 25, bruteforce: 28 },
-  { date: "2024-01-11", phishing: 38, ddos: 9, malware: 22, bruteforce: 24 },
-  { date: "2024-01-13", phishing: 45, ddos: 18, malware: 28, bruteforce: 32 },
-  { date: "2024-01-15", phishing: 52, ddos: 12, malware: 30, bruteforce: 35 },
+  { date: "2025-01-01", phishing: 25, ddos: 8, malware: 12, bruteforce: 15 },
+  { date: "2025-01-03", phishing: 30, ddos: 5, malware: 18, bruteforce: 22 },
+  { date: "2025-01-05", phishing: 28, ddos: 12, malware: 15, bruteforce: 18 },
+  { date: "2025-01-07", phishing: 35, ddos: 7, malware: 20, bruteforce: 25 },
+  { date: "2025-01-09", phishing: 42, ddos: 15, malware: 25, bruteforce: 28 },
+  { date: "2025-01-11", phishing: 38, ddos: 9, malware: 22, bruteforce: 24 },
+  { date: "2025-01-13", phishing: 45, ddos: 18, malware: 28, bruteforce: 32 },
+  { date: "2025-01-15", phishing: 52, ddos: 12, malware: 30, bruteforce: 35 },
 ];
 
 const incidentsByCategory = [
@@ -73,11 +73,11 @@ const Reports = () => {
         { fileName: 'security_patch.scr', hash: 'd4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9', status: 'Quarantined' }
       ],
       incidents: [
-        { ticketId: 'INC-2025-001', threatType: 'Phishing', status: 'Resolved', analyst: 'Sarah Chen' },
-        { ticketId: 'INC-2025-002', threatType: 'DDoS', status: 'In Progress', analyst: 'Mike Rodriguez' },
-        { ticketId: 'INC-2025-003', threatType: 'Malware', status: 'Open', analyst: 'Jessica Park' },
-        { ticketId: 'INC-2025-004', threatType: 'Brute Force', status: 'Resolved', analyst: 'David Kim' },
-        { ticketId: 'INC-2025-005', threatType: 'Phishing', status: 'Closed', analyst: 'Sarah Chen' }
+        { ticketId: 'INC-2026-001', threatType: 'Phishing', status: 'Resolved', analyst: 'Sarah Chen' },
+        { ticketId: 'INC-2026-002', threatType: 'DDoS', status: 'In Progress', analyst: 'Mike Rodriguez' },
+        { ticketId: 'INC-2026-003', threatType: 'Malware', status: 'Open', analyst: 'Jessica Park' },
+        { ticketId: 'INC-2026-004', threatType: 'Brute Force', status: 'Resolved', analyst: 'David Kim' },
+        { ticketId: 'INC-2026-005', threatType: 'Phishing', status: 'Closed', analyst: 'Sarah Chen' }
       ]
     };
 
@@ -186,25 +186,20 @@ const Reports = () => {
 
       {/* Analytics Tabs */}
       <Tabs defaultValue="accuracy" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4 bg-card border border-border">
+        <TabsList className="grid w-full grid-cols-2 bg-card border border-border">
           <TabsTrigger value="accuracy" className="data-[state=active]:bg-cyber-blue/20 data-[state=active]:text-cyber-blue">
             Detection Accuracy
           </TabsTrigger>
           <TabsTrigger value="response" className="data-[state=active]:bg-cyber-blue/20 data-[state=active]:text-cyber-blue">
             Response Times
           </TabsTrigger>
-          <TabsTrigger value="trends" className="data-[state=active]:bg-cyber-blue/20 data-[state=active]:text-cyber-blue">
-            Threat Trends
-          </TabsTrigger>
-          <TabsTrigger value="distribution" className="data-[state=active]:bg-cyber-blue/20 data-[state=active]:text-cyber-blue">
-            Incident Distribution
-          </TabsTrigger>
+         
         </TabsList>
 
         <TabsContent value="accuracy" className="space-y-4">
           <Card className="gradient-card border-border/50">
             <CardHeader>
-              <CardTitle className="text-foreground font-grotesk">Detection Accuracy Metrics</CardTitle>
+              <CardTitle className="text-foreground font-grotesk">AI Detection Performance Accuracy </CardTitle>
               <CardDescription className="text-muted-foreground">
                 Precision, recall, and F1-score analysis over time
               </CardDescription>
@@ -308,7 +303,7 @@ const Reports = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="trends" className="space-y-4">
+        {/* <TabsContent value="trends" className="space-y-4">
           <Card className="gradient-card border-border/50">
             <CardHeader>
               <CardTitle className="text-foreground font-grotesk">Threat Trends Analysis</CardTitle>
@@ -472,7 +467,7 @@ const Reports = () => {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
     </div>
   );

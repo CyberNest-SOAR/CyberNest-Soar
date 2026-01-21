@@ -300,7 +300,7 @@ const DDoSAttacks = () => {
       {/* Mitigation Actions */}
       <Card className="gradient-card border-border/50">
         <CardHeader>
-          <CardTitle className="text-foreground font-grotesk">Automated Mitigation</CardTitle>
+          <CardTitle className="text-foreground font-grotesk">Automated Playbooks</CardTitle>
           <CardDescription className="text-muted-foreground">
             Real-time DDoS protection and response actions
           </CardDescription>

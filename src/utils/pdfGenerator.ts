@@ -90,7 +90,7 @@ export class SecurityReportGenerator {
     this.doc.text(`Page ${pageNum}`, this.margin, footerY);
     
     // Copyright
-    const copyright = '© Security Team 2025';
+    const copyright = '© Security Team 2026';
     const copyrightWidth = this.doc.getTextWidth(copyright);
     this.doc.text(copyright, this.pageWidth - this.margin - copyrightWidth, footerY);
   }
