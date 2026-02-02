@@ -1,0 +1,13 @@
+services:
+  velociraptor:
+    image: ghcr.io/velocidex/velociraptor:latest
+    container_name: velociraptor
+    ports:
+      - "8000:8000"
+      - "8889:8889"
+    volumes:
+      - ./velociraptor-data:/data
+    command:
+      - server
+      - --config
+      - /data/config.yaml
