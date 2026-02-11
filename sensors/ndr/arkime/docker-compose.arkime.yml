@@ -20,7 +20,7 @@ services:
     volumes:
       - ./arkime-config:/opt/arkime/etc
       - ./arkime-pcap:/data/pcap
-      - ./arkime-logs:/data/logs
+      - ./arkime-logs:/opt/arkime/logs
     command: /opt/arkime/bin/docker.sh viewer
 
   arkime-capture:
@@ -34,6 +34,5 @@ services:
     volumes:
       - ./arkime-config:/opt/arkime/etc
       - ./arkime-pcap:/data/pcap
-      - ./arkime-logs:/data/logs
+      - ./arkime-logs:/opt/arkime/logs
     command: /opt/arkime/bin/capture -R /data/pcap
-
