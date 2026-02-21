@@ -19,4 +19,4 @@ echo "[+] Logs directory: $LOG_DIR"
 
 cd /opt/zeek/share/zeek/site
 
-exec zeek -i "$ZEEK_INTERFACE" local.zeek Log::default_logdir="$LOG_DIR"
+exec zeek -i "$ZEEK_INTERFACE" local.zeek

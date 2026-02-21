@@ -1,30 +1,19 @@
 module DDoS;
 
 export {
-    redef enum Notice::Type += {
-        Potential_DDoS
-    };
+    redef enum Notice::Type += { Possible_DDoS };
 }
 
-const threshold = 100;
-
-global conn_count: table[addr] of count &default=0;
+global conn_counter: table[addr] of count &default=0;
 
 event connection_established(c: connection)
 {
-    conn_count[c$id$orig_h] += 1;
-}
+    conn_counter[c$id$orig_h] += 1;
 
-event zeek_done()
-{
-    for ( ip in conn_count )
+    if ( conn_counter[c$id$orig_h] > 100 )
     {
-        if ( conn_count[ip] > threshold )
-        {
-            NOTICE([
-                $note=Potential_DDoS,
-                $msg=fmt("High connections from %s (%d)", ip, conn_count[ip])
-            ]);
-        }
+        NOTICE([$note=Possible_DDoS,
+                $msg=fmt("High connection rate from %s", c$id$orig_h),
+                $conn=c]);
     }
 }

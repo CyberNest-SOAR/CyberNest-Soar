@@ -8,4 +8,5 @@ services:
     privileged: true
     volumes:
       - ./logs:/opt/zeek/logs
+      - ./zeek:/opt/zeek/share/zeek/site
     restart: unless-stopped
