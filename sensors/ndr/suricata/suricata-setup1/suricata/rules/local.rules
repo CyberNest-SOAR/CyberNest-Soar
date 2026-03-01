@@ -1,8 +1,0 @@
-# HTTP login brute-force
-alert http any any -> any any (msg:"BRUTE-FORCE - HTTP login POST"; flow:to_server,established; http_method; content:"POST"; http_uri; content:"/login"; sid:9000013; rev:1;)
-
-# IP based alert
-alert ip [192.0.2.1,198.51.100.2,203.0.113.5] any -> $HOME_NET any (msg:"Suspicious IP alert"; sid:9000014; rev:1;)
-
-# Another IP based alert
-alert ip [96.9.98.57,96.9.98.58,96.9.98.59] any -> $HOME_NET any (msg:"Suspicious IP alert 2"; sid:9000015; rev:1;)
