@@ -1,0 +1,5 @@
+alert http any any -> $HOME_NET any (msg:"PHISHING Attempt - Suspicious Login Page"; flow:established,to_server; content:"login"; content:"verify"; http_uri; classtype:web-application-attack; sid:1000001; rev:1;)
+alert dns any any -> any any (msg:"PHISHING Domain - Suspicious Domain"; content:"paypal-secure"; nocase; classtype:web-application-attack; sid:1000002; rev:1;)
+alert http any any -> $HOME_NET any (msg:"PHISHING - Fake Banking Portal Access"; flow:established,to_server; content:"login"; pcre:"/bank|secure|account|update|verify/i"; classtype:web-application-attack; sid:1000003; rev:1;)
+alert http any any -> $HOME_NET any (msg:"PHISHING - Credential Submission Detected"; flow:established,to_server; content:"POST"; http_method; pcre:"/username=|email=/i"; content:"password="; http_client_body; classtype:web-application-attack; sid:1000004; rev:1;)
+alert dns any any -> any any (msg:"PHISHING - Possible Typosquatting Domain"; pcre:"/paypa[l1]-|facebo0k|g00gle/i"; classtype:web-application-attack; sid:1000005; rev:1;)
