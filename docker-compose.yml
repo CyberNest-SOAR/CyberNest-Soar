@@ -1,0 +1,104 @@
+version: "3.8"
+
+services:
+  # Backend API and database stack
+  db:
+    extends:
+      file: backend/infra/docker-compose.yml
+      service: db
+
+  api:
+    extends:
+      file: backend/infra/docker-compose.yml
+      service: api
+
+  pgadmin:
+    extends:
+      file: backend/infra/docker-compose.yml
+      service: pgadmin
+
+  # Wazuh single-node stack (manager + indexer + dashboard)
+  wazuh.manager:
+    extends:
+      file: siem/wazuh/single-node/docker-compose.yml
+      service: wazuh.manager
+
+  wazuh.indexer:
+    extends:
+      file: siem/wazuh/single-node/docker-compose.yml
+      service: wazuh.indexer
+
+  wazuh.dashboard:
+    extends:
+      file: siem/wazuh/single-node/docker-compose.yml
+      service: wazuh.dashboard
+
+  # Optional Wazuh agent (runs separately if you need it)
+  wazuh.agent:
+    extends:
+      file: siem/wazuh/wazuh-agent/docker-compose.yml
+      service: wazuh.agent
+
+  # NDR sensors
+  suricata1:
+    extends:
+      file: sensors/ndr/suricata/suricata1/docker-compose.yml
+      service: suricata
+
+  zeek:
+    extends:
+      file: sensors/ndr/zeek/docker-compose.yml
+      service: zeek
+
+  # EDR sensor
+  velociraptor:
+    extends:
+      file: sensors/edr/velociraptor/docker-compose.yml
+      service: velociraptor
+
+  # TheHive + Cortex + MISP orchestration stack
+  thehive:
+    extends:
+      file: services/orchestrator/thehive/docker-compose.yml
+      service: thehive
+
+  cassandra:
+    extends:
+      file: services/orchestrator/thehive/docker-compose.yml
+      service: cassandra
+
+  thehive_elasticsearch:
+    extends:
+      file: services/orchestrator/thehive/docker-compose.yml
+      service: elasticsearch
+
+  minio:
+    extends:
+      file: services/orchestrator/thehive/docker-compose.yml
+      service: minio
+
+  cortex.local:
+    extends:
+      file: services/orchestrator/thehive/docker-compose.yml
+      service: cortex.local
+
+  misp.local:
+    extends:
+      file: services/orchestrator/thehive/docker-compose.yml
+      service: misp.local
+
+  misp_mysql:
+    extends:
+      file: services/orchestrator/thehive/docker-compose.yml
+      service: misp_mysql
+
+  redis:
+    extends:
+      file: services/orchestrator/thehive/docker-compose.yml
+      service: redis
+
+  misp-modules:
+    extends:
+      file: services/orchestrator/thehive/docker-compose.yml
+      service: misp-modules
+
