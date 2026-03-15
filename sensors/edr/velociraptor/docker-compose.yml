@@ -1,6 +1,6 @@
 services:
   velociraptor:
-    image: ghcr.io/velocidex/velociraptor:latest
+    image: graype28/velociraptor:latest
     container_name: velociraptor
     ports:
       - "8000:8000"
