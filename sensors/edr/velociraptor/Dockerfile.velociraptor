@@ -1,0 +1,2 @@
+FROM graype28/velociraptor:latest
+RUN chmod +x /opt/velociraptor/linux/velociraptor

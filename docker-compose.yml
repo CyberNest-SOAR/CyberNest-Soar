@@ -53,7 +53,7 @@ services:
       file: siem/wazuh/single-node/docker-compose.yml
       service: wazuh.dashboard
     ports:
-      - "8443:5601"   # avoid conflict with MISP 443
+      - "8443:5601"   # avoid conflict with MISP 443 --> 444
     depends_on:
       - wazuh.manager
       - wazuh.indexer

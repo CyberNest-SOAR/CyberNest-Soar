@@ -1,0 +1,8 @@
+﻿build/
+*.msi
+*.exe
+velociraptor-data/
+*.log
+server.config.yaml
+client.config.yaml
+.env

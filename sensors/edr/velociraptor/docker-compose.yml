@@ -1,13 +1,11 @@
+version: "3.9"
 services:
   velociraptor:
-    image: graype28/velociraptor:latest
+    image: graype28/velociraptor-fixed:latest
     container_name: velociraptor
     ports:
       - "8000:8000"
       - "8889:8889"
     volumes:
       - ./velociraptor-data:/data
-    command:
-      - server
-      - --config
-      - /data/config.yaml
+    command: ["/opt/velociraptor/linux/velociraptor", "server", "--config", "/data/config.yaml"]
