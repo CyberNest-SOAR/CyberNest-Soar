@@ -1,0 +1,38 @@
+services:
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    container_name: arkime-opensearch
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./opensearch-data:/usr/share/opensearch/data
+
+  arkime-viewer:
+    image: ghcr.io/arkime/arkime/arkime:v5-latest
+    container_name: arkime-viewer
+    depends_on:
+      - opensearch
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./arkime-config:/opt/arkime/etc
+      - ./arkime-pcap:/data/pcap
+      - ./arkime-logs:/opt/arkime/logs
+    command: /opt/arkime/bin/docker.sh viewer
+
+  arkime-capture:
+    image: ghcr.io/arkime/arkime/arkime:v5-latest
+    container_name: arkime-capture
+    depends_on:
+      - opensearch
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ./arkime-config:/opt/arkime/etc
+      - ./arkime-pcap:/data/pcap
+      - ./arkime-logs:/opt/arkime/logs
+    command: /opt/arkime/bin/capture -R /data/pcap
