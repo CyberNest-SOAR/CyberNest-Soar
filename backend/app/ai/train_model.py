@@ -6,7 +6,7 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score, roc_curve, auc
 import pandas as pd
 
 from app.ai.phishing_model import get_detector
@@ -143,6 +143,38 @@ def train():
             plt.savefig(ARTIFACTS_DIR / "confusion_matrix.png")
             plt.close()
             log.info(f"Saved confusion matrix plot to {ARTIFACTS_DIR / 'confusion_matrix.png'}")
+
+            # Plot Performance Metrics
+            accuracy = accuracy_score(y_true, y_pred)
+            precision = precision_score(y_true, y_pred, zero_division=0)
+            recall = recall_score(y_true, y_pred, zero_division=0)
+            f1 = f1_score(y_true, y_pred, zero_division=0)
+            
+            metrics = {
+                'Accuracy': accuracy,
+                'Precision': precision,
+                'Recall': recall,
+                'F1-Score': f1
+            }
+            
+            plt.figure(figsize=(8,5), dpi=150)
+            bars = plt.bar(metrics.keys(), metrics.values(), color=['#2E86AB', '#A23B72', '#F18F01', '#C73E1D'])
+            plt.ylim(0, 1.0)
+            plt.ylabel("Score", fontsize=12)
+            plt.title("Model Performance Metrics", fontsize=14, fontweight='bold')
+            plt.grid(axis='y', alpha=0.3)
+            
+            # Add value labels on bars
+            for bar in bars:
+                height = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2., height,
+                        f'{height:.3f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+            
+            plt.tight_layout()
+            plt.savefig(ARTIFACTS_DIR / "performance_metrics.png", dpi=150, bbox_inches='tight')
+            plt.close()
+            log.info(f"Saved performance metrics plot to {ARTIFACTS_DIR / 'performance_metrics.png'}")
+            log.info(f"Metrics: Accuracy={accuracy:.3f}, Precision={precision:.3f}, Recall={recall:.3f}, F1={f1:.3f}")
 
     except FileNotFoundError:
         log.error(f"Error: Data file not found at {DATA_PATH.resolve()}")

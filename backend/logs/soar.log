@@ -78,3 +78,22 @@ ValueError: X has 5008 features, but RandomForestClassifier is expecting 5000 fe
 2025-12-11 14:34:45 INFO     [app.services.email_service:270] Captured feedback for gmail_id=manual-4f1ce09dae5d4f17a7751eda73f2637c is_correct=True -> label=suspicious
 2025-12-11 14:36:43 INFO     [app.services.email_service:68] Creating manual email record manual-1887392f98904ce69b0973a5b68f9b23 (sender=gge@example.com) with label=suspicious
 2025-12-11 14:37:47 INFO     [app.services.email_service:270] Captured feedback for gmail_id=manual-1887392f98904ce69b0973a5b68f9b23 is_correct=False -> label=safe
+2026-01-20 21:43:54 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-20 21:43:54 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2026-01-20 22:00:17 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-20 22:00:17 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2026-01-20 22:04:54 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-20 22:04:54 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2026-01-20 22:28:31 INFO     [app.services.email_service:68] Creating manual email record manual-ecf5b5bbaf034ca79e86ed6eb108ea31 (sender=user@example.com) with label=suspicious
+2026-01-20 22:29:27 INFO     [app.services.email_service:68] Creating manual email record manual-cfcec8ebfcf44600839fd2910c379f29 (sender=user@example.com) with label=suspicious
+2026-01-20 22:48:41 INFO     [app.services.email_service:68] Creating manual email record manual-79af7a63993c42e08648e7f49a4e4bd1 (sender=user@example.com) with label=suspicious
+2026-01-21 03:32:26 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-21 03:32:26 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2026-01-21 03:35:13 INFO     [app.services.email_service:68] Creating manual email record manual-e4d5b9a27c4d4b8eb9240e17d3a325b5 (sender=user@example.com) with label=suspicious
+2026-01-21 04:15:56 INFO     [app.controllers.classification:73] Classifying email with Gmail ID: manual-e4d5b9a27c4d4b8eb9240e17d3a325b5...
+2026-01-21 04:15:57 INFO     [app.services.email_service:210] Re-classified email manual-e4d5b9a27c4d4b8eb9240e17d3a325b5 -> suspicious
+2026-01-21 04:17:18 INFO     [app.services.email_service:270] Captured feedback for gmail_id=manual-e4d5b9a27c4d4b8eb9240e17d3a325b5 is_correct=True -> label=suspicious
+2026-01-21 08:14:59 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-01-21 08:14:59 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+2026-03-09 19:47:34 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
+2026-03-09 19:47:34 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib

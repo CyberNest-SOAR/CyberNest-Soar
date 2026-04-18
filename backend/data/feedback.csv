@@ -2,3 +2,4 @@ case_id,subject,body,user_label,subject_len,text_len,num_urls,has_shortener,num_
 manual-443f4f9c03874326967d5b71f60eff31,prize,"i really LOVE YOU sooo much , you win a big prize",suspicious,5,55,0,0,0,2,0,0.0,
 manual-4f1ce09dae5d4f17a7751eda73f2637c,prize,you won a PRIZE with us congratulations,suspicious,5,45,0,0,0,1,0,0.0,
 manual-1887392f98904ce69b0973a5b68f9b23,Great work,you have done a great effort in work this week and we appreciate this,safe,10,80,0,0,0,0,0,0.0,
+manual-e4d5b9a27c4d4b8eb9240e17d3a325b5,URGENT!!! Verify Your PayPal Account,Click here bit.ly/verify to confirm your password immediately!,suspicious,36,99,0,1,4,1,5,0.0,bit.ly

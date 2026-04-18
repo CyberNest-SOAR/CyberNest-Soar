@@ -26,9 +26,13 @@ def extract_urls(text: str) -> List[str]:
 def extract_domains(text: str) -> List[str]:
     domains = set()
     for u in extract_urls(text or ""):
-        d = urlparse(u).netloc.lower()
-        if d:
-            domains.add(d)
+        try:
+            d = urlparse(u).netloc.lower()
+            if d:
+                domains.add(d)
+        except Exception:
+            # Skip malformed URLs
+            pass
     for m in DOMAIN_RE.finditer(text or ""):
         domains.add(m.group(1).lower())
     return sorted(domains)
