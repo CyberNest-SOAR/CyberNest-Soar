@@ -1,9 +1,0 @@
-﻿# Arkime runtime data (DO NOT COMMIT)
-arkime-pcap/
-arkime-logs/
-opensearch-data/
-
-# Real config (use example only)
-arkime-config/config.ini
-!opensearch-data/README.md
-!opensearch-data/.gitkeep

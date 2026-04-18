@@ -110,9 +110,3 @@ ValueError: X has 5008 features, but RandomForestClassifier is expecting 5000 fe
 2026-01-20 00:03:18 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
 2026-01-20 00:13:00 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
 2026-01-20 00:13:00 INFO     [app.services.email_service:47] EmailService initialized; model=artifacts\phishing_model.joblib vectorizer=artifacts\tfidf_vectorizer.joblib
-2026-03-10 03:14:05 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
-2026-03-10 03:14:05 INFO     [app.services.email_service:47] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
-2026-03-10 03:22:17 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
-2026-03-10 03:22:17 INFO     [app.services.email_service:47] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
-2026-03-10 19:06:06 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
-2026-03-10 19:06:06 INFO     [app.services.email_service:47] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
