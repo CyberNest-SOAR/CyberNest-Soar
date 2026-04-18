@@ -24,7 +24,7 @@
     container_name: soar_api
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "8008:8000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/soar_db
       - GOOGLE_CLIENT_SECRET_FILE=/app/client_secret/client_secret.json

@@ -1,20 +1,28 @@
+﻿# Python
 __pycache__/
 *.pyc
-*.log
+
+# Env
 .env
-*.pkl
-*.model
-data/models/*
+
+# Logs
+*.log
+
+# Docker volumes & data
+velociraptor-data/
+wazuh/
+elasticsearchdata/
+mispsqldata/
+cassandradata/
+miniadata/
+
+# TheHive / MISP data
+services/orchestrator/thehive/files/
+services/orchestrator/thehive/index/
+
+# Node
 node_modules/
+
+# OS
 .DS_Store
-venv/
-
-# Default ignored files
-/shelf/
-/workspace.xml
-__pycache__/
-client_secret/
-token_files/
-
-# Ignore virtual environment
-.venv/
+Thumbs.db
