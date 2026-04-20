@@ -73,37 +73,47 @@ const PhishingEmails = () => {
     useState<PhishingEmail | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/emails/emails")
-      .then((res) => {
-        if (!res.ok) throw new Error("Fetch failed");
-        return res.json();
-      })
-      .then((data: RawEmail[]) => {
-        const mapped = data.map((email) => ({
-          id: email.id.toString(),
-          sender: email.sender,
-          subject: email.subject,
-          classification: (
-            email.analysis?.model_label === "suspicious"
-              ? "Phishing"
-              : "Legitimate"
-          ) as "Phishing" | "Legitimate",
-          confidence: Math.round(
-            (email.analysis?.probability ?? 0) * 100
-          ),
-          timestamp: new Date(email.created_at).toLocaleString(),
-          raw: email,
-        }));
+  fetch("http://127.0.0.1:8000/api/ai/classifications")
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then((data: RawEmail[]) => {
+      // Check if data is actually an array before mapping
+      if (!Array.isArray(data)) {
+        throw new Error("Received data is not an array");
+      }
 
-        setEmails(mapped);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Could not load emails");
-        setLoading(false);
-      });
-  }, []);
+      const mapped = data.map((email) => ({
+        id: email.id?.toString() ?? Math.random().toString(),
+        sender: email.sender,
+        subject: email.subject,
+        classification: (
+          email.analysis?.model_label === "suspicious"
+            ? "Phishing"
+            : "Legitimate"
+        ) as "Phishing" | "Legitimate",
+        confidence: Math.round(
+          (email.analysis?.probability ?? 0) * 100
+        ),
+        timestamp: email.created_at 
+          ? new Date(email.created_at).toLocaleString() 
+          : "Unknown",
+        raw: email,
+      }));
+
+      setEmails(mapped);
+      setLoading(false);
+    })
+    .catch((err) => {
+      // Look at your browser console! This will tell you the EXACT error.
+      console.error("Fetch Error Detail:", err.message);
+      setError(`Could not load emails: ${err.message}`);
+      setLoading(false);
+    });
+}, []);
 
   const classificationBadge = (
     type: "Phishing" | "Legitimate",
