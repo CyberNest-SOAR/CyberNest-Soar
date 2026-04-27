@@ -1,13 +1,17 @@
 services:
   velociraptor:
-    image: graype28/velociraptor:latest
+    image: wlambert/velociraptor:latest
     container_name: velociraptor
+
     ports:
       - "8000:8000"
+      - "8001:8001"
       - "8889:8889"
+
     volumes:
-      - ./velociraptor-data:/data
-    command:
-      - server
-      - --config
-      - /data/config.yaml
+      - ./server.config.yaml:/etc/velociraptor/server.config.yaml
+      - ./velociraptor-data:/opt/velociraptor
+      - ./data:/var/log/velociraptor
+
+    entrypoint: ["/usr/local/bin/velociraptor"]
+    command: ["--config", "/etc/velociraptor/server.config.yaml", "frontend"]

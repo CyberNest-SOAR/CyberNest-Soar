@@ -1,0 +1,11 @@
+<decoder name="zeek-json">
+  <prematch>"log_type":"zeek"</prematch>
+</decoder>
+
+<decoder name="velociraptor-json">
+  <prematch>"log_type":"velociraptor"</prematch>
+</decoder>
+
+<decoder name="arkime-json">
+  <prematch>"log_type":"arkime"</prematch>
+</decoder>
