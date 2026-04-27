@@ -1,5 +1,20 @@
 # Wazuh App Copyright (C) 2017, Wazuh Inc. (License GPLv2)
 services:
+  wazuh.agent:
+    image: wazuh/wazuh-agent:4.14.0
+    hostname: wazuh.agent
+    restart: always
+    environment:
+      - WAZUH_MANAGER=wazuh.manager
+      - WAZUH_AGENT_NAME=suricata-agent
+    depends_on:
+      - wazuh.manager
+    volumes:
+      - ../../../sensors/ndr/suricata/suricata1/suricata/logs:/var/log/suricata:ro
+      - ./config/wazuh_agent/ossec.conf:/var/ossec/etc/ossec.conf
+    networks:
+      - wazuh
+
   wazuh.manager:
     image: wazuh/wazuh-manager:4.14.0
     hostname: wazuh.manager
@@ -42,7 +57,6 @@ services:
       - ./config/wazuh_indexer_ssl_certs/wazuh.manager.pem:/etc/ssl/filebeat.pem
       - ./config/wazuh_indexer_ssl_certs/wazuh.manager-key.pem:/etc/ssl/filebeat.key
       - ./config/wazuh_cluster/wazuh_manager.conf:/wazuh-config-mount/etc/ossec.conf
-      - /home/amir/Desktop/suricata-setup/suricata/logs:/var/log/suricata:ro  # الإضافة الجديدة
     networks:
       - wazuh
   wazuh.indexer:

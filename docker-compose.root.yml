@@ -52,8 +52,6 @@ services:
     extends:
       file: siem/wazuh/single-node/docker-compose.yml
       service: wazuh.dashboard
-    ports:
-      - "8443:5601"   # avoid conflict with MISP 443
     depends_on:
       - wazuh.manager
       - wazuh.indexer
@@ -78,15 +76,17 @@ services:
 
   suricata1:
     extends:
-      file: sensors/ndr/suricata/suricata1/docker-compose.suricata.yml
+      file: sensors/ndr/suricata/suricata1/docker-compose.yml
       service: suricata
-    # keep network_mode: host from child (needed for packet capture)
+    networks:
+      - soc_net
 
   zeek:
     extends:
       file: sensors/ndr/zeek/docker-compose.yml
       service: zeek
-    # keep network_mode: host from child (needed for packet capture)
+    networks:
+      - soc_net
 
 
   # -----------------------------
@@ -112,8 +112,7 @@ services:
     networks:
       - soc_net
 
-  # Named "elasticsearch" so TheHive/Cortex child depends_on resolve (child already uses 9201:9200 to avoid Wazuh)
-  elasticsearch:
+  thehive_elasticsearch:
     extends:
       file: services/orchestrator/thehive/docker-compose.yml
       service: elasticsearch
@@ -127,12 +126,12 @@ services:
     networks:
       - soc_net
 
-  cortex.local:
+  cortex:
     extends:
       file: services/orchestrator/thehive/docker-compose.yml
       service: cortex.local
     depends_on:
-      - elasticsearch
+      - thehive_elasticsearch
     networks:
       - soc_net
 
@@ -142,9 +141,8 @@ services:
       service: thehive
     depends_on:
       - cassandra
-      - elasticsearch
       - minio
-      - cortex.local
+      - cortex
     networks:
       - soc_net
 
@@ -184,8 +182,6 @@ services:
     depends_on:
       - misp
       - redis
-    links:
-      - misp:misp.local   # child image may expect hostname misp.local
     networks:
       - soc_net
 
@@ -198,6 +194,8 @@ networks:
   soc_net:
     driver: bridge
   wazuh:
+    driver: bridge
+  cortex:
     driver: bridge
 
 # Named volumes must match exactly what extended child compose files use.
