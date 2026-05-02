@@ -18,3 +18,5 @@ token_files/
 
 # Ignore virtual environment
 .venv/
+siem/wazuh/single-node/*.pem
+siem/wazuh/single-node/*.key
