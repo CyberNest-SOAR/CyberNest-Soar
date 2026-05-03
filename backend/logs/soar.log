@@ -1,4 +1,5 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 2025-11-15 22:10:47 INFO     [app.ai.phishing_model:59] Loaded sklearn artifacts from disk
 2025-11-15 22:10:47 INFO     [app.services.email_service:44] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
 2025-11-15 22:16:49 INFO     [app.controllers.classification:100] Received direct classification request for sender: user@example.com...
@@ -112,5 +113,7 @@ ValueError: X has 5008 features, but RandomForestClassifier is expecting 5000 fe
 2025-12-31 18:17:17 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
 2025-12-31 18:50:57 INFO     [app.ai.phishing_model:63] Loaded sklearn artifacts from disk
 2025-12-31 18:50:57 INFO     [app.services.email_service:46] EmailService initialized; model=/app/artifacts/phishing_model.joblib vectorizer=/app/artifacts/tfidf_vectorizer.joblib
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes

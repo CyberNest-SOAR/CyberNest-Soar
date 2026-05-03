@@ -1,0 +1,2 @@
+siem/wazuh/single-node/*.pem
+siem/wazuh/single-node/*.key
