@@ -6,4 +6,5 @@ __pycache__/
 token files/
 client_secret.json/
 # Ignore virtual environment
-.venv/
+.venv/siem/wazuh/single-node/*.key
+siem/wazuh/single-node/*.pem
