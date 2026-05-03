@@ -8,14 +8,13 @@ from ..models.email_models import (
     EmailCreateResponse,
     EmailPayload,
     EmailRecord,
+    EmailRecordBasic,
     EmailSyncResponse,
-    FeedbackPayload,
 )
 from ..services.email_service import EmailService
 
 
-router = APIRouter(prefix="/api/emails", tags=["emails"])
-
+router = APIRouter(prefix="/api", tags=["emails"])
 
 
 def get_email_service(request: Request) -> EmailService:
@@ -42,43 +41,21 @@ def submit_email(
     return service.create_manual_email(payload)
 
 
-@router.get("/emails", response_model=list[EmailRecord])
+@router.get("/emails", response_model=list[EmailRecordBasic])
 def list_emails(
     limit: int = Query(20, ge=1, le=200),
     offset: int = Query(0, ge=0),
     service: EmailService = Depends(get_email_service),
-) -> list[EmailRecord]:
-    return service.list_emails(limit=limit, offset=offset)
+) -> list[EmailRecordBasic]:
+    return service.list_emails_basic(limit=limit, offset=offset)
 
 
-@router.get("/emails/{gmail_id}", response_model=EmailRecord)
+@router.get("/emails/{gmail_id}", response_model=EmailRecordBasic)
 def get_email(
     gmail_id: str,
     service: EmailService = Depends(get_email_service),
-) -> EmailRecord:
-    record = service.get_email(gmail_id)
+) -> EmailRecordBasic:
+    record = service.get_email_basic(gmail_id)
     if not record:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Email not found")
     return record
-
-
-@router.post("/emails/{gmail_id}/feedback", status_code=status.HTTP_200_OK)
-def submit_feedback(
-    gmail_id: str,
-    payload: FeedbackPayload,
-    service: EmailService = Depends(get_email_service),
-):
-    """Capture user feedback: True if model classification was correct, False if wrong."""
-
-    try:
-        service.submit_feedback(gmail_id=gmail_id, is_correct=payload.is_correct)
-        return {
-            "status": "ok", 
-            "gmail_id": gmail_id, 
-            "is_correct": payload.is_correct,
-            "message": "Feedback captured successfully"
-        }
-    except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
-    except Exception as exc:  # pragma: no cover - safety net
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))

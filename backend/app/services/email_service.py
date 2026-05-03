@@ -25,6 +25,7 @@ from ..models.email_models import (
     EmailCreateResponse,
     EmailPayload,
     EmailRecord,
+    EmailRecordBasic,
     EmailSyncResponse,
 )
 from ..repository.gmail_db import EmailRepository
@@ -92,9 +93,17 @@ class EmailService:
         records = self.repository.list_emails(limit=limit, offset=offset)
         return [EmailRecord(**record) for record in records]
 
+    def list_emails_basic(self, limit: int = 50, offset: int = 0) -> List[EmailRecordBasic]:
+        records = self.repository.list_emails(limit=limit, offset=offset)
+        return [EmailRecordBasic(**record) for record in records]
+
     def get_email(self, gmail_id: str) -> EmailRecord | None:
         record = self.repository.get_email(gmail_id)
         return EmailRecord(**record) if record else None
+
+    def get_email_basic(self, gmail_id: str) -> EmailRecordBasic | None:
+        record = self.repository.get_email(gmail_id)
+        return EmailRecordBasic(**record) if record else None
 
     def sync_with_gmail(self, max_results: int | None = None) -> EmailSyncResponse:
         client_file = self.settings.google_client_secret_file

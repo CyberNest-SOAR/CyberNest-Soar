@@ -1,4 +1,5 @@
 # app/config/settings.py
+
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
@@ -29,6 +30,8 @@ class Settings(BaseSettings):
         default="token_files",
         description="Directory for cached Google OAuth tokens",
     )
+    # Resolve artifacts directory relative to the package root so settings
+    # are not sensitive to the current working directory when the app is run.
     _package_root = Path(__file__).resolve().parents[2]
     _default_artifacts = _package_root / "artifacts"
 
@@ -38,14 +41,14 @@ class Settings(BaseSettings):
     )
     vectorizer_artifact_path: Path = Field(
         default=_default_artifacts / "tfidf_vectorizer.joblib",
-        description="Location of persisted TF-IDF vectorizer",
+        description="Location of persisted TF-IDF vectorizer (tfidf_vectorizer.joblib)",
     )
     training_data_path: Path = Field(
         default=Path("data/data.csv"),
         description="Default CSV dataset for training the phishing detector",
     )
 
-    # Pydantic v2 config
+    # Enable `.env` loading automatically
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

@@ -48,8 +48,6 @@ def create_service(
             flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
             creds = flow.run_local_server(port=0)
 
-
-
     with open(os.path.join(working_dir, token_dir, token_file), "w") as token:
         token.write(creds.to_json())
 
