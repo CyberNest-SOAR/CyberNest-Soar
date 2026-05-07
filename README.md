@@ -149,3 +149,4 @@ Feel free to use or adapt it for learning or non-commercial purposes.
 
 
 ### [ SECURITY_NOTICE ] CyberNestSoar is currently under developement. Soon! Monitoring all incoming telemetry for anomalous signatures.
+
