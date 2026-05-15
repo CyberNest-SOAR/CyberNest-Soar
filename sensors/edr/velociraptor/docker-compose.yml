@@ -2,12 +2,15 @@ services:
   velociraptor:
     image: graype28/velociraptor-fixed:latest
     container_name: velociraptor
+
     ports:
       - "8000:8000"
       - "8889:8889"
+
     volumes:
       - ./velociraptor-data:/data
-      - ./velociraptor-logs:/var/tmp/velociraptor
+      - ./velociraptor-logs:/logs
+
     command:
       [
         "/opt/velociraptor/linux/velociraptor",
@@ -17,10 +20,13 @@ services:
       ]
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.12.0
+    image: docker.elastic.co/beats/filebeat-oss:7.10.2
     container_name: filebeat
+
     user: root
+
     volumes:
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - ./velociraptor-logs:/logs
-    command: filebeat -e -strict.perms=false
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./velociraptor-logs:/logs:ro
+
+    command: filebeat -e --strict.perms=false

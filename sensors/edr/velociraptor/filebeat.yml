@@ -1,18 +1,21 @@
 filebeat.inputs:
-  - type: filestream
-    id: velociraptor_logs
+  - type: log
     enabled: true
     paths:
-      - /data/*.log
-      - /data/**/*.log
-      - /data/*.json
-      - /data/**/*.json
+      - /logs/**/*.json
+
+    scan_frequency: 5s
+    tail_files: false
 
 processors:
   - add_host_metadata: ~
 
 output.elasticsearch:
-  hosts: ["http://host.docker.internal:9200"]
+  hosts: ["https://host.docker.internal:9200"]
+  username: "admin"
+  password: "SecretPassword"
+  ssl.verification_mode: none
+  allow_older_versions: true
 
 setup.kibana:
   host: "http://host.docker.internal:5601"
