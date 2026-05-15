@@ -26,3 +26,12 @@ node_modules/
 # OS
 .DS_Store
 Thumbs.db
+ 
+# Velociraptor runtime
+sensors/edr/velociraptor/velociraptor-logs/
+
+# TheHive runtime configs
+services/orchestrator/thehive/server-configs/
+
+# TheHive SSL
+services/orchestrator/thehive/ssl/

@@ -7,4 +7,20 @@ services:
       - "8889:8889"
     volumes:
       - ./velociraptor-data:/data
-    command: ["/opt/velociraptor/linux/velociraptor", "--config", "/data/config.yaml", "frontend"]
+      - ./velociraptor-logs:/var/tmp/velociraptor
+    command:
+      [
+        "/opt/velociraptor/linux/velociraptor",
+        "--config",
+        "/data/config.yaml",
+        "frontend"
+      ]
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.12.0
+    container_name: filebeat
+    user: root
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./velociraptor-logs:/logs
+    command: filebeat -e -strict.perms=false
