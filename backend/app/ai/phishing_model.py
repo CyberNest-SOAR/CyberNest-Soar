@@ -24,6 +24,7 @@ import joblib
 import numpy as np  # NEW
 import scipy.sparse as sp  # NEW
 import pandas as pd
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import classification_report
@@ -77,19 +78,32 @@ class SklearnDetector:
     def is_ready(self) -> bool:
         return self.model is not None and self.vectorizer is not None
 
-    # Convert enrichment features to fixed-order numerical vector
+    # Convert enrichment features to fixed-order numerical vector.
+    # Order is persisted with the trained model — append new features at the
+    # end and retrain when changing this list.
     @staticmethod
     def _enrichment_vector(subject: str, body: str) -> np.ndarray:
         feats = enrichment_features(subject, body)
         return np.array([
-            feats["subject_len"],        # 0
-            feats["text_len"],           # 1
-            feats["num_urls"],           # 2
-            1.0 if feats["has_shortener"] else 0.0,  # 3
-            feats["num_exclamations"],   # 4
-            feats["num_upper_words"],    # 5
-            feats["num_suspicious_words"],  # 6
-            feats["html_ratio"],         # 7
+            feats["subject_len"],                     # 0
+            feats["text_len"],                        # 1
+            feats["num_urls"],                        # 2
+            1.0 if feats["has_shortener"] else 0.0,   # 3
+            feats["num_exclamations"],                # 4
+            feats["num_upper_words"],                 # 5
+            feats["num_suspicious_words"],            # 6
+            feats["html_ratio"],                      # 7
+            feats["avg_url_length"],                  # 8
+            feats["max_url_length"],                  # 9
+            feats["num_url_dots"],                    # 10
+            feats["num_url_hyphens"],                 # 11
+            1.0 if feats["has_ip_url"] else 0.0,      # 12
+            1.0 if feats["has_punycode"] else 0.0,    # 13
+            1.0 if feats["has_suspicious_tld"] else 0.0,  # 14
+            feats["https_ratio"],                     # 15
+            1.0 if feats["has_at_in_url"] else 0.0,   # 16
+            feats["anchor_href_mismatch"],            # 17
+            1.0 if feats["brand_impersonation"] else 0.0,  # 18
         ], dtype=np.float32)
 
     # NEW: batch processing for enrichment vectors - more efficient for training
@@ -191,7 +205,12 @@ class SklearnDetector:
         X_train, X_test, y_train, y_test = train_test_split(
             X_full, y, test_size=0.2, random_state=42, stratify=y
         )
-        self.model = RandomForestClassifier(n_estimators=100, random_state=42)
+        # class_weight="balanced" handles label skew; CalibratedClassifierCV
+        # makes predict_proba meaningful so the threshold is interpretable.
+        base_rf = RandomForestClassifier(
+            n_estimators=100, random_state=42, class_weight="balanced"
+        )
+        self.model = CalibratedClassifierCV(estimator=base_rf, cv=3, method="sigmoid")
         self.model.fit(X_train, y_train)
         y_pred = self.model.predict(X_test)
 
