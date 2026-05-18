@@ -83,6 +83,8 @@ celerybeat-schedule
 
 # Environments
 .env
+.env.local
+.env.*.local
 .venv
 env/
 venv/
@@ -108,6 +110,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Python tooling caches
+.ruff_cache/
+.nox/
+pip-wheel-metadata/
+
 # IDE files
 .vscode/
 .idea/
@@ -116,14 +123,23 @@ dmypy.json
 
 # Logs
 logs/
+*.log.*
 
-# Models and data
+# Runtime databases
+*.sqlite
+*.sqlite3
+
+# Models, training outputs, and generated reports
+artifacts/
+backend/artifacts/
 *.pkl
 *.model
 data/models/*
 
 # Node.js
 node_modules/
+.npm/
+.pnpm-store/
 
 # macOS
 .DS_Store
@@ -143,6 +159,36 @@ data/_training_buffer.csv
 
 # Joblib models
 *.joblib
+
+# Generated archives and installers
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.deb
+*.rpm
+*.msi
+
+# Generated certificates and private keys
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+**/wazuh_indexer_ssl_certs/
+
+# Sensor and container runtime data
+arkime-logs/
+arkime-pcap/
+opensearch-data/
+elasticsearch-data/
+wazuh-indexer-data/
+wazuh-manager-data/
+filebeat-data/
+eve.json
+*.pcap
+*.pcapng
 
 # Ansible
 *.retry
