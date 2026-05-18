@@ -27,8 +27,8 @@ import Logo from "../logts-nobg.png";
 import { UserRole } from "@/hooks/useAuth";
 
 const adminMenuItems = [
-  { title: "Admin Dashboard", url: "/admin-dashboard", icon: Users },
-  { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
+  { title: "Team Monitoring", url: "/admin-dashboard", icon: Users },
+  { title: "Threat Analysis Dashboard", url: "/dashboard", icon: BarChart3 },
   { title: "Monitoring", url: "/monitoring", icon: Monitor },
   { title: "Threat Intelligence", url: "/threat-intelligence", icon: Search },
   { title: "Logs Dashboard", url: "/logs", icon: Terminal },
