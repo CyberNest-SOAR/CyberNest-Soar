@@ -1,0 +1,77 @@
+Merge remote-tracking branch 'origin/test_backend'
+
+# Conflicts:
+#	.gitignore
+#	README.md
+#
+# It looks like you may be committing a merge.
+# If this is not correct, please run
+#	git update-ref -d MERGE_HEAD
+# and try again.
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch main
+# Your branch is up to date with 'origin/main'.
+#
+# All conflicts fixed but you are still merging.
+#
+# Changes to be committed:
+#	modified:   .gitignore
+#	modified:   README.md
+#	new file:   artifacts/class_distribution.png
+#	new file:   artifacts/confusion_matrix.png
+#	new file:   artifacts/phishing_model.joblib
+#	new file:   artifacts/tfidf_vectorizer.joblib
+#	new file:   backend/.dockerignore
+#	new file:   backend/.env
+#	new file:   backend/.idea/inspectionProfiles/profiles_settings.xml
+#	new file:   backend/.idea/misc.xml
+#	new file:   backend/.idea/modules.xml
+#	new file:   backend/.idea/soar.iml
+#	new file:   backend/.idea/vcs.xml
+#	new file:   backend/.idea/workspace.xml
+#	new file:   backend/Dockerfile
+#	new file:   backend/app/__init__.py
+#	new file:   backend/app/__pycache__/__init__.cpython-313.pyc
+#	new file:   backend/app/__pycache__/main.cpython-313.pyc
+#	new file:   backend/app/ai/__pycache__/phishing_model.cpython-313.pyc
+#	new file:   backend/app/ai/phishing_model.py
+#	new file:   backend/app/ai/train_model.py
+#	new file:   backend/app/client/__pycache__/gmail_api.cpython-313.pyc
+#	new file:   backend/app/client/gmail_api.py
+#	new file:   backend/app/config/__pycache__/settings.cpython-313.pyc
+#	new file:   backend/app/config/logging_config.py
+#	new file:   backend/app/config/settings.py
+#	new file:   backend/app/controllers/__pycache__/classification.cpython-313.pyc
+#	new file:   backend/app/controllers/__pycache__/emails.cpython-313.pyc
+#	new file:   backend/app/controllers/__pycache__/endpoints.cpython-313.pyc
+#	new file:   backend/app/controllers/classification.py
+#	new file:   backend/app/controllers/emails.py
+#	new file:   backend/app/models/__pycache__/email_models.cpython-313.pyc
+#	new file:   backend/app/models/__pycache__/model.cpython-313.pyc
+#	new file:   backend/app/models/email_models.py
+#	new file:   backend/app/repository/__pycache__/gmail_db.cpython-313.pyc
+#	new file:   backend/app/repository/feedback_repo.py
+#	new file:   backend/app/repository/gmail_db.py
+#	new file:   backend/app/services/__pycache__/email_service.cpython-313.pyc
+#	new file:   backend/app/services/__pycache__/service.cpython-313.pyc
+#	new file:   backend/app/services/email_service.py
+#	new file:   backend/app/services/enrichment_service.py
+#	new file:   backend/artifacts/class_distribution.png
+#	new file:   backend/artifacts/confusion_matrix.png
+#	new file:   backend/artifacts/phishing_model.joblib
+#	new file:   backend/artifacts/tfidf_vectorizer.joblib
+#	new file:   backend/data/_training_buffer.csv
+#	new file:   backend/data/data.csv
+#	new file:   backend/data/feedback.csv
+#	new file:   backend/infra/docker-compose.yml
+#	new file:   backend/logs/soar.log
+#	new file:   backend/main.py
+#	new file:   backend/openAuth.py
+#	new file:   backend/requirements.txt
+#	new file:   backend/tests/__pycache__/test_detector.cpython-313-pytest-8.4.2.pyc
+#	new file:   backend/tests/test_detector.py
+#

@@ -1,0 +1,5 @@
+alert tcp any any -> $HOME_NET 22 (msg:"Brute Force Attempt - SSH"; flow:to_server; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:3000001; rev:1;)
+alert http any any -> $HOME_NET 80 (msg:"Brute Force Attempt - Web Login"; flow:established,to_server; content:"password="; http_client_body; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:3000002; rev:1;)
+alert tcp any any -> $HOME_NET 22 (msg:"Brute Force - Rapid SSH Attempts"; flow:to_server; flags:S; threshold:type both, track by_src, count 10, seconds 30; classtype:attempted-admin; sid:3000003; rev:1;)
+alert tcp any any -> $HOME_NET 21 (msg:"Brute Force - FTP Login Attempts"; flow:to_server; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:3000004; rev:1;)
+alert http any any -> $HOME_NET 80 (msg:"Credential Stuffing Attempt"; flow:established,to_server; content:"POST"; http_method; content:"password="; http_client_body; threshold:type both, track by_src, count 15, seconds 60; classtype:attempted-admin; sid:3000005; rev:1;)

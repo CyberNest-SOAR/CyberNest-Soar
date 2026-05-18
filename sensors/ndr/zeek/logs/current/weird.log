@@ -1,0 +1,5 @@
+{"ts":1773171784.501842,"uid":"CgZFAo2ydIRr01Inab","id.orig_h":"192.168.1.79","id.orig_p":59048,"id.resp_h":"142.251.141.238","id.resp_p":443,"name":"QUIC_spurious_short_header_packet_threshold_crossed","addl":"1","notice":false,"peer":"zeek"}
+{"ts":1773171784.501925,"uid":"Cr6r4Y1fbC4BjrV7ah","id.orig_h":"192.168.1.79","id.orig_p":41405,"id.resp_h":"172.217.23.78","id.resp_p":443,"name":"QUIC_spurious_short_header_packet_threshold_crossed","addl":"1","notice":false,"peer":"zeek"}
+{"ts":1773171950.715805,"uid":"CUnWS247ImqXa51Sj2","id.orig_h":"192.168.1.79","id.orig_p":57622,"id.resp_h":"104.21.40.220","id.resp_p":443,"name":"truncated_tcp_payload","notice":false,"peer":"zeek","source":"TCP"}
+{"ts":1773171954.677322,"uid":"CzCjeb4LrErRt1Te49","id.orig_h":"192.168.1.79","id.orig_p":42350,"id.resp_h":"3.175.196.97","id.resp_p":443,"name":"truncated_tcp_payload","notice":false,"peer":"zeek","source":"TCP"}
+{"ts":1773172010.399587,"uid":"Cw58i72WvdGBN5zlDj","id.orig_h":"192.168.1.79","id.orig_p":34444,"id.resp_h":"172.67.157.37","id.resp_p":443,"name":"truncated_tcp_payload","notice":false,"peer":"zeek","source":"TCP"}

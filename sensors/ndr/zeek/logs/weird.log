@@ -1,0 +1,1 @@
+{"ts":1776817910.843238,"uid":"C0jCX04aRGc1SmDish","id.orig_h":"192.168.1.79","id.orig_p":60175,"id.resp_h":"142.251.209.42","id.resp_p":443,"name":"QUIC_spurious_short_header_packet_threshold_crossed","addl":"1","notice":false,"peer":"zeek"}

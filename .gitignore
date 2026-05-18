@@ -8,4 +8,15 @@ data/models/*
 node_modules/
 .DS_Store
 venv/
+
+# Default ignored files
+/shelf/
+/workspace.xml
+__pycache__/
+client_secret/
+token_files/
+
+# Ignore virtual environment
 .venv/
+siem/wazuh/single-node/*.pem
+siem/wazuh/single-node/*.key

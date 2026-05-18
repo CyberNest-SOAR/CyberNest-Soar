@@ -50,7 +50,6 @@ services:
       - ./suricata/config/suricata.yaml:/etc/suricata/suricata.yaml:ro
       - ./suricata/rules:/var/lib/suricata/rules:rw
       - ./suricata/logs:/var/log/suricata
-      - ./rules:/var/lib/suricata/rules:rw
     command: -i ${SURICATA_NIC}
     restart: no
 

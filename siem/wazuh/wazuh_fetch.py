@@ -3,7 +3,6 @@ import json
 from requests.auth import HTTPBasicAuth
 import urllib3
 
-# تعطيل التحذيرات
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # ===== Wazuh API =====

@@ -1,0 +1,25 @@
+<group name="custom,zeek,velociraptor,arkime">
+
+  <rule id="100000" level="3">
+    <decoded_as>catch-all-json</decoded_as>
+    <description>Generic JSON log ingested</description>
+  </rule>
+
+  <rule id="100001" level="8">
+    <decoded_as>zeek-json</decoded_as>
+    <description>Zeek log received</description>
+  </rule>
+
+  <rule id="100002" level="10">
+    <decoded_as>velociraptor-json</decoded_as>
+    <description>Velociraptor activity detected</description>
+  </rule>
+
+  <rule id="100003" level="7">
+    <decoded_as>arkime-json</decoded_as>
+    <description>Arkime session log</description>
+  </rule>
+
+</group>
+
+
