@@ -1,22 +1,153 @@
+# Python bytecode and caches
 __pycache__/
-*.pyc
-*.log
-.env
-*.pkl
-*.model
-data/models/*
-node_modules/
-.DS_Store
-venv/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.nox/
+.tox/
+.hypothesis/
+.cache/
+pip-wheel-metadata/
 
-# Default ignored files
-/shelf/
-/workspace.xml
-__pycache__/
+# Python build and packaging output
+.Python
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+wheels/
+MANIFEST
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment files and local secrets
+.env
+.env.*
+!.env.example
 client_secret/
 token_files/
+local_settings.py
 
-# Ignore virtual environment
-.venv/
-siem/wazuh/single-node/*.pem
-siem/wazuh/single-node/*.key
+# IDE, editor, and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+/shelf/
+/workspace.xml
+
+# Accidental local artifact
+
+
+# Logs and runtime databases
+logs/
+*.log
+*.log.*
+*.sqlite
+*.sqlite3
+db.sqlite3
+instance/
+
+# Node/package manager output
+node_modules/
+.npm/
+.pnpm-store/
+
+# Generated ML artifacts, reports, and local datasets
+artifacts/
+backend/artifacts/
+*.pkl
+*.joblib
+*.model
+data/models/
+data/datasets/**
+!data/datasets/.gitkeep
+data/feedback/**
+!data/feedback/.gitkeep
+backend/data/*.csv
+backend/data/*.json
+
+# Downloaded archives, installers, and large packages
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.deb
+*.deb.*
+*.rpm
+*.msi
+
+# Generated certificates, keys, and certificate bundles
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+**/wazuh_indexer_ssl_certs/
+
+# Sensor runtime data
+arkime-logs/
+arkime-pcap/
+opensearch-data/
+elasticsearch-data/
+wazuh-indexer-data/
+wazuh-manager-data/
+filebeat-data/
+**/logs/
+eve.json
+*.pcap
+*.pcapng
+sensors/ndr/zeek/logs/
+sensors/ndr/suricata/*/suricata/logs/
+sensors/ndr/suricata/suricata-setup/suricata/rules/suricata.rules
+
+# Velociraptor local runtime output
+sensors/edr/velociraptor/velociraptor
+sensors/edr/velociraptor/data/
+sensors/edr/velociraptor/server.config.yaml
+
+# Local generated dumps
+all-dockers.txt
+allrestymlandconf.txt
+siem/wazuh/single-node/sample-data.json
+
+# Documentation build output
+docs/_build/
+book/
+site/
+/site/
+
+# Terraform and Ansible
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfplan
+*.retry
