@@ -1,0 +1,4 @@
+alert http any any -> any any (msg:"REAL_ATTACK_DETECTED"; content:"BlackSun"; http_user_agent; sid:9000005; rev:1;)
+alert http any any -> any any (msg:"SURICATA_REAL_ATTACK_DETECTED"; content:"REAL_ATTACK"; sid:9900001; rev:1;)
+alert tcp any any -> any any (msg:"REAL_TCP_ATTACK_DETECTED"; content:"BlackSun"; sid:9900009; rev:1;)
+alert udp any any -> any any (msg:"REAL_UDP_ATTACK_DETECTED"; content:"BlackSun"; sid:9900011; rev:1;)

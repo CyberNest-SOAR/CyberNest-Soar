@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  zeek:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zeek
+    network_mode: host
+    restart: always
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ./logs:/usr/local/zeek/logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

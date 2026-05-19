@@ -1,0 +1,50 @@
+import json
+import datetime
+
+def overwrite_zeek_log(payloads):
+    path = r"c:\Users\LOQ\OneDrive\Desktop\open_sources_integration\zeek\zeek1\logs\wazuh_zeek.log"
+    # Open in 'w' mode to completely wipe the old invalid JSON content!
+    with open(path, 'w') as f:
+        for payload in payloads:
+            f.write(json.dumps(payload) + '\n')
+    print(f"[+] Re-created wazuh_zeek.log with {len(payloads)} clean JSON lines.")
+
+if __name__ == "__main__":
+    print("--- Truncating and Injecting clean ISO 8601 logs into wazuh_zeek.log ---")
+    
+    # Format ts as ISO 8601 string (e.g. 2026-05-17T02:52:53.000Z)
+    ts_iso = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    
+    payloads = [
+        # 1. Zeek HTTP Log (Matches Rule 100001)
+        {
+            "ts": ts_iso,
+            "uid": "CHk4T23Z0jJ8P6y65l",
+            "id.orig_h": "192.168.1.10",
+            "id.orig_p": 54321,
+            "id.resp_h": "93.184.216.34",
+            "id.resp_p": 80,
+            "proto": "tcp",
+            "service": "http",
+            "duration": 0.5,
+            "method": "GET",
+            "host": "example.com",
+            "uri": "/test-zeek-http-alert"
+        },
+        # 2. Zeek TCP Connection Log (Matches Rule 100002)
+        {
+            "ts": ts_iso,
+            "uid": "CHk4T23Z0jJ8P6y652",
+            "id.orig_h": "192.168.1.20",
+            "id.orig_p": 4444,
+            "id.resp_h": "8.8.8.8",
+            "id.resp_p": 53,
+            "proto": "tcp",
+            "service": "dns",
+            "duration": 0.01,
+            "conn_state": "SF"
+        }
+    ]
+    
+    overwrite_zeek_log(payloads)
+    print("\n[!] Truncation complete. Ready to restart zeek-agent.")

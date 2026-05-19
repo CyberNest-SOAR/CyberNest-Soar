@@ -1,0 +1,8 @@
+<decoder name="zeek">
+  <prematch>^zeek: </prematch>
+</decoder>
+
+<decoder name="zeek-child">
+  <parent>zeek</parent>
+  <plugin_decoder>JSON_Decoder</plugin_decoder>
+</decoder>

@@ -1,0 +1,1 @@
+alert http any any -> any any (msg:"Brute Force - Web Login"; flow:established,to_server; content:"POST"; http_method; content:"password="; http_client_body; threshold:type both, track by_src, count 3, seconds 60; classtype:attempted-admin; sid:3000001; rev:1;)

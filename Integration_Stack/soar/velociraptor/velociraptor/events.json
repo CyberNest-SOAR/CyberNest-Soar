@@ -1,0 +1,6 @@
+{"message": "VELOCIRAPTOR_ANALYSIS_COMPLETE"}
+{"message": "VELOCIRAPTOR_MASTER_INTEGRATION_VERIFIED"}
+{"log_type": "velociraptor", "timestamp": "2026-05-16T13:11:39Z", "message": "VELOCIRAPTOR_TEST Manual forensic event injected", "client_id": "C.test001", "artifact": "Windows.System.Pslist", "level": "WARNING"}
+{"log_type": "velociraptor", "timestamp": "2026-05-16T16:29:12Z", "message": "VELOCIRAPTOR_ALERT: Potential Ransomware Activity Detected", "client_id": "C.1001"}
+{"log_type": "velociraptor", "timestamp": "2026-05-16T13:39:19Z", "message": "VELOCIRAPTOR_ALERT: Unauthorized privilege escalation detected", "client_id": "C.RealTrafficTest", "artifact": "Windows.System.Privileges", "level": "CRITICAL"}
+{"log_type": "velociraptor", "timestamp": "2026-05-16T13:43:07Z", "message": "VELOCIRAPTOR_ALERT: Unauthorized privilege escalation detected", "client_id": "C.RealTrafficTest", "artifact": "Windows.System.Privileges", "level": "CRITICAL"}

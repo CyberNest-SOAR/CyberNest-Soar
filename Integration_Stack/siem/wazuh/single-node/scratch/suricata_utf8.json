@@ -1,0 +1,1 @@
+{"timestamp": "2026-05-16T03:10:00.000000+0000", "event_type": "alert", "alert": {"action": "allowed", "gid": 1, "signature_id": 2000001, "rev": 1, "signature": "DDoS_UTF8_SUCCESS", "category": "Network-Attack", "severity": 1}}
