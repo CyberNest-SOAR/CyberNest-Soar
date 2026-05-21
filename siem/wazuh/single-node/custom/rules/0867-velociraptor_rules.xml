@@ -1,0 +1,61 @@
+<group name="custom,sensor,velociraptor,edr">
+
+  <rule id="100021" level="5">
+    <decoded_as>velociraptor-json</decoded_as>
+    <description>Velociraptor EDR sensor log received</description>
+    <group>velociraptor,endpoint_monitor</group>
+  </rule>
+
+  <rule id="100022" level="10">
+    <decoded_as>velociraptor-json</decoded_as>
+    <field name="level">CRITICAL</field>
+    <description>Velociraptor CRITICAL alert: EDR detected critical threat</description>
+    <group>velociraptor,endpoint_threat,critical</group>
+  </rule>
+
+  <rule id="100023" level="8">
+    <decoded_as>velociraptor-json</decoded_as>
+    <field name="level">HIGH</field>
+    <description>Velociraptor HIGH alert: EDR detected significant threat</description>
+    <group>velociraptor,endpoint_threat,high</group>
+  </rule>
+
+  <rule id="100024" level="5">
+    <decoded_as>velociraptor-json</decoded_as>
+    <field name="level">MEDIUM</field>
+    <description>Velociraptor MEDIUM alert: EDR detected suspicious activity</description>
+    <group>velociraptor,endpoint_threat,medium</group>
+  </rule>
+
+  <rule id="100025" level="3">
+    <decoded_as>velociraptor-json</decoded_as>
+    <field name="level">LOW</field>
+    <description>Velociraptor LOW alert: EDR informational event</description>
+    <group>velociraptor,endpoint_info,low</group>
+  </rule>
+
+</group>
+
+<group name="custom,sensor,arkime,ndr">
+
+  <rule id="100031" level="5">
+    <decoded_as>arkime-json</decoded_as>
+    <description>Arkime NDR sensor log received</description>
+    <group>arkime,network_monitor</group>
+  </rule>
+
+  <rule id="100032" level="8">
+    <decoded_as>arkime-json</decoded_as>
+    <field name="tags">ransomware</field>
+    <description>Arkime session tagged as ransomware - potential threat</description>
+    <group>arkime,network_threat,ransomware</group>
+  </rule>
+
+  <rule id="100033" level="7">
+    <decoded_as>arkime-json</decoded_as>
+    <field name="tags">malware</field>
+    <description>Arkime session tagged as malware - potential C2 communication</description>
+    <group>arkime,network_threat,malware</group>
+  </rule>
+
+</group>

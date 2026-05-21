@@ -5,34 +5,57 @@ services:
     environment:
       - discovery.type=single-node
       - plugins.security.disabled=true
-    ports:
-      - "9200:9200"
+      - cluster.blocks.create_index=false
+    # No host port — internal only; use container name on the Docker network
     volumes:
+      - ./opensearch-config/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
       - ./opensearch-data:/usr/share/opensearch/data
 
+  arkime-init:
+    image: arkime:local
+    container_name: arkime-init
+    depends_on:
+      - opensearch
+    volumes:
+      - ./arkime-config:/opt/arkime/etc
+    command: >
+      sh -c "/opt/arkime/db/db.pl --insecure http://arkime-opensearch:9200 init && 
+             /opt/arkime/db/db.pl --insecure http://arkime-opensearch:9200 upgradenoprompt --ifneeded"
+    restart: "no"
+
   arkime-viewer:
-    image: ghcr.io/arkime/arkime/arkime:v5-latest
+    image: arkime:local
     container_name: arkime-viewer
     depends_on:
       - opensearch
+      - arkime-init
     ports:
       - "8005:8005"
+    environment:
+      - ARKIME__elasticsearch=http://arkime-opensearch:9200
     volumes:
       - ./arkime-config:/opt/arkime/etc
       - ./arkime-pcap:/data/pcap
       - ./arkime-logs:/opt/arkime/logs
-    command: /opt/arkime/bin/docker.sh viewer
+    command: /opt/arkime/bin/docker.sh viewer --insecure --wait-for-db http://arkime-opensearch:9200
 
   arkime-capture:
-    image: ghcr.io/arkime/arkime/arkime:v5-latest
+    image: arkime:local
     container_name: arkime-capture
     depends_on:
       - opensearch
+      - arkime-init
     cap_add:
       - NET_ADMIN
       - NET_RAW
+    environment:
+      - ARKIME__elasticsearch=http://arkime-opensearch:9200
     volumes:
       - ./arkime-config:/opt/arkime/etc
       - ./arkime-pcap:/data/pcap
       - ./arkime-logs:/opt/arkime/logs
-    command: /opt/arkime/bin/capture -R /data/pcap
+    command: /opt/arkime/bin/docker.sh capture --insecure --wait-for-db http://arkime-opensearch:9200
+networks:
+  default:
+    name: wazuh
+    external: true

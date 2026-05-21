@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from schemas.models import UnifiedAlert, HostContext, EnrichmentData
 import logging
 import uuid
@@ -7,85 +7,164 @@ import uuid
 logger = logging.getLogger(__name__)
 
 
+def _extract_source(raw: Dict[str, Any]) -> str:
+    """Detect whether the alert originated from Suricata or Wazuh."""
+    _source = raw.get("_source", raw)
+    rule = _source.get("rule", {})
+    groups = rule.get("groups", [])
+    decoder_name = _source.get("decoder", {}).get("name", "")
+    event_type = _source.get("data", {}).get("event_type", "")
+
+    if "suricata" in groups:
+        return "suricata"
+    if decoder_name == "json" and event_type == "alert":
+        return "suricata"
+    return "wazuh"
+
+
+def _extract_event_id(source: Dict[str, Any]) -> str:
+    return source.get("id") or str(uuid.uuid4())
+
+
+def _extract_timestamp(source: Dict[str, Any]) -> datetime:
+    ts = source.get("@timestamp") or source.get("timestamp")
+    if ts:
+        try:
+            return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+        except (ValueError, AttributeError):
+            pass
+    return datetime.now(timezone.utc)
+
+
+def _extract_severity(source: Dict[str, Any]) -> int:
+    return source.get("rule", {}).get("level", 0)
+
+
+def _extract_description(source: Dict[str, Any], source_type: str) -> str:
+    rule = source.get("rule", {})
+    desc = rule.get("description", "")
+    if desc:
+        return desc
+    if source_type == "suricata":
+        return source.get("data", {}).get("alert", {}).get("signature", "Suricata Alert")
+    return "Unknown Alert"
+
+
 def _extract_best_ip(source: Dict[str, Any]) -> str:
     """
-    Extract the most meaningful IP from a Wazuh alert.
+    Extract the most meaningful IP from an alert.
 
     Priority order:
-    1. data.srcip  — the actual attacker/source IP from the alert data
-    2. data.dstip  — the destination IP (useful for outbound threat detection)
-    3. data.src_ip — alternative field name used by some decoders
-    4. data.dst_ip — alternative destination field name
-    5. agent.ip    — the Wazuh agent's own IP (usually private, fallback only)
+    1. data.src_ip  — actual attacker/source IP (Suricata field)
+    2. data.srcip   — legacy field name
+    3. data.dest_ip — destination IP (Suricata field)
+    4. data.dstip   — legacy destination field
+    5. data.dst_ip  — alternative destination field
+    6. agent.ip     — Wazuh agent IP (fallback)
     """
     data = source.get("data", {})
     if isinstance(data, dict):
-        for field in ("srcip", "dstip", "src_ip", "dst_ip"):
+        for field in ("src_ip", "srcip", "dest_ip", "dstip", "dst_ip"):
             ip = data.get(field)
-            if ip and ip.strip() and ip.strip().lower() != "unknown":
+            if ip and isinstance(ip, str) and ip.strip().lower() not in ("", "unknown"):
                 return ip.strip()
 
-    # Fallback to agent IP
     agent_ip = source.get("agent", {}).get("ip", "unknown")
     return agent_ip
+
+
+def _extract_os_name(source: Dict[str, Any]) -> Optional[str]:
+    agent = source.get("agent", {})
+    return agent.get("os", {}).get("name") if isinstance(agent.get("os"), dict) else None
+
+
+def _build_alert(
+    raw: Dict[str, Any],
+    source_type: str,
+    event_id: str,
+    timestamp: datetime,
+    description: str,
+    severity: int,
+    host_context: HostContext,
+) -> UnifiedAlert:
+    """Build a UnifiedAlert, storing only _source (not the full ES hit) as raw_data."""
+    clean_raw = raw.get("_source", raw)
+
+    logger.debug(
+        "Normalised %s alert %s: ip=%s, severity=%s, desc=%.60s",
+        source_type, event_id, host_context.ip_address, severity, description,
+    )
+
+    return UnifiedAlert(
+        event_id=event_id,
+        source=source_type,
+        timestamp=timestamp,
+        description=description,
+        severity=severity,
+        host_context=host_context,
+        raw_data=clean_raw,
+        enrichment_data=EnrichmentData(),
+    )
 
 
 class Normalizer:
     @staticmethod
     def from_wazuh(raw: Dict[str, Any]) -> UnifiedAlert:
-        _source = raw.get("_source", {}) if "_source" in raw else raw
-        
-        # Extract basic fields
-        event_id = _source.get("id", str(uuid.uuid4()))
-        timestamp_str = _source.get("@timestamp")
-        try:
-            if timestamp_str:
-                timestamp = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
-            else:
-                timestamp = datetime.now(timezone.utc)
-        except ValueError:
-            timestamp = datetime.now(timezone.utc)
-            
-        rule = _source.get("rule", {})
-        description = rule.get("description", "Unknown Alert")
-        severity = rule.get("level", 0)
-        
-        agent = _source.get("agent", {})
+        _source = raw.get("_source", raw) if "_source" in raw else raw
+
+        event_id = _extract_event_id(_source)
+        timestamp = _extract_timestamp(_source)
+        severity = _extract_severity(_source)
+        source_type = _extract_source(raw)
+        description = _extract_description(_source, source_type)
         ip_address = _extract_best_ip(_source)
+
+        agent = _source.get("agent", {})
 
         host_context = HostContext(
             hostname=agent.get("name", "unknown"),
             ip_address=ip_address,
+            mac_address=agent.get("mac", None),
+            os_name=_extract_os_name(_source),
         )
 
-        logger.debug(
-            "Normalised alert %s: ip=%s, severity=%s, desc=%.60s",
-            event_id, ip_address, severity, description,
-        )
-        
-        return UnifiedAlert(
+        return _build_alert(
+            raw=raw,
+            source_type=source_type,
             event_id=event_id,
-            source="wazuh",
             timestamp=timestamp,
             description=description,
             severity=severity,
             host_context=host_context,
-            raw_data=raw,
-            enrichment_data=EnrichmentData()
         )
 
     @staticmethod
     def from_suricata(raw: Dict[str, Any]) -> UnifiedAlert:
-        event_id = str(uuid.uuid4())
-        return UnifiedAlert(
-            event_id=event_id,
-            source="suricata",
-            timestamp=datetime.now(timezone.utc),
-            description="Suricata Alert",
-            severity=3,
-            host_context=HostContext(hostname="unknown", ip_address="unknown"),
-            raw_data=raw,
-            enrichment_data=EnrichmentData()
+        _source = raw.get("_source", raw) if "_source" in raw else raw
+
+        event_id = _extract_event_id(_source)
+        timestamp = _extract_timestamp(_source)
+
+        alert_data = _source.get("data", {})
+        alert_info = alert_data.get("alert", {})
+        description = alert_info.get("signature", "Suricata Alert")
+        severity = int(alert_info.get("severity", 3))
+        ip_address = _extract_best_ip(_source)
+
+        host_context = HostContext(
+            hostname="unknown",
+            ip_address=ip_address,
         )
+
+        return _build_alert(
+            raw=raw,
+            source_type="suricata",
+            event_id=event_id,
+            timestamp=timestamp,
+            description=description,
+            severity=severity,
+            host_context=host_context,
+        )
+
 
 normalizer = Normalizer()

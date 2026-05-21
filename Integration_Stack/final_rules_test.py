@@ -1,12 +1,10 @@
 import json
 import subprocess
 import time
-import os
+import os, sys
 
-def inject_docker(container, path, data):
-    log_str = json.dumps(data).replace("'", "'\\''")
-    cmd = f"docker exec {container} sh -c \"echo '{log_str}' >> {path}\""
-    subprocess.run(cmd, shell=True, capture_output=True)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from env_config import ZEEK_LOG_DIR, SURICATA_EVE_PATH
 
 def inject_host(path, data):
     log_str = json.dumps(data)
@@ -16,45 +14,39 @@ def inject_host(path, data):
 
 if __name__ == "__main__":
     print("--- Testing Rules for All Tools ---")
-    
-    # 1. ZEEK RULES (HTTP & Connection)
+
     print("[+] Injecting Zeek Logs...")
-    # Rule 100001 (HTTP)
-    inject_docker("zeek", "/usr/local/zeek/logs/conn.log", {
-        "ts": time.time(), "uid": "ZEEK_HTTP_TEST", "id.orig_h": "10.0.0.1", "id.resp_h": "8.8.8.8", 
+    inject_host(os.path.join(ZEEK_LOG_DIR, "conn.log"), {
+        "ts": time.time(), "uid": "ZEEK_HTTP_TEST", "id.orig_h": "10.0.0.1",
+        "id.orig_p": 12345, "id.resp_h": "8.8.8.8", "id.resp_p": 80,
         "proto": "tcp", "service": "http", "duration": 0.5, "conn_state": "SF"
     })
-    # Rule 100002 (TCP)
-    inject_docker("zeek", "/usr/local/zeek/logs/conn.log", {
-        "ts": time.time(), "uid": "ZEEK_TCP_TEST", "id.orig_h": "10.0.0.2", "id.resp_h": "1.1.1.1", 
+    inject_host(os.path.join(ZEEK_LOG_DIR, "conn.log"), {
+        "ts": time.time(), "uid": "ZEEK_TCP_TEST", "id.orig_h": "10.0.0.2",
+        "id.orig_p": 54321, "id.resp_h": "1.1.1.1", "id.resp_p": 443,
         "proto": "tcp", "service": "other", "conn_state": "S0"
     })
 
-    # 2. SURICATA RULES (Phishing, Brute Force, DDoS)
     print("[+] Injecting Suricata Alerts...")
-    # Phishing
-    inject_docker("suricata", "/var/log/suricata/eve.json", {
+    inject_host(SURICATA_EVE_PATH, {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S.000000+0000"), "event_type": "alert",
         "alert": {"signature": "PHISHING Attempt - Suspicious Login Page", "severity": 1, "signature_id": 1000001}
     })
-    # Brute Force
-    inject_docker("suricata", "/var/log/suricata/eve.json", {
+    inject_host(SURICATA_EVE_PATH, {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S.000000+0000"), "event_type": "alert",
         "alert": {"signature": "Brute Force Attempt - SSH", "severity": 2, "signature_id": 3000001}
     })
-    # DDoS
-    inject_docker("suricata", "/var/log/suricata/eve.json", {
+    inject_host(SURICATA_EVE_PATH, {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S.000000+0000"), "event_type": "alert",
         "alert": {"signature": "DDoS Attack Detected - Rate Limit Exceeded", "severity": 1, "signature_id": 2000001}
     })
 
-    # 3. VELOCIRAPTOR RULE
     print("[+] Injecting Velociraptor Alert...")
-    # Rule 100003
-    path_velo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "soar", "velociraptor", "velociraptor", "events.json")
-    inject_host(path_velo, {
+    velo_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "sensors", "ndr", "velociraptor")
+    os.makedirs(velo_dir, exist_ok=True)
+    inject_host(os.path.join(velo_dir, "events.json"), {
         "log_type": "velociraptor", "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "message": "VELOCIRAPTOR_ALERT: Potential Ransomware Activity Detected", "client_id": "C.1001"
     })
 
-    print("\n[!] All logs injected. Please refresh your Wazuh Dashboard in 10 seconds.")
+    print("\n[!] All logs injected. Check Wazuh Dashboard / OpenSearch in 10 seconds.")

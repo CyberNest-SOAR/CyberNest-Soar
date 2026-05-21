@@ -1,23 +1,23 @@
-import os
+import os, sys
 import json
 import datetime
 
-def overwrite_zeek_log(payloads):
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "zeek", "zeek1", "logs", "wazuh_zeek.log")
-    # Open in 'w' mode to completely wipe the old invalid JSON content!
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from env_config import ZEEK_LOG_DIR
+
+def overwrite_zeek_log(payloads, filename):
+    path = os.path.join(ZEEK_LOG_DIR, filename)
     with open(path, 'w') as f:
         for payload in payloads:
             f.write(json.dumps(payload) + '\n')
-    print(f"[+] Re-created wazuh_zeek.log with {len(payloads)} clean JSON lines.")
+    print(f"[+] Re-created {filename} with {len(payloads)} clean JSON lines.")
 
 if __name__ == "__main__":
-    print("--- Truncating and Injecting clean ISO 8601 logs into wazuh_zeek.log ---")
-    
-    # Format ts as ISO 8601 string (e.g. 2026-05-17T02:52:53.000Z)
+    print("--- Truncating and Injecting clean ISO 8601 logs into Zeek logs ---")
+
     ts_iso = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    
-    payloads = [
-        # 1. Zeek HTTP Log (Matches Rule 100001)
+
+    http_payloads = [
         {
             "ts": ts_iso,
             "uid": "CHk4T23Z0jJ8P6y65l",
@@ -31,8 +31,10 @@ if __name__ == "__main__":
             "method": "GET",
             "host": "example.com",
             "uri": "/test-zeek-http-alert"
-        },
-        # 2. Zeek TCP Connection Log (Matches Rule 100002)
+        }
+    ]
+
+    conn_payloads = [
         {
             "ts": ts_iso,
             "uid": "CHk4T23Z0jJ8P6y652",
@@ -46,6 +48,7 @@ if __name__ == "__main__":
             "conn_state": "SF"
         }
     ]
-    
-    overwrite_zeek_log(payloads)
-    print("\n[!] Truncation complete. Ready to restart zeek-agent.")
+
+    overwrite_zeek_log(http_payloads, "http.log")
+    overwrite_zeek_log(conn_payloads, "conn.log")
+    print("\n[!] Done. Check Wazuh Dashboard / OpenSearch.")

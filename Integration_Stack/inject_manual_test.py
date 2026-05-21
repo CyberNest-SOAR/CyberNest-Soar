@@ -1,6 +1,9 @@
-import os
+import os, sys
 import json
 import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from env_config import ZEEK_LOG_DIR
 
 def inject_zeek():
     log = {
@@ -17,7 +20,7 @@ def inject_zeek():
         "resp_bytes": 2048,
         "conn_state": "SF"
     }
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "zeek", "zeek1", "logs", "conn.log")
+    path = os.path.join(ZEEK_LOG_DIR, "conn.log")
     with open(path, 'a') as f:
         f.write(json.dumps(log) + '\n')
     print("[+] Injected Perfect Zeek Log into conn.log")

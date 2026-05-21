@@ -3,16 +3,18 @@ import time
 import urllib.request
 import threading
 import json
-import os
+import os, sys
 
-TARGET_IP = "172.19.0.7"  # IP of the Docker network where tools are listening
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from env_config import PROJECT_ROOT
+
+TARGET_IP = "127.0.0.1"
 
 def print_step(msg):
     print(f"\n[*] {msg}")
 
 def trigger_zeek_traffic():
     print_step("1. Generating Zeek Traffic (HTTP and Connection)...")
-    # Making real HTTP requests to trigger Zeek logs
     urls = ["http://example.com", "http://neverssl.com"]
     for url in urls:
         try:
@@ -21,8 +23,7 @@ def trigger_zeek_traffic():
             print(f"   -> Successfully browsed {url}")
         except Exception as e:
             print(f"   -> Tried browsing {url}: {e}")
-            
-    # Also generate local connection traffic to trigger connection trace
+
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(1)
@@ -38,17 +39,15 @@ def trigger_suricata_phishing():
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(2)
         s.connect((TARGET_IP, 80))
-        # Triggering the fake banking portal access rule
         payload = b"GET /login/secure/account/verify HTTP/1.1\r\nHost: paypal-secure.fake\r\n\r\n"
         s.send(payload)
         s.close()
-        print("   -> Sent phishing HTTP request (paypal-secure.fake).")
+        print("   -> Sent phishing HTTP request.")
     except Exception as e:
-        print(f"   -> Phishing packet sent (port closed): {e}")
+        print(f"   -> {e}")
 
 def trigger_suricata_bruteforce():
     print_step("3. Generating Suricata Brute Force Traffic (SSH)...")
-    # Send multiple rapid connections to port 22
     for i in range(15):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -70,23 +69,22 @@ def trigger_suricata_ddos():
                 s.close()
             except:
                 pass
-    
+
     threads = []
-    for _ in range(5): # 150 requests total
+    for _ in range(5):
         t = threading.Thread(target=blast)
         t.start()
         threads.append(t)
-        
+
     for t in threads:
         t.join()
-    print("   -> Sent 150 rapid connection attempts to simulate DDoS.")
+    print("   -> Sent 150 rapid connection attempts.")
 
 def trigger_velociraptor():
     print_step("5. Generating Velociraptor Forensic Event...")
-    # Inject directly to host file which is mounted to Wazuh Agent
-    velo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "soar", "velociraptor", "velociraptor", "events.json")
+    velo_path = os.path.join(PROJECT_ROOT, "sensors", "ndr", "velociraptor", "events.json")
     os.makedirs(os.path.dirname(velo_path), exist_ok=True)
-    
+
     log = json.dumps({
         'log_type': 'velociraptor',
         'timestamp': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
@@ -95,28 +93,24 @@ def trigger_velociraptor():
         'artifact': 'Windows.System.Privileges',
         'level': 'CRITICAL'
     })
-    
+
     with open(velo_path, 'a') as f:
         f.write(log + '\n')
     print("   -> Generated Velociraptor forensic log.")
 
 if __name__ == "__main__":
     print("==================================================")
-    print("      REAL TRAFFIC ATTACK SIMULATOR (ALL TOOLS)   ")
+    print("      REAL TRAFFIC ATTACK SIMULATOR (ALL TOOLS)")
     print("==================================================")
-    
+
     trigger_zeek_traffic()
     time.sleep(1)
-    
     trigger_suricata_phishing()
     time.sleep(1)
-    
     trigger_suricata_bruteforce()
     time.sleep(1)
-    
     trigger_suricata_ddos()
     time.sleep(1)
-    
     trigger_velociraptor()
-    
-    print("\n[+] All traffic generated! Wait 10-20 seconds and check Wazuh Dashboard.")
+
+    print("\n[+] All traffic generated! Wait 10-20 seconds and check Wazuh Dashboard / OpenSearch.")

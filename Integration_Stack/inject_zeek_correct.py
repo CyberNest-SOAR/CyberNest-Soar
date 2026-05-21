@@ -1,21 +1,22 @@
-import os
+import os, sys
 import json
 import time
 import datetime
 
-def inject_zeek_to_wazuh(log_type, payload):
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "zeek", "zeek1", "logs", "wazuh_zeek.log")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from env_config import ZEEK_LOG_DIR
+
+def inject_zeek(log_type, payload, filename):
+    path = os.path.join(ZEEK_LOG_DIR, filename)
     with open(path, 'a') as f:
         f.write(json.dumps(payload) + '\n')
-    print(f"[+] Injected Zeek Log ({log_type}) into wazuh_zeek.log")
+    print(f"[+] Injected Zeek Log ({log_type}) into {filename}")
 
 if __name__ == "__main__":
-    print("--- Injecting Zeek Logs directly into wazuh_zeek.log with ISO 8601 Timestamp ---")
-    
-    # Format ts as ISO 8601 string (e.g. 2026-05-17T02:52:53.000Z)
+    print("--- Injecting Zeek Logs directly into sensor logs ---")
+
     ts_iso = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    
-    # 1. Zeek HTTP Log (Matches Rule 100001)
+
     http_payload = {
         "ts": ts_iso,
         "uid": "CHk4T23Z0jJ8P6y65l",
@@ -30,9 +31,8 @@ if __name__ == "__main__":
         "host": "example.com",
         "uri": "/test-zeek-http-alert"
     }
-    inject_zeek_to_wazuh("HTTP Traffic", http_payload)
-    
-    # 2. Zeek TCP Connection Log (Matches Rule 100002)
+    inject_zeek("HTTP Traffic", http_payload, "http.log")
+
     conn_payload = {
         "ts": ts_iso,
         "uid": "CHk4T23Z0jJ8P6y652",
@@ -45,6 +45,6 @@ if __name__ == "__main__":
         "duration": 0.01,
         "conn_state": "SF"
     }
-    inject_zeek_to_wazuh("TCP Connection", conn_payload)
-    
-    print("\n[!] Injection complete. Check Wazuh Dashboard now.")
+    inject_zeek("TCP Connection", conn_payload, "conn.log")
+
+    print("\n[!] Injection complete. Check Wazuh Dashboard / OpenSearch.")

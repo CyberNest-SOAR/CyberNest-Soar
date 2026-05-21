@@ -1,13 +1,11 @@
 <decoder name="zeek-json">
-  <prematch>^{"log_type":"zeek"</prematch>
+  <prematch>^{"ts":</prematch>
+  <program_name>zeek</program_name>
 </decoder>
 
-<decoder name="velociraptor-json">
-  <prematch>^{"log_type":"velociraptor"</prematch>
-</decoder>
-
-<decoder name="arkime-json">
-  <prematch>^{"log_type":"arkime"</prematch>
+<decoder name="suricata-json">
+  <prematch>^{"timestamp":</prematch>
+  <program_name>suricata</program_name>
 </decoder>
 
 <decoder name="catch-all-json">

@@ -45,7 +45,7 @@ def prepare_llm_payload(alert: UnifiedAlert) -> dict:
     
     # 3. Context (asset_criticality, ip_reputation)
     asset_criticality = alert.raw_data.get("context", {}).get("asset_criticality", "low")
-    ip_reputation = alert.enrichment_data.vt_score or 100
+    ip_reputation = (alert.enrichment_data.virus_total or {}).get("score", 100)
     
     return {
         "rule_id": rule_id,

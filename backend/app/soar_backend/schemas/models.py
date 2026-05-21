@@ -10,17 +10,23 @@ class HostContext(BaseModel):
     os_name: Optional[str] = None
 
 class EnrichmentData(BaseModel):
-    vt_score: int = 0                  # 0 = clean / not yet scored
-    abuse_score: int = 0               # 0 = clean / not yet scored
-    epss_score: Optional[float] = None
-    cvss_score: Optional[float] = None
-    risk_score: Optional[int] = None   # Populated by Team 1 risk-scoring service
-    misp_matches: List[str] = Field(default_factory=list)
     tags: List[str] = Field(default_factory=list)
+    risk_score: Optional[int] = None   # Populated by Team 1 risk-scoring service
     debug_info: Dict[str, str] = Field(
         default_factory=dict,
         description="Per-service error/debug messages captured during enrichment.",
     )
+
+    # Per-service enrichment blocks — each populated by its respective
+    # lookup when data is found.  None = not enriched / no data.
+    virus_total: Optional[Dict[str, Any]] = None      # {score, malicious, suspicious, harmless}
+    abuse_ipdb: Optional[Dict[str, Any]] = None         # {score, total_reports}
+    misp: Optional[Dict[str, Any]] = None               # {matches: [uuid, ...], count}
+    epss: Optional[Dict[str, Any]] = None               # {score, percentile}
+    nvd: Optional[Dict[str, Any]] = None                # {cvss, severity}
+    cisa_kev: Optional[Dict[str, Any]] = None             # {cve, dateAdded, shortDescription, ...}
+    urlhaus: Optional[Dict[str, Any]] = None              # {matched, url_status, threat, tags}
+    alienvault_otx: Optional[Dict[str, Any]] = None        # {matched, pulse_count, pulses, ...}
 
 class UnifiedAlert(BaseModel):
     event_id: str

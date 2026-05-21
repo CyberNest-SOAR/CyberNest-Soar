@@ -30,6 +30,8 @@ class EnrichmentService:
         self.abuse_key = settings.ABUSE_KEY
         self.misp_url = settings.MISP_URL
         self.misp_key = settings.MISP_KEY
+        self.otx_key = settings.OTX_API_KEY
+        self.urlhaus_key = settings.URLHAUS_API_KEY
         self.client = None
         # Disable SSL verification for MISP locally if needed by passing False
         try:
@@ -239,5 +241,133 @@ class EnrichmentService:
         except Exception as exc:
             logger.warning("[MISP] ✗ Lookup FAILED for %s: %s", value, exc)
             return []
+
+    # ------------------------------------------------------------------ #
+    # CISA KEV (Known Exploited Vulnerabilities)                          #
+    # ------------------------------------------------------------------ #
+    @alru_cache(maxsize=64, ttl=3600)
+    async def lookup_kev(self, cve: str) -> Dict[str, Any]:
+        """
+        Fetch the full KEV catalog from CISA and check if a CVE is listed.
+
+        The whole feed is cached for 3600s (TTL=3600) because the list
+        changes slowly.  Returns the matched entry or an empty dict.
+        """
+        await self.start()
+        url = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+
+        logger.info("[KEV] Fetching KEV catalog for CVE: %s", cve)
+        try:
+            response = await asyncio.wait_for(
+                self.client.get(url),
+                timeout=_API_TIMEOUT,
+            )
+            status = response.status_code
+            if status != 200:
+                logger.warning("[KEV] Non-200 response: HTTP %d", status)
+                return {"_http_status": status, "_error": response.text[:500]}
+            data = response.json()
+            data["_http_status"] = status
+            data["_response_preview"] = str(data)[:300]
+
+            vulnerabilities = data.get("vulnerabilities", [])
+            for vuln in vulnerabilities:
+                if vuln.get("cveID", "").upper() == cve.upper():
+                    logger.info("[KEV] ✓ CVE %s found in KEV catalog", cve)
+                    return {
+                        "_http_status": status,
+                        "kev_match": vuln,
+                    }
+
+            logger.info("[KEV] CVE %s NOT found in KEV catalog", cve)
+            return {"_http_status": status, "kev_match": None}
+        except asyncio.TimeoutError:
+            logger.warning("[KEV] ✗ Lookup TIMED OUT for %s (limit=%ss)", cve, _API_TIMEOUT)
+            return {"_http_status": 0, "_error": "timeout"}
+        except Exception as exc:
+            logger.warning("[KEV] ✗ Lookup FAILED for %s: %s", cve, exc)
+            return {"_http_status": 0, "_error": str(exc)}
+
+    # ------------------------------------------------------------------ #
+    # URLhaus                                                              #
+    # ------------------------------------------------------------------ #
+    @alru_cache(maxsize=128, ttl=300)
+    async def lookup_urlhaus(self, ioc: str, ioc_type: str = "url") -> Dict[str, Any]:
+        """
+        Look up a URL or domain on URLhaus.
+
+        For ``ioc_type="url"`` POSTs to ``/v1/url/``; for ``"host"``
+        POSTs to ``/v1/host/``.
+        """
+        await self.start()
+        base = "https://urlhaus-api.abuse.ch/v1"
+
+        if ioc_type == "host":
+            endpoint = f"{base}/host/"
+            payload = {"host": ioc}
+        else:
+            endpoint = f"{base}/url/"
+            payload = {"url": ioc}
+
+        headers = {"Auth-Key": self.urlhaus_key}
+        logger.info("[URLhaus] Starting lookup for %s (%s): %s", ioc_type, ioc, endpoint)
+        try:
+            response = await asyncio.wait_for(
+                self.client.post(endpoint, data=payload, headers=headers),
+                timeout=_API_TIMEOUT,
+            )
+            status = response.status_code
+            if status != 200:
+                logger.warning("[URLhaus] Non-200 response for %s: HTTP %d — %s", ioc, status, response.text[:300])
+                return {"_http_status": status, "_error": response.text[:500]}
+            data = response.json()
+            data["_http_status"] = status
+            data["_response_preview"] = str(data)[:300]
+            query_status = data.get("query_status")
+            logger.info("[URLhaus] ✓ Result for %s: query_status=%s", ioc, query_status)
+            return data
+        except asyncio.TimeoutError:
+            logger.warning("[URLhaus] ✗ Lookup TIMED OUT for %s (limit=%ss)", ioc, _API_TIMEOUT)
+            return {"_http_status": 0, "_error": "timeout"}
+        except Exception as exc:
+            logger.warning("[URLhaus] ✗ Lookup FAILED for %s: %s", ioc, exc)
+            return {"_http_status": 0, "_error": str(exc)}
+
+    # ------------------------------------------------------------------ #
+    # AlienVault OTX                                                       #
+    # ------------------------------------------------------------------ #
+    @alru_cache(maxsize=128, ttl=300)
+    async def lookup_otx(self, ioc: str, ioc_type: str = "IPv4") -> Dict[str, Any]:
+        """
+        Look up an indicator on AlienVault OTX.
+
+        ``ioc_type`` can be ``IPv4``, ``domain``, ``hostname``, ``url``, ``MD5``,
+        ``SHA1``, ``SHA256`` (per OTX API path convention).
+        """
+        await self.start()
+        url = f"https://otx.alienvault.com/api/v1/indicators/{ioc_type}/{ioc}/general"
+        headers = {"X-OTX-API-KEY": self.otx_key}
+        logger.info("[OTX] Starting lookup for %s (%s)", ioc_type, ioc)
+        try:
+            response = await asyncio.wait_for(
+                self.client.get(url, headers=headers),
+                timeout=_API_TIMEOUT,
+            )
+            status = response.status_code
+            if status != 200:
+                logger.warning("[OTX] Non-200 response for %s: HTTP %d — %s", ioc, status, response.text[:300])
+                return {"_http_status": status, "_error": response.text[:500]}
+            data = response.json()
+            data["_http_status"] = status
+            data["_response_preview"] = str(data)[:300]
+            pulse_count = len(data.get("pulse_info", {}).get("pulses", [])) if data.get("pulse_info") else 0
+            logger.info("[OTX] ✓ Result for %s: pulse_info.pulses=%d", ioc, pulse_count)
+            return data
+        except asyncio.TimeoutError:
+            logger.warning("[OTX] ✗ Lookup TIMED OUT for %s (limit=%ss)", ioc, _API_TIMEOUT)
+            return {"_http_status": 0, "_error": "timeout"}
+        except Exception as exc:
+            logger.warning("[OTX] ✗ Lookup FAILED for %s: %s", ioc, exc)
+            return {"_http_status": 0, "_error": str(exc)}
 
 enrichment_service = EnrichmentService()

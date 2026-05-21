@@ -1,9 +1,14 @@
+import asyncio
+import logging
 from fastapi import APIRouter, Body
+from typing import List
 from schemas.models import MispSyncResponse, UnifiedAlert, IntelResponse
 from services.collector import collector
 from services.enrichment import enrichment_service
 from services.normalizer import normalizer
 from services.intel import enrich_alert_intel
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/threat-intel", tags=["Team 5: Threat Intel"])
 
@@ -13,6 +18,31 @@ async def intel_lookup(alert: UnifiedAlert):
     Looks up IOCs from a UnifiedAlert in VirusTotal and MISP.
     """
     return await enrich_alert_intel(alert)
+
+
+@router.post("/batch-lookup", response_model=List[IntelResponse])
+async def intel_lookup_batch(alerts: List[UnifiedAlert]):
+    """
+    Enrich a batch of alerts with threat intel. Accepts the raw
+    ``List[UnifiedAlert]`` array returned by ``GET /alerts/``.
+    """
+    results = await asyncio.gather(
+        *[enrich_alert_intel(a) for a in alerts],
+        return_exceptions=True,
+    )
+    out = []
+    for alert, result in zip(alerts, results):
+        if isinstance(result, Exception):
+            logger.warning("[Intel] Batch enrichment failed for %s: %s", alert.event_id, result)
+            out.append(IntelResponse(
+                ioc=alert.host_context.ip_address or "unknown",
+                malicious=False,
+                reputation=100,
+                sources=[],
+            ))
+        else:
+            out.append(result)
+    return out
 
 @router.post("/misp-sync", response_model=MispSyncResponse)
 async def misp_sync():

@@ -1,0 +1,42 @@
+# Combined filebeat config for Velociraptor + Arkime logs
+
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/velociraptor/events.json
+    json.keys_under_root: true
+    json.add_error_key: true
+    fields:
+      event_module: velociraptor
+      event_dataset: edr
+    fields_under_root: true
+
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/arkime/sessions.log
+    json.keys_under_root: true
+    json.add_error_key: true
+    fields:
+      event_module: arkime
+      event_dataset: ndr
+    fields_under_root: true
+
+output:
+  elasticsearch:
+    hosts: ['https://wazuh.indexer:9200']
+    username: 'admin'
+    password: 'SecretPassword'
+    ssl.verification_mode: none
+    ssl.certificate_authorities: ['/etc/ssl/root-ca.pem']
+    ssl.certificate: '/etc/ssl/filebeat.pem'
+    ssl.key: '/etc/ssl/filebeat.key'
+
+setup.template.enabled: false
+setup.ilm.enabled: false
+setup.xpack.monitoring.enabled: false
+monitoring.enabled: false
+
+logging.level: info
+logging.to_files: false

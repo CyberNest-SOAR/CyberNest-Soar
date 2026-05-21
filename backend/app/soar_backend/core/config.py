@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     VT_API_KEY: str = "VT_API_KEY"
     ABUSE_KEY: str = "ABUSE_API_KEY"
     NVD_API_KEY: str | None = None # Optional, but recommended for NVD/CVSS lookups
+    OTX_API_KEY: str = "" # AlienVault OTX API key
+    URLHAUS_API_KEY: str = "" # abuse.ch Auth-Key for URLhaus API
     
     #Internal Threat Intel (MISP)
     MISP_URL: str = "https://localhost"

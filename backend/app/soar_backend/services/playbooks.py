@@ -5,7 +5,7 @@ async def get_playbook_decision(alert: UnifiedAlert) -> dict:
     tags = alert.enrichment_data.tags if alert.enrichment_data else []
     
     # Append inferred tags
-    if alert.enrichment_data and alert.enrichment_data.misp_matches:
+    if alert.enrichment_data and (alert.enrichment_data.misp or {}).get("matches"):
         tags.append("misp_hit")
         
     rule_desc = alert.description.lower()

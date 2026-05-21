@@ -1,19 +1,21 @@
-import os
+import os, sys
 import json
 import time
 
-def inject_zeek_json(log_type, payload):
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "zeek", "zeek1", "logs", "zeek_json.log")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from env_config import ZEEK_LOG_DIR
+
+def inject_zeek_json(log_type, payload, filename="http.log"):
+    path = os.path.join(ZEEK_LOG_DIR, filename)
     with open(path, 'a') as f:
         f.write(json.dumps(payload) + '\n')
-    print(f"[+] Injected Zeek Log ({log_type}) into zeek_json.log")
+    print(f"[+] Injected Zeek Log ({log_type}) into {filename}")
 
 if __name__ == "__main__":
     print("--- Testing Zeek Custom Rules (Clean File) ---")
-    
+
     ts = time.time()
-    
-    # 1. Zeek HTTP Rule (100001)
+
     http_payload = {
         "ts": ts,
         "uid": "CHk4T23Z0jJ8P6y65l",
@@ -28,9 +30,8 @@ if __name__ == "__main__":
         "host": "example.com",
         "uri": "/test-zeek-http-alert"
     }
-    inject_zeek_json("HTTP Traffic", http_payload)
-    
-    # 2. Zeek TCP Connection Rule (100002)
+    inject_zeek_json("HTTP Traffic", http_payload, "http.log")
+
     conn_payload = {
         "ts": ts,
         "uid": "CHk4T23Z0jJ8P6y652",
@@ -43,6 +44,6 @@ if __name__ == "__main__":
         "duration": 0.01,
         "conn_state": "SF"
     }
-    inject_zeek_json("TCP Connection", conn_payload)
-    
-    print("\n[!] Injection complete. Check Wazuh Dashboard now.")
+    inject_zeek_json("TCP Connection", conn_payload, "conn.log")
+
+    print("\n[!] Injection complete. Check Wazuh Dashboard / OpenSearch.")

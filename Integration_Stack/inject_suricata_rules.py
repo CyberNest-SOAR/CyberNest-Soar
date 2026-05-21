@@ -1,6 +1,9 @@
-import os
+import os, sys
 import json
 import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from env_config import SURICATA_EVE_PATH
 
 def inject_suricata_host(signature, sig_id, severity):
     log = {
@@ -21,10 +24,8 @@ def inject_suricata_host(signature, sig_id, severity):
             "severity": severity
         }
     }
-    
-    # Write directly to the host file which is mapped to the container
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "suricata1", "suricata", "logs", "eve.json")
-    with open(path, 'a') as f:
+
+    with open(SURICATA_EVE_PATH, 'a') as f:
         f.write(json.dumps(log) + '\n')
     print(f"[+] Injected Suricata Alert: {signature}")
 

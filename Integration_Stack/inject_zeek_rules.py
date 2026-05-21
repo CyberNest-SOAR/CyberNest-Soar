@@ -1,14 +1,14 @@
 import json
 import time
 import datetime
-import os
+import os, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from env_config import ZEEK_LOG_DIR
 
 def inject_zeek_host(log_type, payload, filename):
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "zeek", "zeek1", "logs", filename)
-    
-    if not os.path.exists(path):
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "zeek", "zeek1", "logs", "current", filename)
-        
+    path = os.path.join(ZEEK_LOG_DIR, filename)
+
     with open(path, 'a') as f:
         f.write(json.dumps(payload) + '\n')
     print(f"[+] Injected Zeek Log ({log_type}) into {filename}")

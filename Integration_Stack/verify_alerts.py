@@ -1,7 +1,11 @@
 import subprocess
+import os, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from env_config import WAZUH_MANAGER
 
 def check(keyword, name):
-    cmd = ["docker", "exec", "single-node-wazuh.manager-1", "sh", "-c", f"grep -c '{keyword}' /var/ossec/logs/alerts/alerts.json || echo 0"]
+    cmd = ["docker", "exec", WAZUH_MANAGER, "sh", "-c", f"grep -c '{keyword}' /var/ossec/logs/alerts/alerts.json 2>/dev/null || echo 0"]
     res = subprocess.run(cmd, capture_output=True, text=True)
     count = res.stdout.strip()
     print(f"{name}: {'FOUND' if count and count != '0' else 'NOT FOUND'} ({count} hits)")

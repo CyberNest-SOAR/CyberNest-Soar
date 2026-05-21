@@ -81,7 +81,7 @@ class DataCollector:
 
     async def fetch_wazuh_agent(self, agent_id: str) -> Dict[str, Any]:
         await self.start()
-        url = f"https://wazuh.local/agents/{agent_id}"
+        url = f"{settings.WAZUH_URL}/agents/{agent_id}"
         headers = {"Authorization": f"Bearer {self.wazuh_key}"}
         try:
             response = await asyncio.wait_for(
@@ -98,7 +98,7 @@ class DataCollector:
 
     async def pull_velociraptor_snapshot(self, host_id: str) -> Dict[str, Any]:
         await self.start()
-        url = f"https://velociraptor.local/api/v1/snapshot/{host_id}"
+        url = f"{settings.VELOCIRAPTOR_URL}/api/v1/snapshot/{host_id}"
         try:
             response = await asyncio.wait_for(
                 self.client.get(url),

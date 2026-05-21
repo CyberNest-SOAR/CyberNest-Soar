@@ -2,42 +2,42 @@ import socket
 import urllib.request
 import ssl
 import time
-import subprocess
+import subprocess, os, sys
 
-SURICATA_IP = "172.19.0.7"
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from env_config import get_active_interface
+
+TARGET_IP = "127.0.0.1"
+INTERFACE = get_active_interface()
 
 print("==================================================")
 print("      REAL WIRE-SNIFFED TRAFFIC GENERATOR         ")
 print("==================================================")
+print(f"  Active interface detected: {INTERFACE}")
 
-# 1. GENERATE REAL SURICATA WIRE ALERT (UDP Phishing)
-print("\n[*] 1. Sending real UDP Phishing packet to Suricata...")
+print("\n[*] 1. Sending real UDP packet...")
 try:
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     payload = b"paypal-secure-alert-test"
-    sock.sendto(payload, (SURICATA_IP, 9999))
+    sock.sendto(payload, (TARGET_IP, 9999))
     sock.close()
-    print("   -> Real UDP packet sent successfully to Suricata!")
+    print("   -> Real UDP packet sent successfully!")
 except Exception as e:
-    print(f"   -> Failed to send UDP packet: {e}")
+    print(f"   -> Failed: {e}")
 
-# 2. GENERATE REAL ZEEK WIRE CONNECTION (TCP/HTTP Outbound via VM physical interface)
-print("\n[*] 2. Creating real TCP/HTTP Connection to outbound internet (example.com) for Zeek...")
+print("\n[*] 2. Creating real TCP/HTTP Connection to outbound internet...")
 try:
-    # Since Zeek is sniffing the host VM's main interface 'ens33',
-    # we must generate outbound internet traffic to force the packets through 'ens33'.
-    # This will generate a real TCP connection in 'conn.log' and a real HTTP connection in 'http.log'!
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(3)
     s.connect(("example.com", 80))
     s.send(b"GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")
     response = s.recv(128)
     s.close()
-    print("   -> Outbound TCP/HTTP Session established with example.com over 'ens33' successfully!")
+    print("   -> Outbound TCP/HTTP Session established with example.com!")
 except Exception as e:
-    print(f"   -> Failed to establish outbound TCP connection: {e}")
+    print(f"   -> Failed: {e}")
 
 print("\n==================================================")
-print("[+] Wire traffic generated successfully!")
-print("[!] Open your Wazuh Dashboard and watch the real alerts flow!")
+print("[+] Wire traffic generated!")
+print(f"[!] Zeek/Suricata should capture this via interface: {INTERFACE}")
 print("==================================================")
