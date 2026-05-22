@@ -1,12 +1,21 @@
 ﻿# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
 # Env
 .env
+.env.local
+.env.*.local
+.venv
+venv/
+env/
+ENV/
 
 # Logs
+logs/
 *.log
+*.log.*
 
 # Docker volumes & data
 velociraptor-data/
@@ -16,22 +25,12 @@ mispsqldata/
 cassandradata/
 miniadata/
 
-# TheHive / MISP data
-services/orchestrator/thehive/files/
-services/orchestrator/thehive/index/
+# Runtime data
+arkime-logs/
+arkime-pcap/
+opensearch-data/
+elasticsearch-data/
+wazuh-indexer-data/
+wazuh-manager-data/
+filebeat-data/
 
-# Node
-node_modules/
-
-# OS
-.DS_Store
-Thumbs.db
- 
-# Velociraptor runtime
-sensors/edr/velociraptor/velociraptor-logs/
-
-# TheHive runtime configs
-services/orchestrator/thehive/server-configs/
-
-# TheHive SSL
-services/orchestrator/thehive/ssl/
