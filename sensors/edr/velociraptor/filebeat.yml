@@ -1,11 +1,12 @@
 filebeat.inputs:
   - type: log
     enabled: true
-    paths:
-      - /logs/**/*.json
 
-    scan_frequency: 5s
-    tail_files: false
+    paths:
+      - /logs/server_artifacts/Server.Audit.Logs/*.json
+
+    json.keys_under_root: true
+    json.add_error_key: true
 
 processors:
   - add_host_metadata: ~
