@@ -38,7 +38,7 @@ proto-plus==1.26.1
 protobuf==6.33.5
 psycopg==3.2.12
 psycopg-binary==3.2.12
-pyasn1==0.6.1
+pyasn1==0.6.3
 pyasn1_modules==0.4.2
 pydantic==2.9.0
 pydantic-settings==2.11.0
