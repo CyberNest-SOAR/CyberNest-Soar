@@ -47,7 +47,7 @@ pyparsing==3.2.5
 pyspellchecker==0.8.1
 pytest==9.0.3
 python-dateutil==2.9.0.post0
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 pytz==2025.2
 regex==2024.7.24
 requests==2.32.3
