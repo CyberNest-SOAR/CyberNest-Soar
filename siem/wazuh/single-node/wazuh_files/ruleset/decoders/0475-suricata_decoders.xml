@@ -1,5 +1,4 @@
 <decoder name="suricata-eve">
-  <prematch>^{</prematch>
+  <prematch>^{"timestamp":</prematch>
   <plugin_decoder>JSON_Decoder</plugin_decoder>
-  <json_null_field>discard</json_null_field>
 </decoder>

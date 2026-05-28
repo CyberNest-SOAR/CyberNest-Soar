@@ -14,13 +14,13 @@
   </rule>
 
   <rule id="100011" level="5">
-    <decoded_as>suricata-json</decoded_as>
+    <decoded_as>suricata-eve</decoded_as>
     <description>Suricata IDS sensor log received</description>
     <group>suricata,ids,network_monitor</group>
   </rule>
 
   <rule id="100012" level="14">
-    <decoded_as>suricata-json</decoded_as>
+    <decoded_as>suricata-eve</decoded_as>
     <match>alert</match>
     <description>Suricata IDS alert triggered</description>
     <group>suricata,ids,alerts,threat</group>

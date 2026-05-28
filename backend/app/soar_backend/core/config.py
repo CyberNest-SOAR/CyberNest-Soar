@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     VELOCIRAPTOR_URL: str = "https://localhost:8889"
     VELOCIRAPTOR_API_KEY: str | None = None
     
+    #TheHive (Case Management)
+    THEHIVE_URL: str = "http://localhost:9000"
+    THEHIVE_API_KEY: str = ""
+
     #System Config
     JWT_SECRET: str = "change_me_to_a_secure_random_string"
     DATABASE_URL: str = "postgresql://user:pass@localhost/soar_db"

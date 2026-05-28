@@ -151,3 +151,21 @@ override.tf.json
 *_override.tf.json
 *.tfplan
 *.retry
+
+# Pipeline generated data (too large for git)
+
+# Pipeline large generated datasets (git-ignored - too large)
+dataset_pipeline/data/outputs/soc_dataset_*.ndjson
+dataset_pipeline/data/outputs/soc_dataset_*.csv
+dataset_pipeline/data/outputs/soc_dataset_complete.json
+dataset_pipeline/data/outputs/thehive_cases_*.json
+dataset_pipeline/data/outputs/llm_datasets/*.json
+dataset_pipeline/data/raw/*.ndjson
+dataset_pipeline/data/raw/*.csv
+dataset_pipeline/data/processed/*
+dataset_pipeline/data/enriched/*
+# Pipeline raw data (large synthetic datasets)
+dataset_pipeline/data/raw/*.ndjson
+
+# Runtime logs
+backend/app/soar_backend/logs.json

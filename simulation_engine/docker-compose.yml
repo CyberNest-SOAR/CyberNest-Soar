@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  simulation-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simulation-engine
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./config:/app/config:ro
+      - ./datasets:/app/datasets
+      - ./outputs:/app/outputs
+      # Sensor log mounts for injection → Wazuh agent ingestion
+      - ../sensors/ndr/suricata/suricata-setup/suricata/logs:/app/sensors/ndr/suricata/suricata-setup/suricata/logs
+      - ../sensors/ndr/zeek/logs:/app/sensors/ndr/zeek/logs
+      - ../sensors/edr/velociraptor/data:/app/sensors/edr/velociraptor/data
+      - ../sensors/ndr/arkime/arkime-logs:/app/sensors/ndr/arkime/arkime-logs
+    environment:
+      - SIMULATION_ENGINE_PORT=8002
+      - OPENSEARCH_HOST=https://host.docker.internal:9200
+      - OPENSEARCH_USER=admin
+      - OPENSEARCH_PASSWORD=SecretPassword
+    restart: unless-stopped
+    networks:
+      - simulation-net
+
+networks:
+  simulation-net:
+    driver: bridge
