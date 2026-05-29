@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -18,6 +20,13 @@ class Settings(BaseSettings):
     NVD_API_KEY: str | None = None # Optional, but recommended for NVD/CVSS lookups
     OTX_API_KEY: str = "" # AlienVault OTX API key
     URLHAUS_API_KEY: str = "" # abuse.ch Auth-Key for URLhaus API
+
+    #Risk scoring model artifacts
+    _package_root = Path(__file__).resolve().parents[1]
+    _default_artifacts = _package_root / "artifacts"
+    _risk_scoring_dir = _default_artifacts / "Risk scoring model"
+    RISK_MODEL_PATH: Path = _risk_scoring_dir / "base_xgb_model_pipeline.joblib"
+    RISK_LABEL_ENCODER_PATH: Path = _risk_scoring_dir / "label_encoder.joblib"
     
     #Internal Threat Intel (MISP)
     MISP_URL: str = "https://localhost"

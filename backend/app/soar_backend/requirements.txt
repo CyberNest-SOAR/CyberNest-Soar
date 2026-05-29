@@ -7,3 +7,5 @@ pymisp
 async-lru
 python-dotenv
 opensearch-py
+scikit-learn==1.6.1
+xgboost

@@ -91,6 +91,7 @@ class RiskScoreResponse(BaseModel):
     event_id: str
     risk_score: int
     priority: str
+    predicted_analyst_verdict: str
     confidence: float
     features: Dict[str, float]
 

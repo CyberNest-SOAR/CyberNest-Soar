@@ -30,6 +30,7 @@ async def scoring_ai(alert: UnifiedAlert):
         "engine": "scoring_ai",
         "risk_score": result["risk_score"],
         "priority": result["priority"],
+        "predicted_analyst_verdict": result["predicted_analyst_verdict"],
         "confidence": result["confidence"],
         "features": result["features"],
     }
@@ -72,6 +73,8 @@ async def full_ai_analysis(alert: UnifiedAlert):
             "scoring_ai": {
                 "risk_score": risk["risk_score"],
                 "priority": risk["priority"],
+                "predicted_analyst_verdict": risk["predicted_analyst_verdict"],
+                "confidence": risk["confidence"],
             },
             "patching_ai": {
                 "recommendations": [r.model_dump() for r in patch.recommendations],
