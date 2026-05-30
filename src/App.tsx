@@ -8,15 +8,23 @@ import { useAuth } from "./hooks/useAuth";
 
 // Import pages
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import ThreatIntelligence from "./pages/ThreatIntelligence";
 import LogsDashboard from "./pages/LogsDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import MonitoringDashboard from "./pages/MonitoringDashboard";
+import ThreatIntelligence from "./pages/ThreatIntelligence";
 import PlaybookConfig from "./pages/PlaybookConfig";
-import Incidents from "./pages/Incidents";
-import Reports from "./pages/Reports";
+import MonitoringDashboard from "./pages/MonitoringDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
+// Import new sub-pages
+import CommandCenter from "./pages/soc/CommandCenter";
+import AlertsTablePage from "./pages/soc/AlertsTablePage";
+import IncidentResponsePage from "./pages/soc/IncidentResponsePage";
+import AssetIntelligencePage from "./pages/assets/AssetIntelligencePage";
+import ItHygienePage from "./pages/assets/ItHygienePage";
+import ThreatIntelCenterPage from "./pages/intel/ThreatIntelCenterPage";
+import PlaybooksAutomationPage from "./pages/automation/PlaybooksAutomationPage";
+import AiOperationsPage from "./pages/ai/AiOperationsPage";
+import AdminHealthPage from "./pages/admin/AdminHealthPage";
+import ReportingAuditPage from "./pages/admin/ReportingAuditPage";
 
 // Import layout components
 import AppLayout from "./components/AppLayout";
@@ -43,7 +51,7 @@ const AppContent = () => {
         <Route path="/" element={<PageTransition><Index /></PageTransition>} />
         <Route 
           path="/login" 
-          element={!isAuthenticated ? <PageTransition><Login /></PageTransition> : <Navigate to={userRole === "admin" ? "/admin-dashboard" : "/monitoring-dashboard"} replace />}
+          element={!isAuthenticated ? <PageTransition><Login /></PageTransition> : <Navigate to={userRole === "admin" ? "/admin/dashboard" : "/assets/endpoint-health"} replace />}
         />
         
         {isAuthenticated ? (
@@ -54,11 +62,40 @@ const AppContent = () => {
                 <AppLayout onLogout={signOut} userRole={userRole}>
                   <AnimatePresence mode="wait">
                     <Routes location={location} key={location.pathname}>
-                      <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+                      {/* SOC Group */}
+                      <Route path="/dashboard" element={<PageTransition><CommandCenter /></PageTransition>} />
+                      <Route path="/soc/command-center" element={<PageTransition><CommandCenter /></PageTransition>} />
+                      <Route path="/soc/alerts-center" element={<PageTransition><LogsDashboard /></PageTransition>} />
+                      <Route path="/soc/alerts-table" element={<PageTransition><AlertsTablePage /></PageTransition>} />
+                      <Route path="/soc/incident-response" element={<PageTransition><IncidentResponsePage /></PageTransition>} />
+
+                      {/* Assets Group */}
+                      <Route path="/assets/asset-intelligence" element={<PageTransition><AssetIntelligencePage /></PageTransition>} />
+                      <Route path="/assets/endpoint-health" element={<PageTransition><MonitoringDashboard /></PageTransition>} />
+                      <Route path="/assets/it-hygiene" element={<PageTransition><ItHygienePage /></PageTransition>} />
+
+                      {/* Intel Group */}
+                      <Route path="/intel/phishing-center" element={<PageTransition><ThreatIntelligence /></PageTransition>} />
+                      <Route path="/intel/threat-intel-center" element={<PageTransition><ThreatIntelCenterPage /></PageTransition>} />
+
+                      {/* Automation Group */}
+                      <Route path="/automation/playbooks-config" element={<PageTransition><PlaybookConfig /></PageTransition>} />
+                      <Route path="/automation/playbooks-automation" element={<PageTransition><PlaybooksAutomationPage /></PageTransition>} />
+
+                      {/* AI Group */}
+                      <Route path="/ai/ai-operations" element={<PageTransition><AiOperationsPage /></PageTransition>} />
+
+                      {/* Admin Group */}
+                      <Route path="/admin/dashboard" element={<PageTransition><AdminDashboard /></PageTransition>} />
+                      <Route path="/admin/admin-health" element={<PageTransition><AdminHealthPage /></PageTransition>} />
+                      <Route path="/admin/reporting-audit" element={<PageTransition><ReportingAuditPage /></PageTransition>} />
+
+                      {/* Backward Compatible Legacy Routes */}
                       <Route path="/threat-intelligence" element={<PageTransition><ThreatIntelligence /></PageTransition>} />
                       <Route path="/logs" element={<PageTransition><LogsDashboard /></PageTransition>} />
-                      <Route path="/incidents" element={<PageTransition><Incidents /></PageTransition>} />
-                      <Route path="/reports" element={<PageTransition><Reports /></PageTransition>} />
+                      <Route path="/incidents" element={<PageTransition><IncidentResponsePage /></PageTransition>} />
+                      <Route path="/reports" element={<PageTransition><ReportingAuditPage /></PageTransition>} />
+                      
                       {userRole === "admin" ? (
                         <>
                           <Route path="/admin-dashboard" element={<PageTransition><AdminDashboard /></PageTransition>} />
@@ -68,9 +105,10 @@ const AppContent = () => {
                       ) : (
                         <Route path="/monitoring-dashboard" element={<PageTransition><MonitoringDashboard /></PageTransition>} />
                       )}
+
                       <Route 
                         path="*" 
-                        element={<Navigate to={userRole === "admin" ? "/admin-dashboard" : "/monitoring-dashboard"} replace />} 
+                        element={<Navigate to={userRole === "admin" ? "/admin/dashboard" : "/assets/endpoint-health"} replace />} 
                       />
                     </Routes>
                   </AnimatePresence>
