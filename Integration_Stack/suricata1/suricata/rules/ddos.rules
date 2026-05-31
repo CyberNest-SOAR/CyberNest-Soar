@@ -1,0 +1,1 @@
+alert tcp any any -> any 80 (msg:"DDoS Attempt - SYN Flood"; flags:S; threshold:type both, track by_src, count 10, seconds 5; classtype:attempted-dos; sid:2000001; rev:1;)

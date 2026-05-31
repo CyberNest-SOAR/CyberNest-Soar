@@ -26,3 +26,171 @@ dist-ssr
 src/*.json
 src/*.ndjson
 src/soc_dataset_20260522_115145.ndjson
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.nox/
+.tox/
+.hypothesis/
+.cache/
+pip-wheel-metadata/
+
+# Python build and packaging output
+.Python
+build/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+wheels/
+MANIFEST
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment files and local secrets
+.env
+.env.*
+!.env.example
+client_secret/
+token_files/
+local_settings.py
+
+# IDE, editor, and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+/shelf/
+/workspace.xml
+
+# Logs and runtime databases
+logs/
+*.log
+*.log.*
+*.sqlite
+*.sqlite3
+db.sqlite3
+instance/
+
+# Node/package manager output
+node_modules/
+.npm/
+.pnpm-store/
+
+# Generated ML artifacts, reports, and local datasets
+artifacts/
+backend/artifacts/
+*.pkl
+*.joblib
+*.model
+data/models/
+data/datasets/**
+!data/datasets/.gitkeep
+data/feedback/**
+!data/feedback/.gitkeep
+backend/data/*.csv
+backend/data/*.json
+
+# Downloaded archives, installers, and large packages
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.deb
+*.deb.*
+*.rpm
+*.msi
+
+# Generated certificates, keys, and certificate bundles
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+**/wazuh_indexer_ssl_certs/
+
+# Sensor runtime data
+arkime-logs/
+arkime-pcap/
+opensearch-data/
+elasticsearch-data/
+wazuh-indexer-data/
+wazuh-manager-data/
+filebeat-data/
+**/logs/
+eve.json
+*.pcap
+*.pcapng
+sensors/ndr/zeek/logs/
+sensors/ndr/suricata/*/suricata/logs/
+sensors/ndr/suricata/suricata-setup/suricata/rules/suricata.rules
+
+# Velociraptor local runtime output
+sensors/edr/velociraptor/velociraptor
+sensors/edr/velociraptor/data/
+sensors/edr/velociraptor/server.config.yaml
+
+# Local generated dumps
+all-dockers.txt
+allrestymlandconf.txt
+siem/wazuh/single-node/sample-data.json
+
+# Documentation build output
+docs/_build/
+book/
+site/
+/site/
+
+# Terraform and Ansible
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfplan
+*.retry
+
+# Pipeline generated data (too large for git)
+
+# Pipeline large generated datasets (git-ignored - too large)
+dataset_pipeline/data/outputs/soc_dataset_*.ndjson
+dataset_pipeline/data/outputs/soc_dataset_*.csv
+dataset_pipeline/data/outputs/soc_dataset_complete.json
+dataset_pipeline/data/outputs/thehive_cases_*.json
+dataset_pipeline/data/outputs/llm_datasets/*.json
+dataset_pipeline/data/raw/*.ndjson
+dataset_pipeline/data/raw/*.csv
+dataset_pipeline/data/processed/*
+dataset_pipeline/data/enriched/*
+# Pipeline raw data (large synthetic datasets)
+dataset_pipeline/data/raw/*.ndjson
+
+# Runtime logs
+backend/app/soar_backend/logs.json

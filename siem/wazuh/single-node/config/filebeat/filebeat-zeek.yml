@@ -1,0 +1,31 @@
+# Zeek Filebeat configuration file
+
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/zeek/*.log
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.ignore_decoding_error: true
+    fields:
+      event_module: zeek
+      event_dataset: network
+    fields_under_root: true
+
+output.elasticsearch:
+  hosts: ['https://wazuh.indexer:9200']
+  username: 'admin'
+  password: 'SecretPassword'
+  ssl.verification_mode: none
+  ssl.certificate_authorities: ['/etc/ssl/root-ca.pem']
+  ssl.certificate: '/etc/ssl/filebeat.pem'
+  ssl.key: '/etc/ssl/filebeat.key'
+  allow_older_versions: true
+  check_status: false
+
+setup.template.json.enabled: true
+setup.template.overwrite: true
+setup.ilm.enabled: false
+
+logging.level: info

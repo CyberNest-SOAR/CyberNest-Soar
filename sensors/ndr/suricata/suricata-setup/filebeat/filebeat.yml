@@ -1,0 +1,23 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/suricata/eve.json
+    json.keys_under_root: true
+    json.add_error_key: true
+    fields:
+      event_module: suricata
+      event_dataset: suricata
+output.elasticsearch:
+  hosts: ["https://172.21.0.2:9200"]
+  username: "admin"
+  password: "SecretPassword"
+  ssl.certificate_authorities: ["/etc/ssl/root-ca.pem"]
+  ssl.verification_mode: none
+setup.template.json.enabled: true
+setup.template.overwrite: true
+setup.template.json.path: '/usr/share/filebeat/modules.d/elastic/template.json'
+setup.template.json.name: 'suricata'
+setup.ilm.enabled: false
+logging.level: info
+logging.to_files: false

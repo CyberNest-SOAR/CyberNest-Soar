@@ -1,0 +1,1 @@
+{"ts": 1778890401.0, "uid": "C_BRUTE", "id.orig_h": "10.0.0.1", "id.orig_p": 22, "id.resp_h": "10.0.0.2", "id.resp_p": 22, "proto": "tcp", "service": "ssh", "msg": "BRUTE_FORCE_ATTACK_DETECTED_ZEEK"}

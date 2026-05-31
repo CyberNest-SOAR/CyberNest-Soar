@@ -1,0 +1,124 @@
+services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: misp-mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "CHANGE_THIS_ROOT_PW"
+      MYSQL_DATABASE: misp
+      MYSQL_USER: misp
+      MYSQL_PASSWORD: "CHANGE_THIS_DB_PW"
+    volumes:
+      - misp_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:6-alpine
+    container_name: misp-redis
+    restart: unless-stopped
+    volumes:
+      - misp_redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.12
+    container_name: misp-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 1g
+    restart: unless-stopped
+    volumes:
+      - misp_es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sSf http://localhost:9200/ >/dev/null || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  misp:
+    image: harvarditsecurity/misp:2.4
+    container_name: misp-app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "80:80"     # change / add TLS termination (recommended) or map 443
+    environment:
+      # Database
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_NAME=misp
+      - DB_USER=misp
+      - DB_PASS=CHANGE_THIS_DB_PW
+
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+      # Elasticsearch (optional)
+      - ES_HOST=http://elasticsearch:9200
+
+      # MISP specific settings (defaults inside image may be used; override as needed)
+      - MISP_FQDN=misp.local
+      - MISP_ADDITIONAL_EMAILS=admin@example.local
+      - MISP_GPG_KEY_PASS=changeme
+
+      # PHP settings / overrides (example)
+      - PHP_MEMORY_LIMIT=512M
+
+    volumes:
+      - misp_app_data:/var/www/MISP
+      - misp_gpg:/var/www/MISP/.gnupg
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/ >/dev/null || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  misp-worker:
+    image: harvarditsecurity/misp:2.4
+    container_name: misp-worker
+    depends_on:
+      misp:
+        condition: service_healthy
+    command: ["supervisorctl", "start", "worker:*"]
+    environment:
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_NAME=misp
+      - DB_USER=misp
+      - DB_PASS=CHANGE_THIS_DB_PW
+      - REDIS_HOST=redis
+      - ES_HOST=http://elasticsearch:9200
+    volumes:
+      - misp_app_data:/var/www/MISP
+      - misp_gpg:/var/www/MISP/.gnupg
+    restart: unless-stopped
+
+volumes:
+  misp_db_data:
+  misp_redis_data:
+  misp_es_data:
+  misp_app_data:
+  misp_gpg:
+

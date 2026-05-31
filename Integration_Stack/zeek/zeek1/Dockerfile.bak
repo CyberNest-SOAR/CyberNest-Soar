@@ -1,0 +1,11 @@
+FROM blacktop/zeek:latest
+
+# Ensure JSON logging is enabled with a proper newline and uses ISO 8601 timestamps
+RUN echo "" >> /usr/local/zeek/share/zeek/site/local.zeek && \
+    echo "@load policy/tuning/json-logs.zeek" >> /usr/local/zeek/share/zeek/site/local.zeek && \
+    echo "redef LogAscii::json_timestamps = JSON::TS_ISO8601;" >> /usr/local/zeek/share/zeek/site/local.zeek
+
+WORKDIR /usr/local/zeek/logs
+
+# Entrypoint to run Zeek on the interface
+ENTRYPOINT ["zeek", "-i", "ens33", "local"]

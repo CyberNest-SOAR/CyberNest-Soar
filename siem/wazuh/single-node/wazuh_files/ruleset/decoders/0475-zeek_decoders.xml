@@ -1,0 +1,5 @@
+<decoder name="zeek-json-events">
+  <prematch>^{</prematch>
+  <plugin_decoder>JSON_Decoder</plugin_decoder>
+  <json_null_field>discard</json_null_field>
+</decoder>

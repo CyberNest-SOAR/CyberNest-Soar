@@ -1,0 +1,4 @@
+alert tcp any any -> $HOME_NET 80 (msg:"DDoS Attempt - SYN Flood"; flags:S; threshold:type both, track by_src, count 100, seconds 10; classtype:attempted-dos; sid:2000001; rev:1;)
+alert icmp any any -> $HOME_NET any (msg:"DDoS Attempt - ICMP Flood"; itype:8; threshold:type both, track by_src, count 50, seconds 5; sid:2000002; rev:1;)
+alert http any any -> $HOME_NET 80 (msg:"DDoS - HTTP GET Flood"; flow:established,to_server; content:"GET"; http_method; threshold:type both, track by_src, count 200, seconds 10; classtype:attempted-dos; sid:2000003; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"DDoS - High TCP Connection Rate"; threshold:type both, track by_src, count 500, seconds 10; classtype:attempted-dos; sid:2000004; rev:1;)

@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  velociraptor:
+    image: wlambert/velociraptor:latest
+    container_name: velociraptor
+    ports:
+      - "8889:8889" # GUI
+      - "8000:8000" # Client Communications
+    environment:
+      - VELOCIRAPTOR_GUI_USER=admin
+      - VELOCIRAPTOR_GUI_PASSWORD=adminpassword
+    volumes:
+      - ./config:/etc/velociraptor
+      - ./data:/var/lib/velociraptor
+      - ./logs:/var/log/velociraptor
+    restart: always
+    restart: always

@@ -1,0 +1,19 @@
+{
+  "description": "Rename Zeek id object to network_id to avoid conflict",
+  "processors": [
+    {
+      "rename": {
+        "field": "data.id",
+        "target_field": "data.network_id",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "data.id.orig_h",
+        "target_field": "data.src_ip",
+        "ignore_missing": true
+      }
+    }
+  ]
+}

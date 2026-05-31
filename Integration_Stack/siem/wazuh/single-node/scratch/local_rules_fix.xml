@@ -1,0 +1,19 @@
+<group name="local,custom_integration,">
+  <rule id="100001" level="3">
+    <decoded_as>json</decoded_as>
+    <field name="service">http</field>
+    <description>Zeek: HTTP Analysis - $(uid)</description>
+  </rule>
+
+  <rule id="100002" level="3">
+    <decoded_as>json</decoded_as>
+    <field name="proto">tcp</field>
+    <description>Zeek: Connection Trace - $(uid)</description>
+  </rule>
+
+  <rule id="100003" level="7">
+    <decoded_as>json</decoded_as>
+    <field name="message">VELOCIRAPTOR_</field>
+    <description>Velociraptor: Forensic Alert - $(message)</description>
+  </rule>
+</group>

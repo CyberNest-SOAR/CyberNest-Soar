@@ -1,0 +1,43 @@
+%YAML 1.1
+---
+
+# suricata-lab/suricata/suricata.yaml
+vars:
+  address-groups:
+    HOME_NET: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"   # Replaced to cover all local networks including WSL
+    EXTERNAL_NET: "!$HOME_NET"
+
+default-rule-path: /etc/suricata/rules
+
+rule-files:
+  - phishing.rules
+  - ddos.rules
+  - brute-force.rules
+
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: /var/log/suricata/eve.json
+      types:
+        - alert:
+            payload: yes
+            http-body: yes
+        - http:
+        - dns:
+        - flow:
+        - ssh
+        - tls
+
+logging:
+  default-log-level: info
+
+af-packet:
+  - interface: ens33
+    cluster-id: 99
+    cluster-type: cluster_flow
+    defrag: yes
+  - interface: br-da4a264faa19
+    cluster-id: 98
+    cluster-type: cluster_flow
+    defrag: yes

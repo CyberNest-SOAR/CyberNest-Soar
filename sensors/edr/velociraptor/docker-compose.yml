@@ -1,0 +1,22 @@
+services:
+  velociraptor:
+    image: wlambert/velociraptor:latest
+    container_name: velociraptor
+    ports:
+      - "8889:8889"
+      - "8000:8000"
+    volumes:
+      - ./velociraptor-data:/var/tmp/velociraptor
+      - ./data:/var/log/velociraptor
+    environment:
+      - VELOX_USER=admin
+      - VELOX_PASSWORD=admin
+      - VELOX_ROLE=administrator
+      - VELOX_SERVER_URL=https://velociraptor:8000/
+      - VELOX_FRONTEND_HOSTNAME=velociraptor
+    restart: always
+
+networks:
+  default:
+    name: wazuh
+    external: true

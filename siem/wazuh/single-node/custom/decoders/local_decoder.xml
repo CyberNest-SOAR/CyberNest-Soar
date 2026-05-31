@@ -1,0 +1,13 @@
+<decoder name="zeek-json">
+  <prematch>^{"ts":</prematch>
+  <program_name>zeek</program_name>
+</decoder>
+
+<decoder name="suricata-json">
+  <prematch>^{"timestamp":</prematch>
+  <program_name>suricata</program_name>
+</decoder>
+
+<decoder name="catch-all-json">
+  <prematch>^{</prematch>
+</decoder>

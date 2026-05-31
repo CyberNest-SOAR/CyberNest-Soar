@@ -1,0 +1,24 @@
+services:
+  sensors-filebeat:
+    image: wazuh-filebeat:4.14.4
+    container_name: sensors-filebeat
+    user: root
+    restart: always
+    volumes:
+      - ./config/filebeat-sensors/velociraptor-arkime.yml:/etc/filebeat/filebeat.yml:ro
+      - ../../../sensors/edr/velociraptor/data:/var/log/velociraptor:rw
+      - ../../../sensors/ndr/arkime/arkime-logs:/var/log/arkime:rw
+      - ./config/wazuh_indexer_ssl_certs/root-ca.pem:/etc/ssl/root-ca.pem:ro
+      - ./config/wazuh_indexer_ssl_certs/admin.pem:/etc/ssl/filebeat.pem:ro
+      - ./config/wazuh_indexer_ssl_certs/admin-key.pem:/etc/ssl/filebeat.key:ro
+    environment:
+      - output.elasticsearch.ssl.certificate=/etc/ssl/filebeat.pem
+      - output.elasticsearch.ssl.key=/etc/ssl/filebeat.key
+      - output.elasticsearch.ssl.certificate_authorities=/etc/ssl/root-ca.pem
+    networks:
+      - wazuh
+
+networks:
+  wazuh:
+    external: true
+    name: wazuh
