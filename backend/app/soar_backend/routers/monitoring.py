@@ -15,9 +15,12 @@ async def end_point_health():
 
     os_status = False
     try:
-        response = await collector.client.get(
-            f"{settings.OS_HOST}/_cluster/health",
-            auth=collector.os_auth,
+        response = await asyncio.wait_for(
+            collector.client.get(
+                f"{settings.OS_HOST}/_cluster/health",
+                auth=collector.os_auth,
+            ),
+            timeout=3.0,
         )
         if response.status_code == 200:
             os_status = True
@@ -32,10 +35,12 @@ async def end_point_health():
         results["opensearch"] = {"status": "disconnected", "error": str(e)}
 
     try:
-        response = await enrichment_service.client.get(
-            f"{settings.MISP_URL}/users/view/me",
-            headers={"Authorization": settings.MISP_KEY, "Accept": "application/json"},
-            timeout=2.0,
+        response = await asyncio.wait_for(
+            enrichment_service.client.get(
+                f"{settings.MISP_URL}/users/view/me",
+                headers={"Authorization": settings.MISP_KEY, "Accept": "application/json"},
+            ),
+            timeout=3.0,
         )
         if response.status_code == 200:
             results["misp"] = {"status": "connected"}

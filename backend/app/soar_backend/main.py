@@ -20,7 +20,7 @@ from routers import (
     alerts, risk, patch, filtering, playbooks, intel,
     data_outputs, graph, ai_analysis, phishing,
     threat_intel_enhanced, dashboard, monitoring, playbook_config,
-    pipeline_alerts, ui_dashboard,
+    pipeline_alerts, ui_dashboard, reports,
 )
 from services.collector import collector
 from services.enrichment import enrichment_service
@@ -29,27 +29,32 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
-def validate_env():
-    # Validate mandatory environment variables
-    mandatory_vars = ['OS_HOST', 'VT_API_KEY', 'MISP_URL', 'MISP_KEY']
-    for var in mandatory_vars:
-        val = getattr(settings, var, None)
-        # Also fail if using the dummy defaults we had like "misp_api_key_here" if we want to be strict,
-        # but just checking for presence/non-empty as per prompt.
-        if not val:
-            raise RuntimeError(f"Missing mandatory environment variable: {var}")
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup validation
-    validate_env()
-    # Startup: initialize HTTP clients
-    await collector.start()
-    await enrichment_service.start()
+    # Startup: warn about missing env vars instead of crashing
+    mandatory_vars = ['OS_HOST', 'VT_API_KEY', 'MISP_URL', 'MISP_KEY']
+    missing = [v for v in mandatory_vars if not getattr(settings, v, None)]
+    if missing:
+        logger.warning(f"Missing environment variables: {', '.join(missing)} — some services may be unavailable")
+    # Startup: initialize HTTP clients (errors logged, not fatal)
+    try:
+        await collector.start()
+    except Exception as e:
+        logger.warning(f"collector.start() failed: {e}")
+    try:
+        await enrichment_service.start()
+    except Exception as e:
+        logger.warning(f"enrichment_service.start() failed: {e}")
     yield
     # Shutdown: clean up HTTP clients
-    await collector.stop()
-    await enrichment_service.stop()
+    try:
+        await collector.stop()
+    except Exception:
+        pass
+    try:
+        await enrichment_service.stop()
+    except Exception:
+        pass
 
 app = FastAPI(
     title="SOAR Unified API",
@@ -77,6 +82,7 @@ app.include_router(monitoring.router, prefix="/api/v1")
 app.include_router(playbook_config.router, prefix="/api/v1")
 app.include_router(pipeline_alerts.router, prefix="/api/v1")
 app.include_router(ui_dashboard.router, prefix="/api/v1")
+app.include_router(reports.router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

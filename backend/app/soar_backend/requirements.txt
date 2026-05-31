@@ -9,3 +9,6 @@ python-dotenv
 opensearch-py
 scikit-learn==1.6.1
 xgboost
+fpdf2
+openpyxl
+apscheduler
