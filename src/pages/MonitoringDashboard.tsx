@@ -31,6 +31,17 @@ interface MonitoredEmail {
 }
 
 const MonitoringDashboard = () => {
+  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const check = async () => {
+      try { const res = await fetch("http://0.0.0.0:8000/api/v1/end-point-health/"); setBackendOnline(res.ok); }
+      catch { setBackendOnline(false); }
+    };
+    check();
+    const interval = setInterval(check, 30000);
+    return () => clearInterval(interval);
+  }, []);
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
   const [monitoredEmails, setMonitoredEmails] = useState<MonitoredEmail[]>([]);
   const [loading, setLoading] = useState(true);
@@ -282,9 +293,10 @@ const MonitoringDashboard = () => {
           </p>
         </div>
         <div className="flex items-center gap-3 bg-muted/20 p-2 rounded-2xl border border-border/40">
-           <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 animate-pulse px-4 py-1.5 rounded-xl font-black tracking-widest text-[10px]">
-             LIVE_NETWORK_SCAN
-           </Badge>
+           <Badge variant="outline" className={`px-4 py-1.5 rounded-xl font-black tracking-widest text-[10px] ${backendOnline === null ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" : backendOnline ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-rose-500/10 text-rose-500 border-rose-500/20"}`}>
+              <span className={`h-1.5 w-1.5 rounded-full mr-1.5 ${backendOnline === null ? "bg-yellow-500" : backendOnline ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
+              {backendOnline === null ? "SCANNING..." : backendOnline ? "CONNECTED" : "DISCONNECTED"}
+            </Badge>
         </div>
       </div>
 

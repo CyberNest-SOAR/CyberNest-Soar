@@ -65,8 +65,8 @@ const AppContent = () => {
                       {/* SOC Group */}
                       <Route path="/dashboard" element={<PageTransition><CommandCenter /></PageTransition>} />
                       <Route path="/soc/command-center" element={<PageTransition><CommandCenter /></PageTransition>} />
-                      <Route path="/soc/alerts-center" element={<PageTransition><LogsDashboard /></PageTransition>} />
-                      <Route path="/soc/alerts-table" element={<PageTransition><AlertsTablePage /></PageTransition>} />
+                      <Route path="/soc/alert-monitor" element={<PageTransition><LogsDashboard /></PageTransition>} />
+                      <Route path="/soc/alert-forensics" element={<PageTransition><AlertsTablePage /></PageTransition>} />
                       <Route path="/soc/incident-response" element={<PageTransition><IncidentResponsePage /></PageTransition>} />
 
                       {/* Assets Group */}
@@ -92,7 +92,7 @@ const AppContent = () => {
 
                       {/* Backward Compatible Legacy Routes */}
                       <Route path="/threat-intelligence" element={<PageTransition><ThreatIntelligence /></PageTransition>} />
-                      <Route path="/logs" element={<PageTransition><LogsDashboard /></PageTransition>} />
+                      <Route path="/logs" element={<Navigate to="/soc/alert-monitor" replace />} />
                       <Route path="/incidents" element={<PageTransition><IncidentResponsePage /></PageTransition>} />
                       <Route path="/reports" element={<PageTransition><ReportingAuditPage /></PageTransition>} />
                       

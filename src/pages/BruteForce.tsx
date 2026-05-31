@@ -221,19 +221,19 @@ const BruteForce = () => {
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={attemptData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="hour" stroke="#9CA3AF" />
-              <YAxis stroke="#9CA3AF" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="hour" stroke="hsl(var(--muted-foreground))" />
+              <YAxis stroke="hsl(var(--muted-foreground))" />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: '#1F2937', 
-                  border: '1px solid #374151',
+                  backgroundColor: 'hsl(var(--card))', 
+                  border: '1px solid hsl(var(--border))',
                   borderRadius: '8px',
-                  color: '#F3F4F6'
+                  color: 'hsl(var(--foreground))'
                 }}
                 formatter={(value) => [`${value} attempts`, 'Failed Logins']}
               />
-              <Bar dataKey="attempts" fill="#EF4444" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="attempts" fill="hsl(var(--critical))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

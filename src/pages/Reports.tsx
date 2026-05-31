@@ -32,10 +32,10 @@ const threatTrendsData = [
 ];
 
 const incidentsByCategory = [
-  { name: "Phishing", value: 45, color: "#3B82F6" },
-  { name: "Malware", value: 28, color: "#EF4444" },
-  { name: "Brute Force", value: 18, color: "#F59E0B" },
-  { name: "DDoS", value: 9, color: "#10B981" },
+  { name: "Phishing", value: 45, color: "hsl(var(--cyber-blue))" },
+  { name: "Malware", value: 28, color: "hsl(var(--critical))" },
+  { name: "Brute Force", value: 18, color: "hsl(var(--warning))" },
+  { name: "DDoS", value: 9, color: "hsl(var(--success))" },
 ];
 
 const Reports = () => {
@@ -207,21 +207,21 @@ const Reports = () => {
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
                 <LineChart data={detectionAccuracyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="week" stroke="#9CA3AF" />
-                  <YAxis domain={[85, 100]} stroke="#9CA3AF" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="week" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis domain={[85, 100]} stroke="hsl(var(--muted-foreground))" />
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: '#1F2937', 
-                      border: '1px solid #374151',
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
-                      color: '#F3F4F6'
+                      color: 'hsl(var(--foreground))'
                     }}
                     formatter={(value) => [`${value}%`, '']}
                   />
-                  <Line type="monotone" dataKey="precision" stroke="#3B82F6" strokeWidth={3} name="Precision" />
-                  <Line type="monotone" dataKey="recall" stroke="#10B981" strokeWidth={3} name="Recall" />
-                  <Line type="monotone" dataKey="f1Score" stroke="#F59E0B" strokeWidth={3} name="F1-Score" />
+                  <Line type="monotone" dataKey="precision" stroke="hsl(var(--cyber-blue))" strokeWidth={3} name="Precision" />
+                  <Line type="monotone" dataKey="recall" stroke="hsl(var(--success))" strokeWidth={3} name="Recall" />
+                  <Line type="monotone" dataKey="f1Score" stroke="hsl(var(--warning))" strokeWidth={3} name="F1-Score" />
                 </LineChart>
               </ResponsiveContainer>
               
@@ -254,15 +254,15 @@ const Reports = () => {
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
                 <AreaChart data={responseTimeData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="month" stroke="#9CA3AF" />
-                  <YAxis stroke="#9CA3AF" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                    <YAxis stroke="hsl(var(--muted-foreground))" />
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: '#1F2937', 
-                      border: '1px solid #374151',
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
-                      color: '#F3F4F6'
+                      color: 'hsl(var(--foreground))'
                     }}
                     formatter={(value, name) => [
                       `${value} minutes`, 
@@ -272,8 +272,8 @@ const Reports = () => {
                   <Area 
                     type="monotone" 
                     dataKey="slaTarget" 
-                    stroke="#EF4444" 
-                    fill="#EF4444" 
+                    stroke="hsl(var(--critical))" 
+                    fill="hsl(var(--critical))" 
                     fillOpacity={0.1}
                     strokeWidth={2}
                     strokeDasharray="5 5"
@@ -281,8 +281,8 @@ const Reports = () => {
                   <Area 
                     type="monotone" 
                     dataKey="avgResponseTime" 
-                    stroke="#10B981" 
-                    fill="#10B981" 
+                    stroke="hsl(var(--success))" 
+                    fill="hsl(var(--success))" 
                     fillOpacity={0.3}
                     strokeWidth={3}
                   />
@@ -314,26 +314,26 @@ const Reports = () => {
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
                 <AreaChart data={threatTrendsData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
                     dataKey="date" 
-                    stroke="#9CA3AF"
+                    stroke="hsl(var(--muted-foreground))"
                     tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   />
-                  <YAxis stroke="#9CA3AF" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" />
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: '#1F2937', 
-                      border: '1px solid #374151',
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
-                      color: '#F3F4F6'
+                      color: 'hsl(var(--foreground))'
                     }}
                     labelFormatter={(value) => new Date(value).toLocaleDateString()}
                   />
-                  <Area type="monotone" dataKey="bruteforce" stackId="1" stroke="#F59E0B" fill="#F59E0B" fillOpacity={0.8} />
-                  <Area type="monotone" dataKey="ddos" stackId="1" stroke="#10B981" fill="#10B981" fillOpacity={0.8} />
-                  <Area type="monotone" dataKey="malware" stackId="1" stroke="#EF4444" fill="#EF4444" fillOpacity={0.8} />
-                  <Area type="monotone" dataKey="phishing" stackId="1" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.8} />
+                  <Area type="monotone" dataKey="bruteforce" stackId="1" stroke="hsl(var(--warning))" fill="hsl(var(--warning))" fillOpacity={0.8} />
+                  <Area type="monotone" dataKey="ddos" stackId="1" stroke="hsl(var(--success))" fill="hsl(var(--success))" fillOpacity={0.8} />
+                  <Area type="monotone" dataKey="malware" stackId="1" stroke="hsl(var(--critical))" fill="hsl(var(--critical))" fillOpacity={0.8} />
+                  <Area type="monotone" dataKey="phishing" stackId="1" stroke="hsl(var(--cyber-blue))" fill="hsl(var(--cyber-blue))" fillOpacity={0.8} />
                 </AreaChart>
               </ResponsiveContainer>
               
@@ -376,7 +376,7 @@ const Reports = () => {
                       cx="50%"
                       cy="50%"
                       outerRadius={100}
-                      fill="#8884d8"
+                      fill="hsl(var(--primary))"
                       dataKey="value"
                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     >
@@ -386,10 +386,10 @@ const Reports = () => {
                     </Pie>
                     <Tooltip 
                       contentStyle={{ 
-                        backgroundColor: '#1F2937', 
-                        border: '1px solid #374151',
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
-                        color: '#F3F4F6'
+                        color: 'hsl(var(--foreground))'
                       }} 
                     />
                   </PieChart>

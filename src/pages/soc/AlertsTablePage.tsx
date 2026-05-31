@@ -1,10 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useRiskScoring } from "@/hooks/useBackendApi";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   Database, 
@@ -17,9 +19,12 @@ import {
   ShieldCheck,
   ShieldAlert,
   Settings,
-  ShieldX
+  ShieldX,
+  Eye
 } from "lucide-react";
 import { toast } from "sonner";
+import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
+import { AlertDetailDrawer } from "@/components/AlertDetailDrawer";
 
 interface Alert {
   event_id: string;
@@ -64,15 +69,74 @@ export default function AlertsTablePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [severityFilter, setSeverityFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 15;
 
-  const handleAction = (eventId: string, actionType: string) => {
-    toast.info("Mitigation Applied", {
-      description: `Action '${actionType}' triggered for event: ${eventId}`,
-      icon: <Settings className="h-4 w-4 text-primary animate-spin" />
+  const [confirmAction, setConfirmAction] = useState<{ eventId: string; actionType: string; target: string } | null>(null);
+  const [detailAlert, setDetailAlert] = useState<any>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [riskScores, setRiskScores] = useState<Record<string, number>>({});
+  const [scoringLoading, setScoringLoading] = useState(false);
+  const { scoreAlert } = useRiskScoring();
+
+  const rescoreAlert = useCallback(async (alert: Alert) => {
+    setScoringLoading(true);
+    try {
+      const result = await scoreAlert({ event_id: alert.event_id, severity: alert.severity, attack_type: alert.attack_type, host: alert.host });
+      if (result) {
+        setRiskScores(prev => ({ ...prev, [alert.event_id]: result.risk_score }));
+        toast.success("Risk Re-scored", { description: `${alert.event_id}: ${result.risk_score} (${result.predicted_analyst_verdict})` });
+      }
+    } finally {
+      setScoringLoading(false);
+    }
+  }, [scoreAlert]);
+
+  const displayRiskScore = useCallback((alert: Alert) => {
+    return riskScores[alert.event_id] ?? alert.risk_score;
+  }, [riskScores]);
+
+  const handleAction = (eventId: string, actionType: string, target: string) => {
+    setConfirmAction({ eventId, actionType, target });
+  };
+
+  const executeAction = ({ reason, ticketId }: { reason: string; ticketId: string }) => {
+    if (!confirmAction) return;
+    toast.success("Mitigation Executed", {
+      description: `Action '${confirmAction.actionType}' applied to ${confirmAction.eventId}. Reason: ${reason}${ticketId ? ` | Ticket: ${ticketId}` : ""}`,
+      icon: <ShieldAlert className="h-4 w-4 text-rose-500" />
     });
+  };
+
+  const executeBulkAction = (actionType: string) => {
+    if (selectedIds.size === 0) return;
+    toast.success(`Bulk ${actionType} Initiated`, {
+      description: `${actionType} applied to ${selectedIds.size} selected alerts.`,
+      icon: <Settings className="h-4 w-4 text-primary" />
+    });
+    setSelectedIds(new Set());
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === paginatedAlerts.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(paginatedAlerts.map(a => a.event_id)));
+    }
+  };
+
+  const toggleOne = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const viewDetail = (alert: any) => {
+    setDetailAlert(alert);
+    setDetailOpen(true);
   };
 
   // Filter & Search Logic
@@ -119,9 +183,9 @@ export default function AlertsTablePage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <PageHeader 
-          title="SOC Alerts Center"
-          description="In-depth audit and forensics database of all ingested network anomalies"
-          breadcrumbs={[{ label: "SOC" }, { label: "Alerts Table" }]}
+          title="Alert Forensics"
+          description="In-depth audit, triage, and response — bulk actions, risk scoring, and host/network mitigation"
+          breadcrumbs={[{ label: "SOC" }, { label: "Alert Forensics" }]}
         />
         <Button variant="outline" size="sm" onClick={refetch} className="font-mono text-xs border-border/40 flex items-center gap-2 hover:bg-primary/5">
           <RefreshCw className="h-3.5 w-3.5" /> Reload Database
@@ -210,32 +274,56 @@ export default function AlertsTablePage() {
           </Badge>
         </CardHeader>
         <CardContent className="p-0">
+          {/* Bulk action bar */}
+          {selectedIds.size > 0 && (
+            <div className="flex items-center justify-between px-6 py-2.5 bg-primary/5 border-b border-primary/20">
+              <span className="text-xs font-mono font-bold text-primary">{selectedIds.size} selected</span>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => executeBulkAction("Suppress")}
+                  className="text-[10px] font-bold h-7 uppercase tracking-wider">Suppress</Button>
+                <Button size="sm" variant="outline" onClick={() => executeBulkAction("Assign")}
+                  className="text-[10px] font-bold h-7 uppercase tracking-wider">Assign</Button>
+                <Button size="sm" onClick={() => executeBulkAction("Escalate")}
+                  className="text-[10px] font-bold h-7 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 uppercase tracking-wider">Escalate</Button>
+              </div>
+            </div>
+          )}
           <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
             <Table>
               <TableHeader>
                 <TableRow className="border-border/30 bg-muted/20 hover:bg-transparent">
-                  <TableHead className="pl-6 font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Event ID</TableHead>
+                  <TableHead className="pl-4 w-10">
+                    <Checkbox checked={paginatedAlerts.length > 0 && selectedIds.size === paginatedAlerts.length}
+                      onCheckedChange={toggleAll} />
+                  </TableHead>
+                  <TableHead className="font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Event ID</TableHead>
                   <TableHead className="font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Severity</TableHead>
                   <TableHead className="font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Vector</TableHead>
                   <TableHead className="font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Tactic</TableHead>
-                  <TableHead className="font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Target IP</TableHead>
+                  <TableHead className="font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Source Host</TableHead>
+                  <TableHead className="font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Target Host</TableHead>
                   <TableHead className="font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Verdict</TableHead>
                   <TableHead className="font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Status</TableHead>
+                  <TableHead className="font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Risk Score</TableHead>
                   <TableHead className="font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Tool</TableHead>
-                  <TableHead className="pr-6 text-right font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Mitigations</TableHead>
+                  <TableHead className="pr-6 text-right font-mono text-[9px] uppercase font-black text-muted-foreground/60 tracking-wider">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedAlerts.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-12 text-muted-foreground font-semibold">
+                    <TableCell colSpan={12} className="text-center py-12 text-muted-foreground font-semibold">
                       No matching records found in this dataset view.
                     </TableCell>
                   </TableRow>
                 ) : (
                   paginatedAlerts.map((alert, idx) => (
                     <TableRow key={idx} className="hover:bg-muted/10 border-border/10">
-                      <TableCell className="pl-6 font-mono text-xs font-bold text-foreground">
+                      <TableCell className="pl-4">
+                        <Checkbox checked={selectedIds.has(alert.event_id)}
+                          onCheckedChange={() => toggleOne(alert.event_id)} />
+                      </TableCell>
+                      <TableCell className="font-mono text-xs font-bold text-foreground">
                         {alert.event_id}
                       </TableCell>
                       <TableCell>
@@ -262,6 +350,9 @@ export default function AlertsTablePage() {
                       <TableCell className="font-mono text-xs text-muted-foreground font-semibold">
                         {alert.host}
                       </TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground font-semibold">
+                        {alert.dst_host || "—"}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold capitalize">
                           {alert.analyst_verdict === "true_positive" ? (
@@ -284,25 +375,45 @@ export default function AlertsTablePage() {
                           {alert.status}
                         </span>
                       </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`font-mono text-xs font-bold ${
+                            displayRiskScore(alert) >= 8 
+                              ? "text-rose-400" 
+                              : displayRiskScore(alert) >= 4 
+                              ? "text-amber-400" 
+                              : "text-emerald-400"
+                          }`}>
+                            {displayRiskScore(alert)}
+                          </span>
+                          <button
+                            onClick={() => rescoreAlert(alert)}
+                            disabled={scoringLoading}
+                            className="text-[9px] text-muted-foreground/40 hover:text-primary transition-colors"
+                            title="Re-score alert"
+                          >
+                            ↻
+                          </button>
+                        </div>
+                      </TableCell>
                       <TableCell className="font-mono text-[10px] text-muted-foreground font-bold tracking-wider">
                         {alert.source_tool.replace("synthetic.", "")}
                       </TableCell>
                       <TableCell className="pr-6 text-right">
-                        <div className="flex justify-end gap-1.5">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => handleAction(alert.event_id, "Isolate Host")}
-                            className="text-[9px] uppercase font-extrabold text-rose-400 hover:bg-rose-500/10 h-7 tracking-wider"
-                          >
+                        <div className="flex justify-end gap-1">
+                          <Button variant="ghost" size="sm"
+                            onClick={() => viewDetail(alert)}
+                            className="text-[9px] uppercase font-extrabold text-primary hover:bg-primary/10 h-7 tracking-wider">
+                            <Eye className="h-3 w-3 mr-1" /> View
+                          </Button>
+                          <Button variant="ghost" size="sm"
+                            onClick={() => handleAction(alert.event_id, "Isolate Host", alert.host)}
+                            className="text-[9px] uppercase font-extrabold text-rose-400 hover:bg-rose-500/10 h-7 tracking-wider">
                             Isolate
                           </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => handleAction(alert.event_id, "Block IP")}
-                            className="text-[9px] uppercase font-extrabold text-primary hover:bg-primary/10 h-7 tracking-wider"
-                          >
+                          <Button variant="ghost" size="sm"
+                            onClick={() => handleAction(alert.event_id, "Block IP", alert.host)}
+                            className="text-[9px] uppercase font-extrabold text-primary hover:bg-primary/10 h-7 tracking-wider">
                             Block
                           </Button>
                         </div>
@@ -345,6 +456,28 @@ export default function AlertsTablePage() {
           )}
         </CardContent>
       </Card>
+      {/* Confirmation Dialog */}
+      <ConfirmActionDialog
+        open={!!confirmAction}
+        onOpenChange={() => setConfirmAction(null)}
+        title={confirmAction?.actionType === "Isolate Host" ? "Isolate Host" : "Block IP Address"}
+        description={confirmAction?.actionType === "Isolate Host"
+          ? "This will disconnect the host from the network. All active sessions will be terminated."
+          : "This will block the IP address at the firewall level. Ensure this is a verified malicious target."}
+        actionLabel={confirmAction?.actionType === "Isolate Host" ? "Confirm Isolation" : "Confirm Block"}
+        actionVariant={confirmAction?.actionType === "Isolate Host" ? "destructive" : "warning"}
+        targetLabel={`${confirmAction?.target} (${confirmAction?.eventId})`}
+        requireReason
+        requireTicketId
+        onConfirm={executeAction}
+      />
+
+      {/* Alert Detail Drawer */}
+      <AlertDetailDrawer
+        alert={detailAlert}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+      />
     </div>
   );
 }

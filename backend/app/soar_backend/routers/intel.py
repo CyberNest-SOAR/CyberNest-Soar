@@ -1,8 +1,9 @@
 import asyncio
 import logging
+from datetime import datetime
 from fastapi import APIRouter, Body
-from typing import List
-from schemas.models import MispSyncResponse, UnifiedAlert, IntelResponse
+from typing import Dict, List, Any
+from schemas.models import MispSyncResponse, UnifiedAlert, IntelResponse, IocLookupRequest, IocLookupResult, HostContext, EnrichmentData
 from services.collector import collector
 from services.enrichment import enrichment_service
 from services.normalizer import normalizer
@@ -43,6 +44,65 @@ async def intel_lookup_batch(alerts: List[UnifiedAlert]):
         else:
             out.append(result)
     return out
+
+@router.post("/lookup-ioc", response_model=IocLookupResult)
+async def ioc_lookup(req: IocLookupRequest):
+    """
+    Look up a single IOC value against all configured threat intel providers.
+    Constructs a minimal alert payload and runs the full enrichment pipeline.
+    Returns per-source enrichment details suitable for the frontend IOC dialog.
+    """
+    raw_data: Dict[str, Any] = {}
+    host_ip = "unknown"
+    if req.ioc_type == "ip":
+        host_ip = req.ioc
+    elif req.ioc_type == "domain":
+        raw_data["dns"] = {"query": req.ioc}
+    elif req.ioc_type in ("hash", "url"):
+        raw_data["fileinfo"] = {"md5": req.ioc} if len(req.ioc) == 32 else {}
+        if req.ioc_type == "url":
+            raw_data["url"] = req.ioc
+
+    alert = UnifiedAlert(
+        event_id=f"ioc-lookup-{req.ioc[:16]}",
+        source="manual",
+        timestamp=datetime.now(),
+        description=f"Manual IOC lookup for {req.ioc} ({req.ioc_type})",
+        severity=0,
+        host_context=HostContext(hostname=host_ip, ip_address=host_ip),
+        raw_data=raw_data,
+    )
+
+    await enrich_alert_intel(alert)
+
+    enrichment: Dict[str, Any] = {}
+    if alert.enrichment_data.virus_total:
+        enrichment["virus_total"] = alert.enrichment_data.virus_total
+    if alert.enrichment_data.abuse_ipdb:
+        enrichment["abuse_ipdb"] = alert.enrichment_data.abuse_ipdb
+    if alert.enrichment_data.misp:
+        enrichment["misp"] = alert.enrichment_data.misp
+    if alert.enrichment_data.urlhaus:
+        enrichment["urlhaus"] = alert.enrichment_data.urlhaus
+    if alert.enrichment_data.alienvault_otx:
+        enrichment["alienvault_otx"] = alert.enrichment_data.alienvault_otx
+
+    malicious = bool(enrichment.get("virus_total", {}).get("malicious", 0))
+    sources = []
+    if enrichment.get("virus_total"): sources.append("VirusTotal")
+    if enrichment.get("abuse_ipdb"): sources.append("AbuseIPDB")
+    if enrichment.get("misp"): sources.append("MISP")
+    if enrichment.get("urlhaus"): sources.append("URLhaus")
+    if enrichment.get("alienvault_otx"): sources.append("AlienVault OTX")
+
+    return IocLookupResult(
+        ioc=req.ioc,
+        malicious=malicious,
+        reputation=100 if not malicious else 0,
+        sources=sources,
+        enrichment=enrichment,
+    )
+
 
 @router.post("/misp-sync", response_model=MispSyncResponse)
 async def misp_sync():

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,24 @@ interface AppLayoutProps {
   userRole: UserRole;
 }
 
+const API_BASE = "http://0.0.0.0:8000/api/v1";
+
 const AppLayout = ({ children, onLogout, userRole }: AppLayoutProps) => {
+  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/end-point-health/`);
+        setBackendOnline(res.ok);
+      } catch {
+        setBackendOnline(false);
+      }
+    };
+    check();
+    const interval = setInterval(check, 30000);
+    return () => clearInterval(interval);
+  }, []);
   return (
     <div className="flex min-h-screen w-full bg-background relative overflow-hidden font-grotesk">
       {/* Background Aesthetics */}
@@ -40,8 +58,8 @@ const AppLayout = ({ children, onLogout, userRole }: AppLayoutProps) => {
             <SidebarTrigger className="text-foreground hover:bg-accent/50 rounded-lg transition-colors p-2" />
             <div className="h-4 w-px bg-border/40 mx-2 hidden md:block" />
             <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-              SYSTEM ACTIVE: {new Date().toLocaleDateString()}
+              <span className={`h-2 w-2 rounded-full ${backendOnline === null ? "bg-yellow-500" : backendOnline ? "bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"}`} />
+              {backendOnline === null ? "CHECKING..." : backendOnline ? "BACKEND ONLINE" : "BACKEND OFFLINE"}
             </div>
           </div>
 

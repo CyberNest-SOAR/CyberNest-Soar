@@ -107,10 +107,10 @@ export default function ItHygienePage() {
 
   // Format Recharts issue trends bar chart safely
   const riskTrendsData = [
-    { name: "PATCHING", count: risks?.patch_issues ?? 0, fill: "#3b82f6" },
-    { name: "CONFIG", count: risks?.config_issues ?? 0, fill: "#eab308" },
-    { name: "INTEGRITY", count: risks?.integrity_issues ?? 0, fill: "#ec4899" },
-    { name: "THREATS", count: risks?.threat_issues ?? 0, fill: "#ef4444" }
+    { name: "PATCHING", count: risks?.patch_issues ?? 0, fill: "hsl(var(--cyber-blue))" },
+    { name: "CONFIG", count: risks?.config_issues ?? 0, fill: "hsl(var(--warning))" },
+    { name: "INTEGRITY", count: risks?.integrity_issues ?? 0, fill: "hsl(var(--secondary))" },
+    { name: "THREATS", count: risks?.threat_issues ?? 0, fill: "hsl(var(--critical))" }
   ];
 
   if (loading) {
@@ -260,7 +260,7 @@ export default function ItHygienePage() {
                   <YAxis stroke="hsl(var(--muted-foreground))" fontSize={9} tickLine={false} axisLine={false} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "rgba(0, 0, 0, 0.85)",
+                      backgroundColor: "hsl(var(--card))",
                       backdropFilter: "blur(12px)",
                       border: "1px solid hsl(var(--border) / 0.4)",
                       borderRadius: "12px",

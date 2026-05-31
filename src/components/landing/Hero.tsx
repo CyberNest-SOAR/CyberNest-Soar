@@ -63,8 +63,8 @@ export const Hero = () => {
             transition={{ delay: 1, duration: 0.5 }}
             className="absolute bottom-10 left-0 glass p-4 shadow-2xl border border-primary/20 max-w-[200px] hidden sm:block rounded-2xl backdrop-blur-2xl"
           >
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-1">Threats Blocked</p>
-            <p className="text-2xl font-bold text-primary font-grotesk tracking-tighter">1.2M+</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-1">Real-time Events</p>
+            <p className="text-2xl font-bold text-primary font-grotesk tracking-tighter">250K+</p>
             <div className="mt-2 h-1 w-full bg-muted rounded-full overflow-hidden">
               <motion.div 
                 animate={{ width: ["0%", "75%", "60%", "75%"] }}
@@ -80,8 +80,8 @@ export const Hero = () => {
             transition={{ delay: 1.2, duration: 0.5 }}
             className="absolute top-10 right-0 glass p-4 shadow-2xl border border-accent/20 max-w-[180px] hidden sm:block rounded-2xl backdrop-blur-2xl"
           >
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-1">System Health</p>
-            <p className="text-2xl font-bold text-accent font-grotesk tracking-tighter">99.9%</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-1">Integrations</p>
+            <p className="text-2xl font-bold text-accent font-grotesk tracking-tighter">12+</p>
             <div className="flex gap-1 mt-2">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="h-4 w-1.5 bg-accent rounded-full opacity-60 animate-bounce" style={{ animationDelay: `${i * 0.1}s` }} />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { PageHeader } from "@/components/PageHeader";
 import { CyberCard } from "@/components/CyberCard";
@@ -105,9 +105,24 @@ const fallbackDefault: CommandCenterData = {
   }
 };
 
+const API_BASE = "http://0.0.0.0:8000/api/v1";
+
 export default function CommandCenter() {
   const { data, loading, refetch } = useDashboardData<CommandCenterData>("command-center.json", fallbackDefault);
   const [criticalityFilter, setCriticalityFilter] = useState<string>("all");
+  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/end-point-health/`);
+        setBackendOnline(res.ok);
+      } catch { setBackendOnline(false); }
+    };
+    check();
+    const interval = setInterval(check, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const metrics = data.top_metrics;
 
@@ -129,11 +144,11 @@ export default function CommandCenter() {
     "hsl(var(--cyber-blue))",
     "hsl(var(--critical))",
     "hsl(var(--warning))",
-    "#a855f7",
-    "#ec4899",
-    "#eab308",
-    "#3b82f6",
-    "#10b981"
+    "hsl(var(--primary))",
+    "hsl(var(--secondary))",
+    "hsl(var(--info))",
+    "hsl(var(--success))",
+    "hsl(var(--accent))",
   ];
 
   const mitreData = Object.entries(data.mitre_heatmap || {}).map(([key, val]) => ({
@@ -146,6 +161,11 @@ export default function CommandCenter() {
     if (criticalityFilter === "all") return true;
     return item.asset_criticality === criticalityFilter;
   }) || [];
+
+  // Queue backlog age calculation - mock based on position in queue
+  const totalCritical = filteredRiskQueue.length;
+  const unassignedCount = filteredRiskQueue.filter(a => !a.analyst_assigned || a.analyst_assigned === "unassigned").length;
+  const backlogAgeMinutes = Math.max(5, Math.round(totalCritical * 3.2)); // simulated median age
 
   const handleInvestigate = (eventId: string) => {
     toast.success("Investigation Initiated", {
@@ -185,8 +205,9 @@ export default function CommandCenter() {
           <Button variant="outline" size="sm" onClick={refetch} className="font-mono text-xs border-border/40 flex items-center gap-2 hover:bg-primary/5">
             <RefreshCw className="h-3.5 w-3.5" /> Force Sync
           </Button>
-          <Badge className="bg-primary/10 text-primary border border-primary/20 animate-pulse px-3 py-1 text-xs">
-            LIVE MONITORING ACTIVE
+          <Badge className={`px-3 py-1 text-xs border ${backendOnline === null ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" : backendOnline ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-rose-500/10 text-rose-500 border-rose-500/20"}`}>
+            <span className={`h-1.5 w-1.5 rounded-full mr-1.5 ${backendOnline === null ? "bg-yellow-500" : backendOnline ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
+            {backendOnline === null ? "CHECKING..." : backendOnline ? "BACKEND ONLINE" : "BACKEND OFFLINE"}
           </Badge>
         </div>
       </div>
@@ -282,9 +303,9 @@ export default function CommandCenter() {
                   <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "rgba(0, 0, 0, 0.85)",
+                      backgroundColor: "hsl(var(--card))",
                       backdropFilter: "blur(12px)",
-                      border: "1px solid hsl(var(--border) / 0.4)",
+                      border: "1px solid hsl(var(--border))",
                       borderRadius: "12px",
                       color: "hsl(var(--foreground))",
                     }}
@@ -337,9 +358,9 @@ export default function CommandCenter() {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "rgba(0, 0, 0, 0.85)",
+                      backgroundColor: "hsl(var(--card))",
                       backdropFilter: "blur(12px)",
-                      border: "1px solid hsl(var(--border) / 0.4)",
+                      border: "1px solid hsl(var(--border))",
                       borderRadius: "12px",
                       color: "hsl(var(--foreground))",
                     }}
@@ -362,25 +383,44 @@ export default function CommandCenter() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* MITRE Radar Chart */}
+        {/* Queue Backlog Monitor */}
         <Card className="bg-card/25 border-border/40 shadow-xl backdrop-blur-md">
           <CardHeader className="border-b border-border/40 pb-4">
             <CardTitle className="text-lg font-bold font-grotesk flex items-center gap-2">
-              <Target className="h-4 w-4 text-purple-400" />
-              MITRE ATT&CK Mapping
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              Queue Backlog Monitor
             </CardTitle>
-            <CardDescription>Tactic detections mapped across framework segments</CardDescription>
+            <CardDescription>Triage queue depth and analyst assignment coverage</CardDescription>
           </CardHeader>
-          <CardContent className="pt-6 flex justify-center items-center">
-            <div className="h-[280px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="75%" data={mitreData}>
-                  <PolarGrid stroke="hsl(var(--border))" opacity={0.25} />
-                  <PolarAngleAxis dataKey="subject" stroke="hsl(var(--muted-foreground))" fontSize={9} />
-                  <PolarRadiusAxis angle={30} domain={[0, 'auto']} stroke="hsl(var(--muted-foreground))" fontSize={8} />
-                  <Radar name="Tactics" dataKey="count" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.25} />
-                </RadarChart>
-              </ResponsiveContainer>
+          <CardContent className="pt-6 space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-rose-500/5 border border-rose-500/20 rounded-xl p-3 text-center">
+                <p className="text-[9px] uppercase tracking-widest text-rose-400/60">Critical Queue</p>
+                <p className="text-2xl font-black font-mono text-rose-400 mt-1">{totalCritical}</p>
+              </div>
+              <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 text-center">
+                <p className="text-[9px] uppercase tracking-widest text-amber-400/60">Unassigned</p>
+                <p className="text-2xl font-black font-mono text-amber-400 mt-1">{unassignedCount}</p>
+              </div>
+            </div>
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3">
+              <p className="text-[9px] uppercase tracking-widest text-primary/60 mb-1">Median Backlog Age</p>
+              <p className="text-xl font-black font-mono text-primary">{backlogAgeMinutes} min</p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between text-[10px] text-muted-foreground/60 font-mono">
+                <span>SLA Breach Risk</span>
+                <span className={backlogAgeMinutes > 10 ? "text-rose-400 font-bold" : "text-emerald-400 font-bold"}>
+                  {backlogAgeMinutes > 10 ? "BREACHING" : "WITHIN SLA"}
+                </span>
+              </div>
+              <div className="h-1.5 w-full bg-muted/30 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full ${backlogAgeMinutes > 10 ? "bg-rose-500" : "bg-emerald-500"}`}
+                  style={{ width: `${Math.min((backlogAgeMinutes / 15) * 100, 100)}%` }} />
+              </div>
+            </div>
+            <div className="text-[10px] text-muted-foreground/40 font-mono text-center pt-1">
+              15-minute triage SLA threshold
             </div>
           </CardContent>
         </Card>

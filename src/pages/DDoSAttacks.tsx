@@ -200,15 +200,15 @@ const DDoSAttacks = () => {
         <CardContent>
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={trafficData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="time" stroke="#9CA3AF" />
-              <YAxis stroke="#9CA3AF" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="time" stroke="hsl(var(--muted-foreground))" />
+              <YAxis stroke="hsl(var(--muted-foreground))" />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: '#1F2937', 
-                  border: '1px solid #374151',
+                  backgroundColor: 'hsl(var(--card))', 
+                  border: '1px solid hsl(var(--border))',
                   borderRadius: '8px',
-                  color: '#F3F4F6'
+                  color: 'hsl(var(--foreground))'
                 }}
                 formatter={(value, name) => [
                   `${value} req/s`,
@@ -218,14 +218,14 @@ const DDoSAttacks = () => {
               <Line 
                 type="monotone" 
                 dataKey="normal" 
-                stroke="#10B981" 
+                stroke="hsl(var(--success))" 
                 strokeWidth={2} 
                 name="normal"
               />
               <Line 
                 type="monotone" 
                 dataKey="attack" 
-                stroke="#EF4444" 
+                stroke="hsl(var(--critical))" 
                 strokeWidth={3} 
                 name="attack"
               />

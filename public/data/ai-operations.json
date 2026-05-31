@@ -1,1 +1,226 @@
-{"page":"AI Operations Center","model_health":{"f1_score":0.582,"precision":0.41,"recall":1.0,"total_classified":62455,"avg_confidence":0.698,"min_confidence":0.35,"max_confidence":0.99},"ai_decision_queue":{"auto_closed_alerts":42571,"suppressed_alerts":30661,"escalated_alerts":29150,"low_confidence_detections":1190},"analyst_feedback":{"false_positives":36842,"true_positives":25613,"false_negatives":0,"analyst_verdicts":{"false_positive":36842,"true_positive":25613,"unknown":22394,"benign":9423,"suspicious":3778,"investigating":1950}}}
+{
+  "page": "AI Operations Center",
+  "system_status": "healthy",
+  "total_executions": 162450,
+  "average_drift": 0.072,
+
+  "models": [
+    {
+      "id": "risk-scoring-ai",
+      "model_name": "Risk Scoring AI",
+      "model_version": "4.2.1",
+      "health_status": "online",
+      "accuracy": 0.934,
+      "precision": 0.912,
+      "recall": 0.958,
+      "f1_score": 0.934,
+      "roc_auc": 0.971,
+      "drift_score": 0.043,
+      "last_training": "2026-05-15T00:00:00Z",
+      "dataset_version": "ds-v6.2",
+      "last_execution": "2026-05-30T14:12:00Z",
+      "request_count": 24180
+    },
+    {
+      "id": "noise-reduction-ai",
+      "model_name": "Noise Reduction AI",
+      "model_version": "3.1.8",
+      "health_status": "online",
+      "accuracy": 0.972,
+      "precision": 0.965,
+      "recall": 0.981,
+      "f1_score": 0.973,
+      "roc_auc": 0.988,
+      "drift_score": 0.021,
+      "last_training": "2026-05-10T00:00:00Z",
+      "dataset_version": "ds-v5.9",
+      "last_execution": "2026-05-30T14:15:00Z",
+      "request_count": 120840
+    },
+    {
+      "id": "playbook-recommendation-ai",
+      "model_name": "Playbook Recommendation AI",
+      "model_version": "2.3.4",
+      "health_status": "online",
+      "accuracy": 0.948,
+      "precision": 0.931,
+      "recall": 0.962,
+      "f1_score": 0.946,
+      "roc_auc": 0.959,
+      "drift_score": 0.038,
+      "last_training": "2026-05-12T00:00:00Z",
+      "dataset_version": "ds-v5.9",
+      "last_execution": "2026-05-30T14:14:30Z",
+      "request_count": 4120
+    },
+    {
+      "id": "patch-recommendation-ai",
+      "model_name": "Patch Recommendation AI",
+      "model_version": "1.7.2",
+      "health_status": "online",
+      "accuracy": 0.907,
+      "precision": 0.883,
+      "recall": 0.938,
+      "f1_score": 0.910,
+      "roc_auc": 0.942,
+      "drift_score": 0.065,
+      "last_training": "2026-05-08T00:00:00Z",
+      "dataset_version": "ds-v5.8",
+      "last_execution": "2026-05-30T14:10:00Z",
+      "request_count": 2040
+    },
+    {
+      "id": "phishing-detection-ai",
+      "model_name": "Phishing Detection AI",
+      "model_version": "2.1.5",
+      "health_status": "warning",
+      "accuracy": 0.874,
+      "precision": 0.841,
+      "recall": 0.912,
+      "f1_score": 0.875,
+      "roc_auc": 0.903,
+      "drift_score": 0.118,
+      "last_training": "2026-04-28T00:00:00Z",
+      "dataset_version": "ds-v5.7",
+      "last_execution": "2026-05-30T14:13:00Z",
+      "request_count": 8240
+    },
+    {
+      "id": "llm-investigation-assistant",
+      "model_name": "LLM Investigation Assistant",
+      "model_version": "1.2.0",
+      "health_status": "online",
+      "accuracy": 0.893,
+      "precision": 0.872,
+      "recall": 0.916,
+      "f1_score": 0.894,
+      "roc_auc": 0.921,
+      "drift_score": 0.089,
+      "last_training": "2026-05-05T00:00:00Z",
+      "dataset_version": "ds-v5.8",
+      "last_execution": "2026-05-30T14:14:00Z",
+      "request_count": 3030
+    }
+  ],
+
+  "detection_explainability": [
+    {
+      "alert_id": "syn-cicids2017-mal-006319",
+      "risk_score": 94,
+      "confidence": 0.92,
+      "model_version": "4.2.1",
+      "decision_reason": "Behavior matches previous ransomware activity detected in CICIDS2017 corpus. Lateral movement pattern combined with critical asset context.",
+      "top_features": [
+        { "name": "VT Score", "contribution": 0.35 },
+        { "name": "Asset Criticality", "contribution": 0.20 },
+        { "name": "Known Malware IOC", "contribution": 0.18 },
+        { "name": "Lateral Movement Pattern", "contribution": 0.12 },
+        { "name": "Historical TP Rate", "contribution": 0.08 },
+        { "name": "Time of Day Anomaly", "contribution": 0.07 }
+      ]
+    },
+    {
+      "alert_id": "syn-cert_insider-mal-004928",
+      "risk_score": 88,
+      "confidence": 0.89,
+      "model_version": "4.2.1",
+      "decision_reason": "Privilege escalation detected from non-admin account with unauthorized access patterns. Prior case history shows similar behavior.",
+      "top_features": [
+        { "name": "Privilege Escalation", "contribution": 0.30 },
+        { "name": "Asset Criticality", "contribution": 0.22 },
+        { "name": "User Behavior Anomaly", "contribution": 0.18 },
+        { "name": "Prior Case Match", "contribution": 0.15 },
+        { "name": "Time Outside Business Hours", "contribution": 0.10 },
+        { "name": "Data Exfiltration Risk", "contribution": 0.05 }
+      ]
+    },
+    {
+      "alert_id": "syn-ctu13-mal-000253",
+      "risk_score": 97,
+      "confidence": 0.95,
+      "model_version": "4.2.1",
+      "decision_reason": "Command-and-control beaconing detected with 15-minute interval pattern. Destination IP matches known C2 infrastructure from CTU-13 dataset.",
+      "top_features": [
+        { "name": "C2 Beaconing Pattern", "contribution": 0.40 },
+        { "name": "Known C2 IP", "contribution": 0.25 },
+        { "name": "Data Exfiltration Volume", "contribution": 0.15 },
+        { "name": "Encrypted Traffic", "contribution": 0.10 },
+        { "name": "Out-of-hours Activity", "contribution": 0.06 },
+        { "name": "Asset Value Score", "contribution": 0.04 }
+      ]
+    }
+  ],
+
+  "analyst_feedback": {
+    "true_positives": 25613,
+    "false_positives": 36842,
+    "suspicious": 3778,
+    "escalated": 1950,
+    "closed": 42571,
+    "total_reviewed": 110754,
+    "feedback_trend": [
+      { "date": "2026-05-24", "tp": 312, "fp": 489, "suspicious": 45 },
+      { "date": "2026-05-25", "tp": 287, "fp": 512, "suspicious": 38 },
+      { "date": "2026-05-26", "tp": 341, "fp": 476, "suspicious": 52 },
+      { "date": "2026-05-27", "tp": 298, "fp": 503, "suspicious": 41 },
+      { "date": "2026-05-28", "tp": 365, "fp": 458, "suspicious": 56 },
+      { "date": "2026-05-29", "tp": 324, "fp": 491, "suspicious": 44 },
+      { "date": "2026-05-30", "tp": 156, "fp": 212, "suspicious": 23 }
+    ]
+  },
+
+  "noise_reduction": {
+    "total_alerts": 15000,
+    "alerts_suppressed": 11200,
+    "clusters_created": 2300,
+    "duplicate_alerts": 3800,
+    "analyst_reviewed": 1500,
+    "reduction_percentage": 74.7,
+    "daily_volume": [
+      { "date": "2026-05-24", "received": 14820, "suppressed": 11050, "clustered": 2280 },
+      { "date": "2026-05-25", "received": 15120, "suppressed": 11300, "clustered": 2310 },
+      { "date": "2026-05-26", "received": 14950, "suppressed": 11180, "clustered": 2290 },
+      { "date": "2026-05-27", "received": 15210, "suppressed": 11400, "clustered": 2320 },
+      { "date": "2026-05-28", "received": 14780, "suppressed": 11020, "clustered": 2270 },
+      { "date": "2026-05-29", "received": 15030, "suppressed": 11210, "clustered": 2295 },
+      { "date": "2026-05-30", "received": 8120, "suppressed": 6100, "clustered": 1240 }
+    ]
+  },
+
+  "playbook_ai": {
+    "recommended_playbook": "Host Isolation",
+    "confidence": 0.91,
+    "execution_mode": "semi_automated",
+    "success_rate": 0.95,
+    "average_response_time": 18.4,
+    "analyst_override_rate": 0.12,
+    "recent_recommendations": [
+      { "playbook": "Host Isolation", "count": 1240, "success_rate": 0.96, "avg_time": 15.2 },
+      { "playbook": "IP Block", "count": 980, "success_rate": 0.94, "avg_time": 8.7 },
+      { "playbook": "Credential Reset", "count": 750, "success_rate": 0.97, "avg_time": 12.3 },
+      { "playbook": "Process Terminate", "count": 520, "success_rate": 0.93, "avg_time": 6.8 },
+      { "playbook": "Full Remediation", "count": 310, "success_rate": 0.91, "avg_time": 45.6 }
+    ]
+  },
+
+  "llm_telemetry": {
+    "total_requests": 12480,
+    "prompt_tokens": 8450000,
+    "completion_tokens": 2100000,
+    "token_usage": 10550000,
+    "average_latency": 2.84,
+    "estimated_cost": 84.50,
+    "failed_requests": 187,
+    "hallucination_reports": 23,
+    "analyst_feedback_score": 4.2,
+    "daily_usage": [
+      { "date": "2026-05-24", "requests": 1840, "tokens": 1520000, "cost": 12.16, "failed": 28 },
+      { "date": "2026-05-25", "requests": 1920, "tokens": 1580000, "cost": 12.64, "failed": 31 },
+      { "date": "2026-05-26", "requests": 1780, "tokens": 1460000, "cost": 11.68, "failed": 24 },
+      { "date": "2026-05-27", "requests": 1860, "tokens": 1530000, "cost": 12.24, "failed": 26 },
+      { "date": "2026-05-28", "requests": 1720, "tokens": 1410000, "cost": 11.28, "failed": 22 },
+      { "date": "2026-05-29", "requests": 1810, "tokens": 1490000, "cost": 11.92, "failed": 29 },
+      { "date": "2026-05-30", "requests": 1550, "tokens": 1060000, "cost": 12.58, "failed": 27 }
+    ]
+  }
+}

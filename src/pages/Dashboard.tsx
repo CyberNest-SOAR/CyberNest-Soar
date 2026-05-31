@@ -76,6 +76,17 @@ const KPI = ({ title, value, trend, icon: Icon, color, delay }) => (
 
 /* ---------------- DASHBOARD ---------------- */
 export default function Dashboard() {
+  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const check = async () => {
+      try { const res = await fetch("http://0.0.0.0:8000/api/v1/end-point-health/"); setBackendOnline(res.ok); }
+      catch { setBackendOnline(false); }
+    };
+    check();
+    const interval = setInterval(check, 30000);
+    return () => clearInterval(interval);
+  }, []);
   const { theme } = useTheme();
   const [edit, setEdit] = useState(false);
   const [filters, setFilters] = useState({ phishing: true, ddos: true, brute: true });
@@ -215,7 +226,7 @@ export default function Dashboard() {
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: theme === "dark" ? "rgba(0, 0, 0, 0.8)" : "rgba(255, 255, 255, 0.9)",
+                      backgroundColor: "hsl(var(--card))",
                       backdropFilter: "blur(8px)",
                       border: "1px solid hsl(var(--border))",
                       borderRadius: "12px",
@@ -228,7 +239,7 @@ export default function Dashboard() {
                       dataKey="phishing" 
                       stroke="hsl(var(--cyber-blue))" 
                       strokeWidth={3} 
-                      dot={{ r: 4, fill: "hsl(var(--cyber-blue))", strokeWidth: 2, stroke: "#fff" }} 
+                      dot={{ r: 4, fill: "hsl(var(--cyber-blue))", strokeWidth: 2, stroke: "hsl(var(--card))" }} 
                       activeDot={{ r: 6, strokeWidth: 0 }}
                     />
                   )}
@@ -272,7 +283,7 @@ export default function Dashboard() {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: theme === "dark" ? "rgba(0, 0, 0, 0.8)" : "rgba(255, 255, 255, 0.9)",
+                      backgroundColor: "hsl(var(--card))",
                       backdropFilter: "blur(8px)",
                       border: "1px solid hsl(var(--border))",
                       borderRadius: "12px",
@@ -311,8 +322,9 @@ export default function Dashboard() {
                 <CardTitle className="text-lg font-bold">Real-time Threat Feed</CardTitle>
                 <CardDescription>Live telemetry from global nodes</CardDescription>
               </div>
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 animate-pulse">
-                LIVE_STREAM
+              <Badge variant="outline" className={`${backendOnline === null ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" : backendOnline ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-rose-500/10 text-rose-500 border-rose-500/20"}`}>
+                <span className={`h-1.5 w-1.5 rounded-full mr-1.5 ${backendOnline === null ? "bg-yellow-500" : backendOnline ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
+                {backendOnline === null ? "CHECKING" : backendOnline ? "CONNECTED" : "DISCONNECTED"}
               </Badge>
             </CardHeader>
             <CardContent className="pt-4 px-0">

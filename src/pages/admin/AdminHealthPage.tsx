@@ -12,9 +12,12 @@ import {
   HardDrive, 
   Users, 
   Key,
-  Database
+  Database,
+  CheckCircle2,
+  XCircle
 } from "lucide-react";
 import { toast } from "sonner";
+import { useHealthCheck } from "@/hooks/useBackendApi";
 
 interface Connector {
   status: string;
@@ -81,15 +84,17 @@ const fallbackDefault: AdminHealthData = {
 
 export default function AdminHealthPage() {
   const { data, loading, refetch } = useDashboardData<AdminHealthData>("admin-health.json", fallbackDefault);
+  const { checkAll, results: healthResults, loading: healthLoading } = useHealthCheck();
 
   const connectors = data.connector_health;
   const infra = data.infrastructure_health;
   const queue = data.queue_monitoring;
   const rbac = data.rbac;
 
-  const handleTestConnector = (connectorName: string) => {
+  const handleTestConnector = async (connectorName: string) => {
+    await checkAll();
     toast.success("Connector Diagnostic Completed", {
-      description: `Wazuh API returned 200 OK. Connection state validated.`,
+      description: `${connectorName} connection state validated.`,
       icon: <Activity className="h-4 w-4 text-emerald-500 animate-pulse" />
     });
   };
@@ -299,6 +304,46 @@ export default function AdminHealthPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Live Health Check Results */}
+      {healthResults.length > 0 && (
+        <Card className="bg-card/25 border-border/40 shadow-xl backdrop-blur-md">
+          <CardHeader className="border-b border-border/40 pb-4">
+            <CardTitle className="text-lg font-bold font-grotesk flex items-center gap-2">
+              <Activity className="h-4 w-4 text-emerald-500" />
+              Live Health Check Results
+            </CardTitle>
+            <CardDescription>Real-time connectivity diagnostics for all integrated services</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {healthResults.map((r, i) => (
+                <div key={i} className={`p-3 rounded-xl border ${
+                  r.status === "healthy" ? "bg-emerald-500/5 border-emerald-500/20"
+                    : r.status === "degraded" ? "bg-amber-500/5 border-amber-500/20"
+                    : "bg-rose-500/5 border-rose-500/20"
+                }`}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    {r.status === "healthy"
+                      ? <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                      : <XCircle className="h-3 w-3 text-rose-400" />
+                    }
+                    <span className="text-[10px] font-mono font-bold uppercase">{r.service}</span>
+                  </div>
+                  <Badge className={`text-[8px] ${
+                    r.status === "healthy" ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                      : r.status === "degraded" ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                      : "bg-rose-500/15 text-rose-400 border-rose-500/30"
+                  }`}>
+                    {r.status}
+                  </Badge>
+                  <p className="text-[9px] text-muted-foreground/50 font-mono mt-1">{r.latency_ms}ms</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

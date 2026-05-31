@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 
 interface CaseItem {
   title: string;
@@ -62,6 +63,8 @@ export default function IncidentResponsePage() {
   const { data, loading, refetch } = useDashboardData<IncidentResponseData>("incident-response.json", fallbackDefault);
   const [selectedCaseIdx, setSelectedCaseIdx] = useState<number | null>(null);
 
+  const [confirmAction, setConfirmAction] = useState<{ target: string; actionName: string } | null>(null);
+
   const stats = data.stats;
   const actions = data.response_actions_available || [];
 
@@ -73,9 +76,14 @@ export default function IncidentResponsePage() {
       count
     })).slice(0, 7);
 
-  const handleMitigate = (eventId: string, actionName: string) => {
+  const handleMitigate = (target: string, actionName: string) => {
+    setConfirmAction({ target, actionName });
+  };
+
+  const executeMitigation = ({ reason, ticketId }: { reason: string; ticketId: string }) => {
+    if (!confirmAction) return;
     toast.success("Incident Mitigated", {
-      description: `Dispatched countermeasure '${actionName}' to event context.`,
+      description: `Countermeasure '${confirmAction.actionName}' dispatched to ${confirmAction.target}. Reason: ${reason}${ticketId ? ` | Ticket: ${ticketId}` : ""}`,
       icon: <CheckCircle className="h-4 w-4 text-emerald-500 animate-pulse" />
     });
   };
@@ -260,19 +268,19 @@ export default function IncidentResponsePage() {
                   </div>
                   <div className="grid grid-cols-1 gap-2">
                     <Button 
-                      onClick={() => handleMitigate(data.case_queue[selectedCaseIdx].title, "Isolate Host")}
+                      onClick={() => handleMitigate(`Case: ${data.case_queue[selectedCaseIdx].title}`, "Isolate Host")}
                       className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 font-bold uppercase text-[10px] tracking-widest py-5 rounded-xl flex items-center justify-center gap-2 transition-all"
                     >
                       <UserX className="h-4 w-4" /> Isolate Target Host
                     </Button>
                     <Button 
-                      onClick={() => handleMitigate(data.case_queue[selectedCaseIdx].title, "Block IP Address")}
+                      onClick={() => handleMitigate(`Case: ${data.case_queue[selectedCaseIdx].title}`, "Block IP Address")}
                       className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 font-bold uppercase text-[10px] tracking-widest py-5 rounded-xl flex items-center justify-center gap-2 transition-all"
                     >
                       <Globe className="h-4 w-4" /> Block Rogue IP Address
                     </Button>
                     <Button 
-                      onClick={() => handleMitigate(data.case_queue[selectedCaseIdx].title, "Trigger Case Investigation")}
+                      onClick={() => handleMitigate(`Case: ${data.case_queue[selectedCaseIdx].title}`, "Trigger Full Remediation")}
                       className="bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 font-bold uppercase text-[10px] tracking-widest py-5 rounded-xl flex items-center justify-center gap-2 transition-all"
                     >
                       <FileCheck className="h-4 w-4" /> Trigger Full Remediation
@@ -315,6 +323,25 @@ export default function IncidentResponsePage() {
           </Card>
         </div>
       </div>
+      {/* Confirmation Dialog */}
+      <ConfirmActionDialog
+        open={!!confirmAction}
+        onOpenChange={() => setConfirmAction(null)}
+        title={confirmAction?.actionName === "Isolate Host" ? "Isolate Target Host"
+          : confirmAction?.actionName === "Block IP Address" ? "Block Rogue IP Address"
+          : "Trigger Full Remediation"}
+        description={confirmAction?.actionName === "Isolate Host"
+          ? "This will disconnect the target host from the network. All active sessions and processes will be terminated. Ensure you have verified the threat."
+          : confirmAction?.actionName === "Block IP Address"
+          ? "This will block the IP address at the network perimeter. Verify this IP is associated with malicious activity before proceeding."
+          : "This will execute the complete remediation playbook, including isolation, IOC blocking, and case closure actions."}
+        actionLabel={`Confirm ${confirmAction?.actionName ?? ""}`}
+        actionVariant={confirmAction?.actionName === "Isolate Host" ? "destructive" : "warning"}
+        targetLabel={confirmAction?.target ?? ""}
+        requireReason
+        requireTicketId
+        onConfirm={executeMitigation}
+      />
     </div>
   );
 }

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell } from "recharts";
 import { toast } from "sonner";
+import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 
 interface Asset {
   ip: string;
@@ -71,6 +72,8 @@ export default function AssetIntelligencePage() {
   const [selectedAssetIdx, setSelectedAssetIdx] = useState<number | null>(null);
   const [criticalityFilter, setCriticalityFilter] = useState("all");
 
+  const [confirmAction, setConfirmAction] = useState<{ ip: string; actionName: string } | null>(null);
+
   const stats = data.stats;
 
   const criticalityData = [
@@ -80,9 +83,14 @@ export default function AssetIntelligencePage() {
   ];
 
   const handleAction = (ip: string, actionName: string) => {
+    setConfirmAction({ ip, actionName });
+  };
+
+  const executeAction = ({ reason, ticketId }: { reason: string; ticketId: string }) => {
+    if (!confirmAction) return;
     toast.success("Command Executed", {
-      description: `Action '${actionName}' executed successfully on target ${ip}`,
-      icon: <Cpu className="h-4 w-4 text-primary animate-spin" />
+      description: `Action '${confirmAction.actionName}' executed on ${confirmAction.ip}. Reason: ${reason}${ticketId ? ` | Ticket: ${ticketId}` : ""}`,
+      icon: <Cpu className="h-4 w-4 text-primary" />
     });
   };
 
@@ -317,7 +325,7 @@ export default function AssetIntelligencePage() {
                         <YAxis stroke="hsl(var(--muted-foreground))" fontSize={9} tickLine={false} axisLine={false} />
                         <Tooltip
                           contentStyle={{
-                            backgroundColor: "rgba(0, 0, 0, 0.85)",
+                            backgroundColor: "hsl(var(--card))",
                             backdropFilter: "blur(12px)",
                             border: "1px solid hsl(var(--border) / 0.4)",
                             borderRadius: "12px",
@@ -433,6 +441,27 @@ export default function AssetIntelligencePage() {
           )}
         </div>
       </div>
+      {/* Confirmation Dialog */}
+      <ConfirmActionDialog
+        open={!!confirmAction}
+        onOpenChange={() => setConfirmAction(null)}
+        title={confirmAction?.actionName === "Isolate Host" ? "Isolate Host"
+          : confirmAction?.actionName === "Patch Endpoint" ? "Apply Patch"
+          : confirmAction?.actionName === "Revoke Session" ? "Revoke Sessions"
+          : "Restart Service"}
+        description={confirmAction?.actionName === "Isolate Host"
+          ? "This will immediately disconnect the host from all network segments. All running processes and user sessions will be terminated."
+          : confirmAction?.actionName === "Patch Endpoint"
+          ? "This will deploy pending security patches to the endpoint. A reboot may be required."
+          : confirmAction?.actionName === "Revoke Session"
+          ? "This will terminate all active user sessions on this endpoint. Users will be forced to re-authenticate."
+          : "This will restart critical services on the endpoint. Brief service interruption expected."}
+        actionLabel={`Confirm ${confirmAction?.actionName ?? ""}`}
+        actionVariant={confirmAction?.actionName === "Isolate Host" ? "destructive" : "warning"}
+        targetLabel={`${confirmAction?.ip}`}
+        requireReason
+        onConfirm={executeAction}
+      />
     </div>
   );
 }

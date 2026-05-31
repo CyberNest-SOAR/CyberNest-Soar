@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Shield,
@@ -55,8 +55,8 @@ const categories: MenuCategory[] = [
     icon: Shield,
     items: [
       { title: "Command Center", url: "/soc/command-center", icon: BarChart3 },
-      { title: "Alerts Center", url: "/soc/alerts-center", icon: Terminal },
-      { title: "Alerts Table", url: "/soc/alerts-table", icon: Database },
+      { title: "Alert Monitor", url: "/soc/alert-monitor", icon: Terminal },
+      { title: "Alert Forensics", url: "/soc/alert-forensics", icon: Database },
       { title: "Incident Response", url: "/soc/incident-response", icon: AlertTriangle },
     ]
   },
@@ -108,10 +108,29 @@ interface AppSidebarProps {
   userRole: UserRole;
 }
 
+const API_BASE = "http://0.0.0.0:8000/api/v1";
+
 export function AppSidebar({ userRole }: AppSidebarProps) {
   const { open: sidebarOpen } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const [backendOnline, setBackendOnline] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState("");
+
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/end-point-health/`);
+        setBackendOnline(res.ok);
+        setLastRefresh(new Date().toLocaleTimeString());
+      } catch {
+        setBackendOnline(false);
+      }
+    };
+    check();
+    const interval = setInterval(check, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Track expanded categories
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
@@ -259,9 +278,9 @@ export function AppSidebar({ userRole }: AppSidebarProps) {
             <div className="p-4 rounded-xl bg-card/40 border border-border/40 space-y-3 glass">
               <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
                 <span>SOC Telemetry</span>
-                <span className="text-emerald-500 flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
-                  Synced
+                <span className={`flex items-center gap-1.5 ${backendOnline ? "text-emerald-500" : "text-red-500"}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${backendOnline ? "bg-emerald-500 animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.5)]" : "bg-red-500"}`} />
+                  {backendOnline ? "Connected" : "Offline"}
                 </span>
               </div>
               <div className="h-1 w-full bg-muted/40 rounded-full overflow-hidden">
@@ -273,7 +292,7 @@ export function AppSidebar({ userRole }: AppSidebarProps) {
               </div>
             </div>
             <div className="text-[8px] font-mono text-muted-foreground/35 text-center uppercase tracking-[0.3em]">
-              SOAR CORE // v4.2.0-PRO
+              {lastRefresh ? `Last sync: ${lastRefresh}` : "SOAR CORE // v4.2.0-PRO"}
             </div>
           </div>
         )}
