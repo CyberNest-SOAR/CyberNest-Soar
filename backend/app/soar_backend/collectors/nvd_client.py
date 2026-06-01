@@ -1,5 +1,5 @@
 import requests
-from core.config import settings
+from soar_backend.core.config import settings
 
 def lookup_cvss(cve_id):
     # Check if NVD API key is set

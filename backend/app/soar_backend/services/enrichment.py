@@ -15,7 +15,7 @@ import asyncio
 import logging
 from typing import Dict, Any, List
 from async_lru import alru_cache
-from core.config import settings
+from soar_backend.core.config import settings
 from pymisp import PyMISP
 
 logger = logging.getLogger(__name__)

@@ -1,4 +1,4 @@
-from schemas.models import UnifiedAlert
+from soar_backend.schemas.models import UnifiedAlert
 
 async def get_playbook_decision(alert: UnifiedAlert) -> dict:
     risk_score = alert.enrichment_data.risk_score if alert.enrichment_data and alert.enrichment_data.risk_score else 0

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Body
-from schemas.models import FilterRequest, FilterResult, UnifiedAlert
+from soar_backend.schemas.models import FilterRequest, FilterResult, UnifiedAlert
 from typing import List
-from services.filtering import classify_alert
+from soar_backend.services.filtering import classify_alert
 
 router = APIRouter(prefix="/alerts", tags=["Team 3: Log Filtering & Noise Reduction"])
 

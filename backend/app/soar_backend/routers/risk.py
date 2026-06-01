@@ -1,9 +1,14 @@
 import asyncio
 import logging
 from fastapi import APIRouter
+<<<<<<< HEAD
+from soar_backend.schemas.models import RiskScoreRequest, RiskScoreResponse
+from soar_backend.services.risk import calculate_risk_score
+=======
 from typing import List
 from schemas.models import RiskScoreRequest, RiskScoreResponse, UnifiedAlert
 from services.risk import calculate_risk_score
+>>>>>>> 83a1eb822484b2645de5e14bd1f68707d0d07a8c
 
 logger = logging.getLogger(__name__)
 

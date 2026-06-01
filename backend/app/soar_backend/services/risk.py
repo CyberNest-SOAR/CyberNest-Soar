@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+from soar_backend.schemas.models import UnifiedAlert
+=======
 from __future__ import annotations
 
 import json
@@ -11,6 +14,7 @@ import pandas as pd
 
 from core.config import settings
 from schemas.models import UnifiedAlert
+>>>>>>> 83a1eb822484b2645de5e14bd1f68707d0d07a8c
 
 logger = logging.getLogger(__name__)
 

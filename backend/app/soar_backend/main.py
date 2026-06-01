@@ -16,6 +16,13 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
+<<<<<<< HEAD
+from soar_backend.routers import alerts, risk, patch, filtering, playbooks, intel
+from soar_backend.services.collector import collector
+from soar_backend.services.enrichment import enrichment_service
+from soar_backend.services.patch_engine import PatchEngineModels
+from soar_backend.core.config import settings
+=======
 from routers import (
     alerts, risk, patch, filtering, playbooks, intel,
     data_outputs, graph, ai_analysis, phishing,
@@ -25,12 +32,22 @@ from routers import (
 from services.collector import collector
 from services.enrichment import enrichment_service
 from core.config import settings
+>>>>>>> 83a1eb822484b2645de5e14bd1f68707d0d07a8c
 import httpx
 
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+<<<<<<< HEAD
+    # Startup validation
+    validate_env()
+    # Startup: initialize HTTP clients
+    await collector.start()
+    await enrichment_service.start()
+    # Startup: initialize ML models
+    PatchEngineModels.initialize()
+=======
     # Startup: warn about missing env vars instead of crashing
     mandatory_vars = ['OS_HOST', 'VT_API_KEY', 'MISP_URL', 'MISP_KEY']
     missing = [v for v in mandatory_vars if not getattr(settings, v, None)]
@@ -45,6 +62,7 @@ async def lifespan(app: FastAPI):
         await enrichment_service.start()
     except Exception as e:
         logger.warning(f"enrichment_service.start() failed: {e}")
+>>>>>>> 83a1eb822484b2645de5e14bd1f68707d0d07a8c
     yield
     # Shutdown: clean up HTTP clients
     try:

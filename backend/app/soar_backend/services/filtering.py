@@ -9,7 +9,7 @@ pipeline.  On timeout or error the heuristic label is returned as-is.
 import asyncio
 import httpx
 import logging
-from core.config import settings
+from soar_backend.core.config import settings
 
 logger = logging.getLogger(__name__)
 

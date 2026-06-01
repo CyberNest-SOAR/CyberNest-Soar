@@ -1,0 +1,25 @@
+{
+  "model_type": "KMeans",
+  "features": [
+    "total_events",
+    "unique_attack_types",
+    "severe_tactics_present",
+    "true_positive_rate",
+    "noise_rate",
+    "avg_historical_fp_rate",
+    "max_repeated_behavior",
+    "unique_campaigns",
+    "external_src_count"
+  ],
+  "n_clusters": 6,
+  "silhouette_score": 0.7397853926933888,
+  "selected_k_reason": "highest silhouette score",
+  "k_range": [
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "training_rows": 25
+}

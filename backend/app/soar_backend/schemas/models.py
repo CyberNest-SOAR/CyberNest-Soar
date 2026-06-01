@@ -174,10 +174,15 @@ class Recommendation(BaseModel):
     epss: float
     priority: str
     action: str
+    exploit_likelihood: Optional[float] = None
+    time_to_exploit_days: Optional[float] = None
+    attack_patterns: Optional[List[str]] = None
+    ml_confidence: Optional[float] = None
 
 class PatchResponse(BaseModel):
     host: str
     recommendations: List[Recommendation]
+    analysis_timestamp: Optional[datetime] = None
 
 # --- TEAM 3: FILTERING & NOISE ---
 class FilterRequest(BaseModel):

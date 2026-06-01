@@ -11,7 +11,7 @@ import asyncio
 import httpx
 import logging
 from typing import Dict, Any, List
-from core.config import settings
+from soar_backend.core.config import settings
 
 logger = logging.getLogger(__name__)
 

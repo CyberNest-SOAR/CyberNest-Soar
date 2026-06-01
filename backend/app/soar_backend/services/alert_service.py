@@ -1,5 +1,5 @@
 from collectors.opensearch_client import search, get_alert_by_id
-from schemas.models import UnifiedAlert
+from soar_backend.schemas.models import UnifiedAlert
 from utils.normalizer import normalize_wazuh
 
 def get_alerts():
