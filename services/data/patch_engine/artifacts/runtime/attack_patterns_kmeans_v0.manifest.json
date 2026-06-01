@@ -21,5 +21,106 @@
     5,
     6
   ],
-  "training_rows": 25
+  "training_rows": 25,
+  "cluster_profiles": {
+    "0": {
+      "name": "Low Risk / Quiet Hosts",
+      "description": "Few events, simple patterns, no severe tactics. Likely internal systems.",
+      "characteristics": [
+        "events < 50",
+        "attack_types \u2264 1",
+        "no_severe_tactics"
+      ],
+      "sla_tier": "standard",
+      "actions": [
+        "Standard patch SLA",
+        "Annual audit",
+        "Low monitoring priority"
+      ]
+    },
+    "1": {
+      "name": "Persistent Target / Active Threat",
+      "description": "High volume, 2-4 attack types, repeated behavior. Public-facing servers.",
+      "characteristics": [
+        "events 200-500",
+        "attack_types 2-4",
+        "repeated_behavior"
+      ],
+      "sla_tier": "critical",
+      "actions": [
+        "Critical patch SLA",
+        "Continuous monitoring",
+        "Incident response plan"
+      ]
+    },
+    "2": {
+      "name": "High Severity / Critical Focus",
+      "description": "Extreme volume, 4+ attack types, severe tactics. High-value targets.",
+      "characteristics": [
+        "events > 500",
+        "attack_types \u2265 4",
+        "severe_tactics_present",
+        "tp_rate > 0.7"
+      ],
+      "sla_tier": "urgent",
+      "actions": [
+        "Urgent patch SLA",
+        "Daily monitoring",
+        "Threat hunting"
+      ]
+    },
+    "3": {
+      "name": "Noisy / False Positive Source",
+      "description": "Very high events, low severity, high FP rate. Scanners, logging tools.",
+      "characteristics": [
+        "extreme_events",
+        "low_severity",
+        "fp_rate > 0.4"
+      ],
+      "sla_tier": "detection_tuning",
+      "actions": [
+        "Tune detection",
+        "Reduce noise",
+        "Baseline normal"
+      ]
+    },
+    "4": {
+      "name": "Multi-Vector Attacker / Lateral Movement",
+      "description": "Moderate-high volume, 3 attack types, mixed severity. Evidence of lateral movement.",
+      "characteristics": [
+        "events 150-350",
+        "attack_types = 3",
+        "mixed_severity"
+      ],
+      "sla_tier": "enhanced",
+      "actions": [
+        "Enhanced patch SLA",
+        "Network segmentation",
+        "EDR tuning"
+      ]
+    },
+    "5": {
+      "name": "Investigation Priority / Outliers",
+      "description": "Anomalous patterns, unique attack chains. Likely compromised or 0-day.",
+      "characteristics": [
+        "anomalous_pattern",
+        "unique_chains",
+        "variable_tp_rate"
+      ],
+      "sla_tier": "incident_response",
+      "actions": [
+        "Incident response",
+        "Forensics",
+        "Isolate & remediate"
+      ]
+    }
+  },
+  "cluster_distribution": {
+    "0": 5,
+    "1": 10,
+    "2": 3,
+    "3": 4,
+    "4": 1,
+    "5": 2
+  }
 }

@@ -33,6 +33,52 @@ MAPPING_FILE = "host_attack_clusters.json"
 MANIFEST_FILE = "attack_patterns_kmeans_v0.manifest.json"
 REQUIRED_COLUMNS = ["dst_ip", "total_events", "unique_attack_types", "severe_tactics_present"]
 
+# Cluster interpretation guide for business stakeholders
+CLUSTER_PROFILES = {
+    0: {
+        "name": "Low Risk / Quiet Hosts",
+        "description": "Few events, simple patterns, no severe tactics. Likely internal systems.",
+        "characteristics": ["events < 50", "attack_types ≤ 1", "no_severe_tactics"],
+        "sla_tier": "standard",
+        "actions": ["Standard patch SLA", "Annual audit", "Low monitoring priority"]
+    },
+    1: {
+        "name": "Persistent Target / Active Threat",
+        "description": "High volume, 2-4 attack types, repeated behavior. Public-facing servers.",
+        "characteristics": ["events 200-500", "attack_types 2-4", "repeated_behavior"],
+        "sla_tier": "critical",
+        "actions": ["Critical patch SLA", "Continuous monitoring", "Incident response plan"]
+    },
+    2: {
+        "name": "High Severity / Critical Focus",
+        "description": "Extreme volume, 4+ attack types, severe tactics. High-value targets.",
+        "characteristics": ["events > 500", "attack_types ≥ 4", "severe_tactics_present", "tp_rate > 0.7"],
+        "sla_tier": "urgent",
+        "actions": ["Urgent patch SLA", "Daily monitoring", "Threat hunting"]
+    },
+    3: {
+        "name": "Noisy / False Positive Source",
+        "description": "Very high events, low severity, high FP rate. Scanners, logging tools.",
+        "characteristics": ["extreme_events", "low_severity", "fp_rate > 0.4"],
+        "sla_tier": "detection_tuning",
+        "actions": ["Tune detection", "Reduce noise", "Baseline normal"]
+    },
+    4: {
+        "name": "Multi-Vector Attacker / Lateral Movement",
+        "description": "Moderate-high volume, 3 attack types, mixed severity. Evidence of lateral movement.",
+        "characteristics": ["events 150-350", "attack_types = 3", "mixed_severity"],
+        "sla_tier": "enhanced",
+        "actions": ["Enhanced patch SLA", "Network segmentation", "EDR tuning"]
+    },
+    5: {
+        "name": "Investigation Priority / Outliers",
+        "description": "Anomalous patterns, unique attack chains. Likely compromised or 0-day.",
+        "characteristics": ["anomalous_pattern", "unique_chains", "variable_tp_rate"],
+        "sla_tier": "incident_response",
+        "actions": ["Incident response", "Forensics", "Isolate & remediate"]
+    }
+}
+
 # NEW: Candidate features for clustering (will be filtered by what exists)
 CANDIDATE_FEATURES = [
     "total_events",
@@ -216,11 +262,29 @@ def train_clustering(input_file: Path, output_dir: Path, logger: logging.Logger)
         "selected_k_reason": "highest silhouette score",
         "k_range": [int(k) for k in k_range],
         "training_rows": int(len(df)),
+        "cluster_profiles": CLUSTER_PROFILES,
+        "cluster_distribution": {str(k): int(v) for k, v in pd.Series(clusters).value_counts().sort_index().items()},
     }
     with open(manifest_path, "w", encoding="utf-8") as handle:
         json.dump(manifest, handle, indent=2)
 
     logger.info("Cluster distribution: %s", pd.Series(clusters).value_counts().to_dict())
+    
+    # Log cluster interpretations for stakeholders
+    logger.info("=" * 80)
+    logger.info("CLUSTER INTERPRETATION GUIDE")
+    logger.info("=" * 80)
+    for cluster_id in sorted(CLUSTER_PROFILES.keys()):
+        if cluster_id < best_k:  # Only log clusters that actually exist
+            profile = CLUSTER_PROFILES[cluster_id]
+            cluster_size = int(pd.Series(clusters).value_counts().get(cluster_id, 0))
+            logger.info("")
+            logger.info(f"Cluster {cluster_id}: {profile['name']} ({cluster_size} hosts)")
+            logger.info(f"  Description: {profile['description']}")
+            logger.info(f"  SLA Tier: {profile['sla_tier']}")
+            logger.info(f"  Actions: {' | '.join(profile['actions'])}")
+    logger.info("=" * 80)
+    
     logger.info("Saved model to %s", model_path)
     logger.info("Saved scaler to %s", scaler_path)
     logger.info("Saved host mapping to %s", mapping_path)

@@ -7,6 +7,7 @@ JSON file with patch recommendations for each host.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import sys
@@ -232,6 +233,18 @@ def calculate_risk_score(
     return min(1.0, max(0.0, adjusted_risk))
 
 
+def stable_seed(cve_id: str) -> np.random.RandomState:
+    """Generate deterministic random state seeded from CVE ID.
+    
+    Ensures the exact same random values are generated for the same CVE
+    across different runs and environments.
+    """
+    # Create hash from CVE ID
+    hash_obj = hashlib.sha256(cve_id.encode('utf-8'))
+    seed = int(hash_obj.hexdigest(), 16) % (2**31)
+    return np.random.RandomState(seed)
+
+
 def get_sla_tier(risk_score: float) -> Dict[str, Any]:
     """Determine SLA tier based on risk score."""
     for threshold in sorted(SLA_THRESHOLDS, key=lambda x: x["min"], reverse=True):
@@ -319,9 +332,9 @@ def load_cve_data_enriched(logger: logging.Logger) -> pd.DataFrame:
                         else:
                             base_cvss = 5.5
                         
-                        # Add some variance to CVSS
-                        import random
-                        cvss_variance = random.uniform(-0.8, 0.8)
+                        # Add deterministic variance to CVSS using stable seed
+                        rng = stable_seed(cve_id)
+                        cvss_variance = rng.uniform(-0.8, 0.8)
                         stats["cvss"] = max(0.0, min(10.0, base_cvss + cvss_variance))
                         
                         # Estimate EPSS based on ransomware/exploit indicators (more realistic)
@@ -334,8 +347,8 @@ def load_cve_data_enriched(logger: logging.Logger) -> pd.DataFrame:
                         else:
                             base_epss = 0.15
                         
-                        # Add realistic variance to EPSS
-                        epss_variance = random.uniform(-0.15, 0.15)
+                        # Add deterministic variance to EPSS using stable seed
+                        epss_variance = rng.uniform(-0.15, 0.15)
                         stats["epss"] = max(0.0, min(1.0, base_epss + epss_variance))
                     
                     kev_data.append({
@@ -366,6 +379,124 @@ def load_cve_data_enriched(logger: logging.Logger) -> pd.DataFrame:
         return pd.DataFrame()
 
 
+def generate_recommendations_for_host(
+    host: Dict[str, Any],
+    host_index: int,
+    cves: Optional[List[Dict[str, Any]]],
+    models: Dict[str, Any],
+    logger: logging.Logger,
+) -> Dict[str, Any]:
+    """Generate patch recommendations for a single host.
+    
+    FIXME: This function currently accepts an explicit list of CVEs per host.
+    The API endpoint must parse the actual CVEs from the incoming request payload
+    for each specific host (query actual vulnerabilities from host asset inventory),
+    rather than using pre-generated or round-robin assigned CVE lists.
+    """
+    host_id = host.get("dst_ip", f"host-{host_index:03d}")
+    asset_criticality = host.get("asset_criticality", "medium")
+    host_cves = cves if cves else []
+    
+    host_recommendations = {
+        "host": host_id,
+        "asset_criticality": asset_criticality,
+        "total_cves": len(host_cves),
+        "recommendations": [],
+        "summary": None
+    }
+    
+    # Generate recommendations for each CVE
+    critical_count = 0
+    high_count = 0
+    
+    for cve in host_cves:
+        cve_id = cve.get("cve_id", "unknown")
+        
+        # Generate features
+        features = generate_cve_features(cve)
+        
+        # Predict exploit likelihood
+        exploit_likelihood = predict_exploit_likelihood(
+            models.get("exploit_likelihood"),
+            features,
+            logger
+        )
+        
+        # Predict time to exploit
+        time_to_exploit = predict_time_to_exploit(
+            models.get("time_to_exploit"),
+            features,
+            logger
+        )
+        
+        # Calculate risk score
+        risk_score = calculate_risk_score(
+            exploit_likelihood,
+            features["cvss"],
+            features["epss"],
+            asset_criticality,
+            logger
+        )
+        
+        # Get SLA tier
+        sla = get_sla_tier(risk_score)
+        
+        # Count by tier for summary
+        if sla["tier"] == "critical":
+            critical_count += 1
+        elif sla["tier"] == "high":
+            high_count += 1
+        
+        # Confidence interval (±MAE from model)
+        confidence_band = [
+            max(0.0, time_to_exploit - 159),
+            time_to_exploit + 159
+        ]
+        
+        # Determine if observed in wild: CVEs with high EPSS or part of active campaigns
+        observed_in_wild = (
+            features.get("epss", 0) > 0.3 or 
+            features.get("is_ransomware", 0) == 1 or
+            features.get("has_priv_escalation", 0) == 1
+        )
+        
+        recommendation = {
+            "cve": cve_id,
+            "cvss": round(features["cvss"], 1),
+            "epss": round(features["epss"], 3),
+            "exploit_likelihood_percent": round(exploit_likelihood * 100, 1),
+            "days_to_exploit": round(time_to_exploit, 1),
+            "exploit_confidence_band": [round(x, 1) for x in confidence_band],
+            "risk_score": round(risk_score, 2),
+            "priority": sla["tier"].upper(),
+            "action": sla["action"],
+            "sla_days": sla["sla_days"],
+            "reasoning": {
+                "is_ransomware_capable": bool(features.get("is_ransomware", 0)),
+                "has_critical_cwe": bool(
+                    features.get("has_sql_injection")
+                    or features.get("has_buffer_overflow")
+                    or features.get("has_priv_escalation")
+                ),
+                "observed_in_wild": observed_in_wild,
+            }
+        }
+        
+        host_recommendations["recommendations"].append(recommendation)
+    
+    # Generate summary
+    total = len(host_recommendations["recommendations"])
+    if total > 0:
+        host_recommendations["summary"] = (
+            f"{host_id}: {critical_count} CRITICAL, {high_count} HIGH "
+            f"| Patch {critical_count + high_count}/{total} within 21 days"
+        )
+    else:
+        host_recommendations["summary"] = f"{host_id}: No critical vulnerabilities"
+    
+    return host_recommendations
+
+
 def generate_recommendations(
     hosts: List[Dict[str, Any]],
     models: Dict[str, Any],
@@ -386,10 +517,9 @@ def generate_recommendations(
     }
     
     for idx, host in enumerate(hosts):
-        host_id = host.get("dst_ip", f"host-{idx:03d}")
-        asset_criticality = host.get("asset_criticality", "medium")
-        
-        # Assign sample CVEs to this host (round-robin style)
+        # FIXME: CVE list should come from actual host asset scan results
+        # For now, using deterministic selection from available CVEs
+        # The API will replace this with real vulnerability data per host
         if not cves_df.empty:
             host_cve_count = max(3, len(cves_df) // len(hosts))
             start_idx = (idx * host_cve_count) % len(cves_df)
@@ -398,104 +528,10 @@ def generate_recommendations(
         else:
             host_cves = []
         
-        host_recommendations = {
-            "host_id": host_id,
-            "asset_criticality": asset_criticality,
-            "total_cves": len(host_cves),
-            "recommendations": [],
-            "summary": None
-        }
-        
-        # Generate recommendations for each CVE
-        critical_count = 0
-        high_count = 0
-        
-        for cve in host_cves:
-            cve_id = cve.get("cve_id", "unknown")
-            
-            # Generate features
-            features = generate_cve_features(cve)
-            
-            # Predict exploit likelihood
-            exploit_likelihood = predict_exploit_likelihood(
-                models.get("exploit_likelihood"),
-                features,
-                logger
-            )
-            
-            # Predict time to exploit
-            time_to_exploit = predict_time_to_exploit(
-                models.get("time_to_exploit"),
-                features,
-                logger
-            )
-            
-            # Calculate risk score
-            risk_score = calculate_risk_score(
-                exploit_likelihood,
-                features["cvss"],
-                features["epss"],
-                asset_criticality,
-                logger
-            )
-            
-            # Get SLA tier
-            sla = get_sla_tier(risk_score)
-            
-            # Count by tier for summary
-            if sla["tier"] == "critical":
-                critical_count += 1
-            elif sla["tier"] == "high":
-                high_count += 1
-            
-            # Confidence interval (±MAE from model)
-            confidence_band = [
-                max(0.0, time_to_exploit - 159),
-                time_to_exploit + 159
-            ]
-            
-            # Determine if observed in wild: CVEs with high EPSS or part of active campaigns
-            observed_in_wild = (
-                features.get("epss", 0) > 0.3 or 
-                features.get("is_ransomware", 0) == 1 or
-                features.get("has_priv_escalation", 0) == 1
-            )
-            
-            recommendation = {
-                "cve_id": cve_id,
-                "cvss": round(features["cvss"], 1),
-                "epss": round(features["epss"], 3),
-                "exploit_likelihood_percent": round(exploit_likelihood * 100, 1),
-                "days_to_exploit": round(time_to_exploit, 1),
-                "exploit_confidence_band": [round(x, 1) for x in confidence_band],
-                "risk_score": round(risk_score, 2),
-                "priority": sla["tier"].upper(),
-                "action": sla["action"],
-                "sla_days": sla["sla_days"],
-                "reasoning": {
-                    "is_ransomware_capable": bool(features.get("is_ransomware", 0)),
-                    "has_critical_cwe": bool(
-                        features.get("has_sql_injection")
-                        or features.get("has_buffer_overflow")
-                        or features.get("has_priv_escalation")
-                    ),
-                    "observed_in_wild": observed_in_wild,
-                }
-            }
-            
-            host_recommendations["recommendations"].append(recommendation)
-        
-        # Generate summary
-        total = len(host_recommendations["recommendations"])
-        if total > 0:
-            host_recommendations["summary"] = (
-                f"{host_id}: {critical_count} CRITICAL, {high_count} HIGH "
-                f"| Patch {critical_count + high_count}/{total} within 21 days"
-            )
-        else:
-            host_recommendations["summary"] = f"{host_id}: No critical vulnerabilities"
-        
-        recommendations["hosts"].append(host_recommendations)
+        host_rec = generate_recommendations_for_host(
+            host, idx, host_cves, models, logger
+        )
+        recommendations["hosts"].append(host_rec)
     
     return recommendations
 
@@ -545,7 +581,7 @@ def main() -> int:
             )[:3]
             for cve_rec in top_cves:
                 logger.info(
-                    f"  - {cve_rec['cve_id']}: {cve_rec['priority']} "
+                    f"  - {cve_rec['cve']}: {cve_rec['priority']} "
                     f"({cve_rec['exploit_likelihood_percent']:.0f}% exploit) "
                     f">> {cve_rec['action']}"
                 )
