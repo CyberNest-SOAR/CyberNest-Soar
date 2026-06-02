@@ -2,13 +2,10 @@
 
 <p align="center">
     <picture>
-        <img width="803" height="572" alt="image" src="https://github.com/user-attachments/assets/8fd502a7-10b6-44a5-b5d4-be1360c351e8" />
+        <img width="805"" alt="CyberNestSOARlogo" src="https://github.com/user-attachments/assets/36cc11a3-9de5-495a-82e8-8047fa00488f" />
     </picture>
 </p>
 
-<p align="center">
-#  <strong>Security Orchestration Is A Symphony</strong> #
-</p>
 
 <p align="center">
   <a href="https://www.docker.com/">
@@ -38,6 +35,10 @@
 <a href="https://fastapi.tiangolo.com/">  
   <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
 </a>
+</p>
+
+<p align="center">
+#  <strong>Security Orchestration Is A Symphony</strong> #
 </p>
 
 # 🛸 [ SYSTEM_MANIFEST: CyberNestSoar ]
