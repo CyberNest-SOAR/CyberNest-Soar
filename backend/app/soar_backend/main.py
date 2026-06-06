@@ -4,7 +4,7 @@ import sys
 # ── Configure root logger so all enrichment/service logs are visible ──
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s │ %(levelname)-7s │ %(name)s │ %(message)s",
+    format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     stream=sys.stdout,
     force=True,
@@ -60,6 +60,12 @@ app.include_router(patch.router, prefix="/api/v1")
 app.include_router(filtering.router, prefix="/api/v1")
 app.include_router(playbooks.router, prefix="/api/v1")
 app.include_router(intel.router, prefix="/api/v1")
+
+@app.post("/predict-noise")
+async def predict_noise_endpoint(alert: dict):
+    """Testing and validation endpoint for predicting noise on an alert."""
+    from routers.filtering import predict_noise
+    return predict_noise(alert)
 
 @app.get("/")
 async def root():

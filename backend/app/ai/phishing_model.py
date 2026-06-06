@@ -24,10 +24,16 @@ import joblib
 import numpy as np  # NEW
 import scipy.sparse as sp  # NEW
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
+try:
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.metrics import classification_report
+    from sklearn.model_selection import train_test_split
+    HAS_SKLEARN = True
+except ImportError:
+    HAS_SKLEARN = False
+    class RandomForestClassifier: pass
+    class TfidfVectorizer: pass
 
 
 from app.services.enrichment_service import enrichment_features  # NEW
@@ -56,6 +62,12 @@ class SklearnDetector:
         log.debug("SklearnDetector loading artifacts, model_path=%s, vectorizer_path=%s",
                   self.model_path, self.vectorizer_path)
 
+        if not HAS_SKLEARN:
+            log.warning("Scikit-learn is not installed; disabling ML detector")
+            self.model = None
+            self.vectorizer = None
+            return
+
         if self.model_path.exists() and self.vectorizer_path.exists():
             try:
                 self.model = joblib.load(self.model_path)
@@ -75,7 +87,7 @@ class SklearnDetector:
             self.vectorizer = None
 
     def is_ready(self) -> bool:
-        return self.model is not None and self.vectorizer is not None
+        return HAS_SKLEARN and self.model is not None and self.vectorizer is not None
 
     # Convert enrichment features to fixed-order numerical vector
     @staticmethod
@@ -153,6 +165,8 @@ class SklearnDetector:
         }
 
     def train(self, data_path: Path) -> Dict[str, str]:
+        if not HAS_SKLEARN:
+            raise RuntimeError("scikit-learn is not installed; training is unavailable.")
         dataset = pd.read_csv(data_path)
 
         # Clean text and map labels
