@@ -36,8 +36,7 @@ from services.normalizer import normalizer
 from services.intel import enrich_alert_intel, extract_cves
 from services.patch import get_patch_recommendations
 from services.risk import calculate_risk_score
-from services.filtering import classify_alert
-from routers.filtering import prepare_llm_payload
+from routers.filtering import classify_alert_single, predict_noise
 from schemas.models import UnifiedAlert, IntelResponse, PatchResponse, RiskScoreResponse, FilterResult
 
 logger = logging.getLogger(__name__)
@@ -158,48 +157,80 @@ async def process_alerts_batch(alerts: List[UnifiedAlert]):
     Run the full downstream pipeline on a batch of alerts.
     Accepts the exact ``List[UnifiedAlert]`` array returned by ``GET /alerts/``.
 
-    For each alert: enriches with threat intel, then runs patch recommendation,
-    risk scoring, and LLM classification.  Returns a combined result per alert.
+    Integrates the noise classifier as the first decision stage:
+    If the alert is noise, it is suppressed (skipped from downstream processing).
+    Otherwise, continues with enrichment, patch recommendation, and risk scoring.
     """
-    enriched = await asyncio.gather(
-        *[_enrich_alert(a) for a in alerts],
-        return_exceptions=True,
-    )
+    # 1. Run noise classifier on all incoming alerts
+    suppressed_results = {}
+    actionable_alerts = []
 
+    for alert in alerts:
+        res = predict_noise(alert)
+        if res["prediction"] == "Noise":
+            suppressed_results[alert.event_id] = {
+                "event_id": alert.event_id,
+                "enrichment": None,
+                "patch": None,
+                "risk": None,
+                "filter": FilterResult(
+                    alert_id=alert.event_id,
+                    classification="noise",
+                    confidence=res["confidence"],
+                    summary=f"Suppressed: ML classified as noise ({res['confidence']:.1%})"
+                ).model_dump()
+            }
+        else:
+            actionable_alerts.append(alert)
+
+    # 2. Enrich only actionable alerts in parallel
+    enriched_actionable = []
+    if actionable_alerts:
+        enriched_results = await asyncio.gather(
+            *[_enrich_alert(a) for a in actionable_alerts],
+            return_exceptions=True,
+        )
+        for original, res in zip(actionable_alerts, enriched_results):
+            if isinstance(res, Exception):
+                logger.warning("[Batch] Enrichment failed for %s: %s", original.event_id, res)
+            enriched_actionable.append(original)
+
+    # 3. Process actionable alerts and compile results
     results = []
-    for alert, result in zip(alerts, enriched):
-        if isinstance(result, Exception):
-            logger.warning("[Batch] Enrichment failed for %s: %s", alert.event_id, result)
-            continue
-
-        patch_res = await get_patch_recommendations(alert)
-        risk_res = await calculate_risk_score(alert)
-        filter_payload = prepare_llm_payload(alert)
-        filter_res = await classify_alert(filter_payload)
-
-        results.append({
-            "event_id": alert.event_id,
-            "enrichment": IntelResponse(
-                ioc=alert.host_context.ip_address or "unknown",
-                malicious=(alert.enrichment_data.abuse_ipdb or {}).get("score", 0) > 25 or bool((alert.enrichment_data.misp or {}).get("matches", [])),
-                reputation=max(0, 100 - ((alert.enrichment_data.virus_total or {}).get("score", 0) or 0)),
-                sources=[],
-            ).model_dump(),
-            "patch": patch_res.model_dump(),
-            "risk": RiskScoreResponse(
-                event_id=alert.event_id,
-                risk_score=risk_res["risk_score"],
-                priority=risk_res["priority"],
-                confidence=risk_res["confidence"],
-                features=risk_res["features"],
-            ).model_dump(),
-            "filter": FilterResult(
-                alert_id=alert.event_id,
-                classification=filter_res["classification"],
-                confidence=filter_res["confidence"],
-                summary=f"Rule {filter_payload.get('rule_id', '?')} marked as {filter_res['classification']}",
-            ).model_dump(),
-        })
+    for alert in alerts:
+        if alert.event_id in suppressed_results:
+            results.append(suppressed_results[alert.event_id])
+        else:
+            patch_res = await get_patch_recommendations(alert)
+            risk_res = await calculate_risk_score(alert)
+            
+            # Recalculate noise classifier with enrichment data to get refined prediction
+            refined_res = predict_noise(alert)
+            label = "important" if refined_res["prediction"] == "Actionable" else "noise"
+            
+            results.append({
+                "event_id": alert.event_id,
+                "enrichment": IntelResponse(
+                    ioc=alert.host_context.ip_address or "unknown",
+                    malicious=(alert.enrichment_data.abuse_ipdb or {}).get("score", 0) > 25 or bool((alert.enrichment_data.misp or {}).get("matches", [])),
+                    reputation=max(0, 100 - ((alert.enrichment_data.virus_total or {}).get("score", 0) or 0)),
+                    sources=[],
+                ).model_dump(),
+                "patch": patch_res.model_dump(),
+                "risk": RiskScoreResponse(
+                    event_id=alert.event_id,
+                    risk_score=risk_res["risk_score"],
+                    priority=risk_res["priority"],
+                    confidence=risk_res["confidence"],
+                    features=risk_res["features"],
+                ).model_dump(),
+                "filter": FilterResult(
+                    alert_id=alert.event_id,
+                    classification=label,
+                    confidence=refined_res["confidence"],
+                    summary=f"ML classified as {label} ({refined_res['confidence']:.1%})"
+                ).model_dump(),
+            })
 
     return results
 

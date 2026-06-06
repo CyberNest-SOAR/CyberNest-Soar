@@ -1,11 +1,6 @@
 from datetime import datetime, timezone
-<<<<<<< HEAD
-from typing import Dict, Any
-from soar_backend.schemas.models import UnifiedAlert, HostContext, EnrichmentData
-=======
 from typing import Dict, Any, Optional
 from schemas.models import UnifiedAlert, HostContext, EnrichmentData, SocReasoningData
->>>>>>> 83a1eb822484b2645de5e14bd1f68707d0d07a8c
 import logging
 import uuid
 

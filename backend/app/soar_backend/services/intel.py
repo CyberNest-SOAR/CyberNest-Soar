@@ -22,15 +22,9 @@ import asyncio
 import ipaddress
 import logging
 import re
-<<<<<<< HEAD
-from typing import List
-from soar_backend.schemas.models import UnifiedAlert, IntelResponse
-from soar_backend.services.enrichment import enrichment_service
-=======
 from typing import Dict, List, Set, Tuple
 from schemas.models import UnifiedAlert, IntelResponse
 from services.enrichment import enrichment_service
->>>>>>> 83a1eb822484b2645de5e14bd1f68707d0d07a8c
 
 logger = logging.getLogger(__name__)
 

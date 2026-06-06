@@ -1,30 +1,53 @@
-from fastapi import APIRouter, HTTPException, Body
+import sys
+import importlib.util
+from pathlib import Path
+from fastapi import APIRouter
 from soar_backend.schemas.models import FilterRequest, FilterResult, UnifiedAlert
 from typing import List
-from soar_backend.services.filtering import classify_alert
+
+_WORKSPACE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
+_PREDICT_NOISE_PATH = _WORKSPACE_DIR / "ai" / "inference" / "predict_noise.py"
+
+spec = importlib.util.spec_from_file_location("predict_noise_module", str(_PREDICT_NOISE_PATH))
+predict_noise_module = importlib.util.module_from_spec(spec)
+sys.modules["predict_noise_module"] = predict_noise_module
+spec.loader.exec_module(predict_noise_module)
+
+predict_noise = predict_noise_module.predict_noise
 
 router = APIRouter(prefix="/alerts", tags=["Team 3: Log Filtering & Noise Reduction"])
 
+
+def classify_alert_single(alert: UnifiedAlert) -> dict:
+    # predict_noise is robust to receive UnifiedAlert or dict
+    result = predict_noise(alert)
+    label = "important" if result["prediction"] == "Actionable" else "noise"
+    return {
+        "classification": label,
+        "confidence": result["confidence"],
+    }
+
+
 @router.post("/filter", response_model=List[FilterResult])
 async def classify_alerts(request: FilterRequest):
-    """
-    LLM-Assisted Classification:
-    Takes alert IDs, aggregates raw data features, and returns a classification (noise vs. important).
-    """
     results = []
     for alert in request.alerts:
-        merged_payload = prepare_llm_payload(alert)
-        classification = await classify_alert(merged_payload)
-        
-        results.append(
-            FilterResult(
-                alert_id=alert.event_id,
-                classification=classification["classification"],
-                confidence=classification["confidence"],
-                summary=f"Rule {merged_payload['rule_id']} marked as {classification['classification']}"
-            )
-        )
+        result = predict_noise(alert)
+        label = "important" if result["prediction"] == "Actionable" else "noise"
+        results.append(FilterResult(
+            alert_id=alert.event_id,
+            classification=label,
+            confidence=result["confidence"],
+            summary=f"ML classified as {label} ({result['confidence']:.1%})"
+        ))
     return results
+
+
+@router.post("/predict-noise")
+async def predict_noise_endpoint(alert: dict):
+    """Predict noise for a given raw alert or feature dict."""
+    return predict_noise(alert)
+
 
 # Internal helper to demonstrate how your raw data is merged for the LLM
 def prepare_llm_payload(alert: UnifiedAlert) -> dict:

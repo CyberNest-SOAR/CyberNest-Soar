@@ -1,10 +1,6 @@
 import requests
-<<<<<<< HEAD
-from soar_backend.core.config import settings
-=======
 from typing import List, Optional
 from core.config import settings
->>>>>>> 83a1eb822484b2645de5e14bd1f68707d0d07a8c
 
 
 def create_case(
