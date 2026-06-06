@@ -1,0 +1,145 @@
+# CyberNestSOAR Attack Simulation Profiles
+# Controls the percentage distribution of generated telemetry events.
+# Percentages are normalized automatically — totals need not sum to 100.
+
+attack_distribution:
+  benign_traffic: 45
+  noise_alerts: 20
+  malware: 10
+  brute_force: 8
+  phishing: 7
+  ddos: 5
+  privilege_escalation: 5
+
+# Global IOC pools — generators draw from these pools
+ioc_pools:
+  public_ips:
+    - "8.8.8.8"
+    - "1.1.1.1"
+    - "185.220.101.42"
+    - "91.121.87.34"
+    - "45.33.32.156"
+    - "203.0.113.5"
+    - "198.51.100.7"
+    - "192.0.2.15"
+  private_ips:
+    - "10.0.0.1"
+    - "10.0.0.2"
+    - "10.0.0.10"
+    - "10.0.0.50"
+    - "10.0.0.100"
+    - "172.16.0.1"
+    - "172.16.0.10"
+    - "192.168.1.1"
+    - "192.168.1.10"
+    - "192.168.1.100"
+  ports:
+    - 22
+    - 80
+    - 443
+    - 8080
+    - 8443
+    - 3306
+    - 3389
+    - 445
+    - 1433
+    - 5432
+  domains:
+    - "example.com"
+    - "neverssl.com"
+    - "malware-sim.fake"
+    - "paypal-secure.fake"
+    - "evil-c2.fake"
+    - "update-server.fake"
+    - "datagrabber.fake"
+    - "legitimate-bank.com"
+  user_agents:
+    - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15"
+    - "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+    - "curl/7.88.1"
+    - "Python/3.13 aiohttp"
+    - "Wget/1.21.3"
+  hashes:
+    md5:
+      - "44d88612fea8a8f36de82e1278abb02f"
+      - "d41d8cd98f00b204e9800998ecf8427e"
+      - "a82b0d2b4c5f5f5c7a5d5b5c5d5e5f5a"
+    sha1:
+      - "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+      - "a9993e364706816aba3e25717850c26c9cd0d89d"
+    sha256:
+      - "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      - "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  hostnames:
+    - "WEB-SRV-01"
+    - "DB-SRV-01"
+    - "DC-01"
+    - "WORKSTATION-10"
+    - "WORKSTATION-50"
+    - "WORKSTATION-100"
+    - "MAIL-SRV-01"
+    - "FILE-SRV-01"
+
+# MITRE ATT&CK technique mappings per attack type
+mitre_mappings:
+  malware:
+    technique_id: "T1204"
+    technique_name: "User Execution"
+    tactic: "Execution"
+  brute_force:
+    technique_id: "T1110"
+    technique_name: "Brute Force"
+    tactic: "Credential Access"
+  phishing:
+    technique_id: "T1566"
+    technique_name: "Phishing"
+    tactic: "Initial Access"
+  ddos:
+    technique_id: "T1498"
+    technique_name: "Network Denial of Service"
+    tactic: "Impact"
+  lateral_movement:
+    technique_id: "T1021"
+    technique_name: "Remote Services"
+    tactic: "Lateral Movement"
+  privilege_escalation:
+    technique_id: "T1059"
+    technique_name: "Command and Scripting Interpreter"
+    tactic: "Execution"
+
+# Telemetry destination settings
+telemetry:
+  opensearch:
+    host: "https://localhost:9200"
+    user: "admin"
+    password: "SecretPassword"
+    index_prefix: "simulation-"
+    bulk_size: 500
+  wazuh:
+    manager_url: "https://localhost:55000"
+    user: "wazuh-wui"
+    password: "MyS3cr37P450r.*-"
+  thehive:
+    url: "https://localhost:9000"
+    api_key: ""
+    project_name: "CyberNestSOAR-Sim"
+
+# Simulation runtime settings
+simulation:
+  total_events: 1000
+  time_window_hours: 24
+  batch_size: 100
+  replay_speed: 1.0
+  campaign_id: ""
+  seed: 42
+  noise_level: 0.15
+  alert_clustering: true
+  suppress_duplicates: false
+
+# Label schema for dataset export
+labels:
+  include_mitre: true
+  include_ioc: true
+  include_noise: true
+  include_confidence: true

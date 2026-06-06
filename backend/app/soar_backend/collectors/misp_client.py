@@ -1,5 +1,5 @@
 from pymisp import ExpandedPyMISP
-from core.config import settings
+from soar_backend.core.config import settings
 
 def lookup_misp(indicator):
     # indicator can be IP, domain, or hash

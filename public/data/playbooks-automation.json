@@ -1,0 +1,125 @@
+{
+  "page": "Playbooks & Automation",
+  "playbook_library": {
+    "rules": [
+      {
+        "name": "critical_threat",
+        "enabled": true,
+        "conditions": { "tags_contain": ["C2", "misp_hit"], "min_risk_score": 80, "min_severity": 12 },
+        "action": "isolate_host",
+        "confidence": 0.98,
+        "automation_level": "full",
+        "reason": "Critical threat detected: Automated host isolation triggered.",
+        "triggers": 342
+      },
+      {
+        "name": "high_risk_activity",
+        "enabled": true,
+        "conditions": { "tags_contain": ["malware", "brute_force"], "min_risk_score": 60, "min_severity": 8 },
+        "action": "block_ip",
+        "confidence": 0.85,
+        "automation_level": "full",
+        "reason": "High risk activity: Automated IP block initiated.",
+        "triggers": 1287
+      },
+      {
+        "name": "ransomware_detection",
+        "enabled": true,
+        "conditions": { "tags_contain": ["ransomware", "encryption"], "min_risk_score": 90, "min_severity": 14 },
+        "action": "full_remediation",
+        "confidence": 0.95,
+        "automation_level": "full",
+        "reason": "Ransomware signature detected: Full containment and rollback.",
+        "triggers": 56
+      },
+      {
+        "name": "phishing_campaign",
+        "enabled": true,
+        "conditions": { "tags_contain": ["phishing", "email"], "min_risk_score": 40, "min_severity": 4 },
+        "action": "password_reset",
+        "confidence": 0.78,
+        "automation_level": "semi",
+        "reason": "Phishing campaign: Password reset and email quarantine.",
+        "triggers": 892
+      },
+      {
+        "name": "medium_risk_review",
+        "enabled": true,
+        "conditions": { "min_risk_score": 40, "min_severity": 5 },
+        "action": "create_case",
+        "confidence": 0.70,
+        "automation_level": "semi",
+        "reason": "Potential threat: Incident case created for analyst review.",
+        "triggers": 2156
+      },
+      {
+        "name": "lateral_movement",
+        "enabled": false,
+        "conditions": { "tags_contain": ["lateral_movement", "remote_services"], "min_risk_score": 60, "min_severity": 7 },
+        "action": "session_terminate",
+        "confidence": 0.82,
+        "automation_level": "full",
+        "reason": "Lateral movement detected: Session terminated.",
+        "triggers": 423
+      },
+      {
+        "name": "data_exfiltration",
+        "enabled": false,
+        "conditions": { "tags_contain": ["exfiltration", "dns_tunnel"], "min_risk_score": 70, "min_severity": 9 },
+        "action": "block_ip",
+        "confidence": 0.88,
+        "automation_level": "manual",
+        "reason": "Data exfiltration: Manual block required for verification.",
+        "triggers": 178
+      },
+      {
+        "name": "low_risk_log",
+        "enabled": true,
+        "conditions": {},
+        "action": "log_event",
+        "confidence": 0.50,
+        "automation_level": "manual",
+        "reason": "Low risk event: Logged for reference.",
+        "triggers": 42150
+      }
+    ],
+    "default_action": "log_event",
+    "total_rules": 8
+  },
+  "execution_history": {
+    "outcomes": {
+      "no_action_taken": 21161,
+      "false_positive_closed": 13253,
+      "unknown": 6098,
+      "case_escalated": 2512,
+      "automated_block": 1607,
+      "automated_quarantine": 1469,
+      "ip_blocked": 1237,
+      "session_terminated": 814,
+      "password_reset": 663,
+      "manual_review": 619,
+      "ticket_created": 567
+    },
+    "total_executions": 50000
+  },
+  "simulation_mode": {
+    "available": true,
+    "endpoint": "POST /api/v1/playbook-config/evaluate"
+  },
+  "approval_workflows": {
+    "manual_approval_required": [
+      { "id": "apr-001", "rule": "data_exfiltration", "alert_id": "syn-cert_insider-mal-009055", "target": "host-9a3f.example.com", "action": "block_ip", "requested_by": "playbook-ai", "reason": "Data exfiltration detected via DNS tunneling. 2.3GB transferred to 185.220.101.42.", "requested_at": "2026-05-30T14:22:00Z", "priority": "high" },
+      { "id": "apr-002", "rule": "data_exfiltration", "alert_id": "syn-ctu13-mal-000253", "target": "mail-server-02.example.com", "action": "block_ip", "requested_by": "playbook-ai", "reason": "C2 beaconing detected. Destination IP 103.235.46.95 known C2 infrastructure.", "requested_at": "2026-05-30T13:45:00Z", "priority": "critical" },
+      { "id": "apr-003", "rule": "critical_threat", "alert_id": "syn-cicids2017-mal-006319", "target": "192.168.50.100", "action": "isolate_host", "requested_by": "playbook-ai", "reason": "Ransomware behavioral pattern detected on critical asset. Immediate isolation recommended.", "requested_at": "2026-05-30T12:10:00Z", "priority": "critical" }
+    ],
+    "semi_automated": [
+      { "id": "semi-001", "rule": "phishing_campaign", "alert_id": "syn-unsw_nb15-phish-00812", "target": "user@example.com", "action": "password_reset", "status": "pending", "requested_at": "2026-05-30T14:30:00Z" },
+      { "id": "semi-002", "rule": "medium_risk_review", "alert_id": "syn-ton_iot-mal-00345", "target": "iot-sensor-12", "action": "create_case", "status": "approved", "requested_at": "2026-05-30T11:15:00Z" }
+    ],
+    "fully_automated": [
+      { "id": "auto-001", "rule": "critical_threat", "alert_id": "syn-ctu13-mal-000253", "action": "isolate_host", "status": "completed", "executed_at": "2026-05-30T14:20:00Z", "result": "Host isolated successfully." },
+      { "id": "auto-002", "rule": "high_risk_activity", "alert_id": "syn-cicids2017-mal-01234", "action": "block_ip", "status": "completed", "executed_at": "2026-05-30T13:55:00Z", "result": "IP 91.121.87.34 blocked at firewall." },
+      { "id": "auto-003", "rule": "ransomware_detection", "alert_id": "syn-cert_insider-mal-00578", "action": "full_remediation", "status": "completed", "executed_at": "2026-05-30T12:30:00Z", "result": "Full remediation executed: host isolated, processes terminated, registry restored." }
+    ]
+  }
+}

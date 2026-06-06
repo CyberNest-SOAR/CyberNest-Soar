@@ -19,6 +19,7 @@ async def risk_score(request: RiskScoreRequest):
         event_id=alert.event_id,
         risk_score=result["risk_score"],
         priority=result["priority"],
+        predicted_analyst_verdict=result["predicted_analyst_verdict"],
         confidence=result["confidence"],
         features=result["features"]
     )
@@ -43,6 +44,7 @@ async def risk_score_batch(alerts: List[UnifiedAlert]):
             event_id=alert.event_id,
             risk_score=result["risk_score"],
             priority=result["priority"],
+            predicted_analyst_verdict=result["predicted_analyst_verdict"],
             confidence=result["confidence"],
             features=result["features"],
         ))

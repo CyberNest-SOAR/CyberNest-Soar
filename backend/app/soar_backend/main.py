@@ -16,35 +16,55 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
-from routers import alerts, risk, patch, filtering, playbooks, intel
+
+from routers import (
+    alerts, risk, patch, filtering, playbooks, intel,
+    data_outputs, graph, ai_analysis, phishing,
+    threat_intel_enhanced, dashboard, monitoring, playbook_config,
+    pipeline_alerts, ui_dashboard, reports,
+)
 from services.collector import collector
 from services.enrichment import enrichment_service
+from services.patch_engine import PatchEngineModels
 from core.config import settings
 import httpx
 
 logger = logging.getLogger(__name__)
 
-def validate_env():
-    # Validate mandatory environment variables
-    mandatory_vars = ['OS_HOST', 'VT_API_KEY', 'MISP_URL', 'MISP_KEY']
-    for var in mandatory_vars:
-        val = getattr(settings, var, None)
-        # Also fail if using the dummy defaults we had like "misp_api_key_here" if we want to be strict,
-        # but just checking for presence/non-empty as per prompt.
-        if not val:
-            raise RuntimeError(f"Missing mandatory environment variable: {var}")
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup validation
-    validate_env()
-    # Startup: initialize HTTP clients
-    await collector.start()
-    await enrichment_service.start()
+    # Startup: warn about missing env vars instead of crashing
+    mandatory_vars = ['OS_HOST', 'VT_API_KEY', 'MISP_URL', 'MISP_KEY']
+    missing = [v for v in mandatory_vars if not getattr(settings, v, None)]
+    if missing:
+        logger.warning(f"Missing environment variables: {', '.join(missing)} — some services may be unavailable")
+    
+    # Startup: initialize HTTP clients (errors logged, not fatal)
+    try:
+        await collector.start()
+    except Exception as e:
+        logger.warning(f"collector.start() failed: {e}")
+    try:
+        await enrichment_service.start()
+    except Exception as e:
+        logger.warning(f"enrichment_service.start() failed: {e}")
+        
+    # Startup: initialize ML models
+    try:
+        PatchEngineModels.initialize()
+    except Exception as e:
+        logger.warning(f"PatchEngineModels.initialize() failed: {e}")
+        
     yield
     # Shutdown: clean up HTTP clients
-    await collector.stop()
-    await enrichment_service.stop()
+    try:
+        await collector.stop()
+    except Exception:
+        pass
+    try:
+        await enrichment_service.stop()
+    except Exception:
+        pass
 
 app = FastAPI(
     title="SOAR Unified API",
@@ -53,13 +73,26 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Include all team routers
+# Include all team and feature routers
 app.include_router(alerts.router, prefix="/api/v1")
 app.include_router(risk.router, prefix="/api/v1")
 app.include_router(patch.router, prefix="/api/v1")
 app.include_router(filtering.router, prefix="/api/v1")
 app.include_router(playbooks.router, prefix="/api/v1")
 app.include_router(intel.router, prefix="/api/v1")
+
+# New feature routers
+app.include_router(data_outputs.router, prefix="/api/v1")
+app.include_router(graph.router, prefix="/api/v1")
+app.include_router(ai_analysis.router, prefix="/api/v1")
+app.include_router(phishing.router, prefix="/api/v1")
+app.include_router(threat_intel_enhanced.router, prefix="/api/v1")
+app.include_router(dashboard.router, prefix="/api/v1")
+app.include_router(monitoring.router, prefix="/api/v1")
+app.include_router(playbook_config.router, prefix="/api/v1")
+app.include_router(pipeline_alerts.router, prefix="/api/v1")
+app.include_router(ui_dashboard.router, prefix="/api/v1")
+app.include_router(reports.router, prefix="/api/v1")
 
 @app.post("/predict-noise")
 async def predict_noise_endpoint(alert: dict):
@@ -72,34 +105,5 @@ async def root():
     return {"status": "SOAR API is online", "version": "v1"}
 
 @app.get("/health")
-async def health_check():
-    # Check OpenSearch (core db)
-    os_status = False
-    try:
-        response = await collector.client.get(f"{settings.OS_HOST}/_cluster/health", auth=collector.os_auth)
-        if response.status_code == 200:
-            os_status = True
-    except Exception:
-        pass
-
-    if not os_status:
-        raise HTTPException(status_code=503, detail="OpenSearch (core database) is unreachable")
-
-    # Check MISP
-    misp_status = False
-    try:
-        response = await enrichment_service.client.get(
-            f"{settings.MISP_URL}/users/view/me", 
-            headers={"Authorization": settings.MISP_KEY, "Accept": "application/json"},
-            timeout=2.0
-        )
-        if response.status_code == 200:
-            misp_status = True
-    except Exception:
-        pass
-
-    return {
-        "status": "healthy",
-        "opensearch": "connected",
-        "misp": "connected" if misp_status else "disconnected"
-    }
+async def health_check_redirect():
+    raise HTTPException(status_code=307, detail="Moved", headers={"Location": "/api/v1/end-point-health/"})

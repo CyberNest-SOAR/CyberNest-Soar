@@ -1,5 +1,5 @@
 import requests
-from core.config import settings
+from soar_backend.core.config import settings
 
 def lookup_ip(ip):
     url = f"https://www.virustotal.com/api/v3/ip_addresses/{ip}"

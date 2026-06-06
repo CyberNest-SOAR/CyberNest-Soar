@@ -1,5 +1,5 @@
 import requests
-from core.config import settings
+from soar_backend.core.config import settings
 
 def get_wazuh_token():
     url = f"{settings.WAZUH_URL}/security/user/authenticate"

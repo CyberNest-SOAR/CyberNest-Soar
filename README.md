@@ -44,6 +44,7 @@
 </p>
 
 # 🛸 [ SYSTEM_MANIFEST: CyberNestSoar ]
+
 ```
                      / \
                     /   \
@@ -141,6 +142,26 @@ Because CyberNestSoar is Docker-based, it is not tethered to a single vendor. It
 
 
 
+## Frontend Quick Start
+
+**URL**: https://soar-app.netlify.app/
+
+```bash
+# Step 1: Clone the repository using the project's Git URL.
+git clone https://github.com/HabibaKarm/Security-Orchestration.git
+
+# Step 2: Navigate to the project directory.
+cd SOAR
+
+# Step 3: Install the necessary dependencies.
+npm i
+
+# Step 4: Start the development server with auto-reloading and an instant preview.
+npm run dev
+```
+
+
+
 ## 📟 License
 
 This project is for **educational purposes** as part of the SOAR Project 1 at SUT.
@@ -149,4 +170,3 @@ Feel free to use or adapt it for learning or non-commercial purposes.
 
 
 ### [ SECURITY_NOTICE ] CyberNestSoar is currently under developement. Soon! Monitoring all incoming telemetry for anomalous signatures.
-

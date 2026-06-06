@@ -1,5 +1,5 @@
 from opensearchpy import OpenSearch
-from core.config import settings
+from soar_backend.core.config import settings
 
 client = OpenSearch(
     hosts=[{"host": settings.OS_HOST, "port": settings.OS_PORT}],

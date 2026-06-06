@@ -13,6 +13,12 @@ so that a single failing enrichment never kills the rest.  Internal /
 non-routable IPs are initialised with safe defaults (vt_score=0,
 abuse_score=100) so ``enrichment_data`` is never null.
 
+**Training format** (``/api/v1/alerts/training-format/``):
+  Returns alerts in the dataset_pipeline UnifiedAlert schema (flat, 100+
+  fields) so AI models see the same schema during inference as training.
+  Flattens enrichment (VT, AbuseIPDB, MISP) into scalar fields matching
+  the training data format.
+
 **Batch pipeline endpoints** (``/api/v1/alerts/batch/*``):
   Accept the raw ``List[UnifiedAlert]`` array returned by ``GET /alerts/``
   and run the full downstream pipeline — threat intel enrichment, patch
@@ -246,3 +252,63 @@ async def enrich_alerts_batch(alerts: List[UnifiedAlert]):
         out.append(alert)
     logger.info("[Batch] Enriched %d / %d alerts", len(out), len(alerts))
     return out
+
+
+# --------------------------------------------------------------------------- #
+# Training-format endpoint — returns alerts in dataset_pipeline UnifiedAlert   #
+# schema (100+ flat fields) so AI models see the same schema as training data. #
+# --------------------------------------------------------------------------- #
+
+@router.get("/training-format", response_model=List[dict])
+async def fetch_alerts_training_format(
+    limit: int = Query(100, ge=1, description="Number of alerts to fetch"),
+    offset: int = Query(0, alias="from", ge=0, description="Number of alerts to skip"),
+    enrich: bool = Query(False, description="Enrich and flatten into training schema"),
+):
+    """
+    Fetch alerts in dataset_pipeline training format.
+    Returns the UnifiedAlert schema with 100+ flat fields including:
+    - Network telemetry (src_ip, dst_ip, ports, protocol)
+    - Alert metadata (signature, severity, category, MITRE ATT&CK)
+    - Process/HTTP/DNS/IOC fields
+    - Enrichment as flat scalars (enrichment_vt_score, etc.)
+    - SOC reasoning defaults for live data
+
+    When enrich=true, enrichment is run and flattened into the
+    same scalar fields the AI was trained on.
+    """
+    raw_data = await collector.query_opensearch(
+        limit=limit,
+        offset=offset,
+    )
+    hits = raw_data.get("hits", {}).get("hits", [])
+    logger.info("[Training] Fetched %d raw hits from OpenSearch", len(hits))
+
+    if not hits:
+        return []
+
+    # Convert to training format
+    from services.training_format import batch_to_training_format
+
+    if enrich:
+        # Enrich first using backend pipeline, then flatten
+        alerts = [normalizer.from_wazuh(hit) for hit in hits]
+        results = await asyncio.gather(
+            *[_enrich_alert(a) for a in alerts],
+            return_exceptions=True,
+        )
+        enrichment_data_list = []
+        for original, result in zip(alerts, results):
+            if isinstance(result, Exception):
+                enrichment_data_list.append(None)
+            else:
+                enrichment_data_list.append(result.enrichment_data)
+
+        training_alerts = batch_to_training_format(
+            hits, enrichment_results=enrichment_data_list,
+        )
+    else:
+        training_alerts = batch_to_training_format(hits)
+
+    logger.info("[Training] Returning %d alerts in training format", len(training_alerts))
+    return training_alerts

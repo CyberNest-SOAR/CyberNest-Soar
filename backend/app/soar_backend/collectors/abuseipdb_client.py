@@ -1,5 +1,5 @@
 import requests
-from core.config import settings
+from soar_backend.core.config import settings
 
 def lookup_abuseip(ip):
     url = "https://api.abuseipdb.com/api/v2/check"

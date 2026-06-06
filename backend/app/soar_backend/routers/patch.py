@@ -9,8 +9,10 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/patch", tags=["Team 2: Patch Recommendation"])
 
+
 @router.post("/", response_model=PatchResponse)
 async def recommend_patch_for_alert(alert: UnifiedAlert):
+    """Legacy endpoint: POST /patch with UnifiedAlert."""
     return await get_patch_recommendations(alert)
 
 
