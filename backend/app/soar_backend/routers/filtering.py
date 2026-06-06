@@ -1,14 +1,19 @@
 import sys
+import importlib.util
 from pathlib import Path
 from fastapi import APIRouter
 from soar_backend.schemas.models import FilterRequest, FilterResult, UnifiedAlert
 from typing import List
 
 _WORKSPACE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
-if str(_WORKSPACE_DIR) not in sys.path:
-    sys.path.insert(0, str(_WORKSPACE_DIR))
+_PREDICT_NOISE_PATH = _WORKSPACE_DIR / "ai" / "inference" / "predict_noise.py"
 
-from ai.inference.predict_noise import predict_noise
+spec = importlib.util.spec_from_file_location("predict_noise_module", str(_PREDICT_NOISE_PATH))
+predict_noise_module = importlib.util.module_from_spec(spec)
+sys.modules["predict_noise_module"] = predict_noise_module
+spec.loader.exec_module(predict_noise_module)
+
+predict_noise = predict_noise_module.predict_noise
 
 router = APIRouter(prefix="/alerts", tags=["Team 3: Log Filtering & Noise Reduction"])
 
