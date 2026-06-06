@@ -2,7 +2,7 @@
 
 <p align="center">
     <picture>
-        <img width="805"" alt="CyberNestSOARlogo" src="https://github.com/user-attachments/assets/36cc11a3-9de5-495a-82e8-8047fa00488f" />
+        <img width="200"" alt="CyberNestSOARlogo" src="https://github.com/user-attachments/assets/36cc11a3-9de5-495a-82e8-8047fa00488f" />
     </picture>
 </p>
 
@@ -39,6 +39,20 @@
 
 <p align="center">
 #  <strong>Security Orchestration Is A Symphony</strong> #
+</p>
+
+<p align="center">
+  <a href="README.md">📘 README</a> •
+  <a href="docs/pipelines.md">📡 PIPELINES</a> •
+  <a href="docs/api.md">⚡ API</a> •
+  <a href="docs/team_members_and_milestones.docx">👥 TEAM</a>
+</p>
+
+<p align="center">
+  <a href="README.md">📘 README</a> •
+  <a href="docs/pipelines.md">📡 PIPELINES</a> •
+  <a href="docs/api.md">⚡ API</a> •
+  <a href="docs/team_members_and_milestones.md">👥 TEAM</a>
 </p>
 
 # 🛸 [ SYSTEM_MANIFEST: CyberNestSoar ]
@@ -136,15 +150,15 @@ root@cybernest:~$ docker-compose up --detach
 
 | Name | Tactical Title | Tools & Modules | Tactical Responsibilities | Operational Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **Hanaa** | NDR Lead | Suricata — Zeek | Deployment — Rule Engineering | Governance — Compliance — Strategy Alignment |
-| **Paula** | SOAR Architect | TheHive — Cortex — Docker | Root Orchestration — Pipeline Integration | IR Playbook Design — Orchestration Logic — Architecture |
-| **Amir** | SIEM Analyst | Wazuh | Node Deployment — Telemetry Config | Threat Hunting — Telemetry Analysis |
-| **Ahmed** | EDR & Infra Engineer | Velociraptor — Docker | Root Orchestration — Basic Config | Vulnerability Assessment — Incident Mitigation |
-| **Momen** | AI Team Leader | Python — LLMs | Neural Architecture — Severity Scoring | Neural Engine Architecture — LLM Implementation |
-| **Pavlly** | Database Engineer | PostgreSQL — Redis | Schema Design — SQL Orchestration | Data Persistence — SQL Lifecycle Management |
-| **Nayra** | AI Model Developer | Scikit-learn — TextBlob | NLP Pipeline — Feature Training | Feature Engineering — Model Optimization |
-| **Steven** | Backend Developer | FastAPI — Docker | Service Development — Interfacing | API Orchestration — System Interfacing |
-| **Habiba** | Frontend Developer | React | Tactical Dashboard — Visualization | UX Design — Real-time Threat Visualization |
+| **Paula Maged** | SOAR Architect & Team Lead | Wazuh — Suricata — Filebeat — TheHive — FastAPI — Docker | SOAR Pipeline Integration — Sensor Deployment — Backend Enrichment | Architecture Design — Decoder/Rule Engineering — Data Pipeline Orchestration |
+| **Hanaa Ramadan** | NDR Engineer | Zeek — Suricata — Wazuh | Sensor Configuration — Log Pipeline — Wazuh Integration | Zeek Scripting — Suricata Setup — Dependency Management |
+| **Ahmed Ehab** | EDR & NDR Engineer | Arkime — Velociraptor — Docker — Python | Sensor Deployment — Docker Config — API Integration | Arkime/Velociraptor Pipeline — SOAR Service Configuration |
+| **Amir Khaled** | Integration Engineer | Wazuh — Python — Docker | Integration Testing — Validation Scripts — Wazuh Setup | Alert Injection — Pipeline Verification — Cross-Component Testing |
+| **Momen Saif** | AI Team Lead & Frontend | React — Docker — Python — LLMs | Frontend Architecture — Docker Infrastructure — AI Model Integration | Dashboard UI — Build Pipeline — Supabase Migration |
+| **Nayra Ahmed** | ML Engineer | Scikit-learn — XGBoost — Python | ML Model Training — Enrichment Service — Patch Engine | Feature Engineering — Model Optimization — Performance Metrics |
+| **Pavlly Sameh** | AI/ML Engineer | Python — XGBoost — LLMs — ML | Noise Classifier — Alert Filtering — AI Phishing Model | Log Filtration — LLM Reasoning Layer — Model Inference |
+| **Steven Wael** | Data Scientist | Python — XGBoost — FastAPI | Risk Scoring Model — Classification — Backend Endpoints | ML Risk Engine — Response Models — Feedback Integration |
+| **Habiba Karam** | Frontend Developer | React — shadcn | SOAR Dashboard — API Integration — UI Components | Dashboard Pages — Visualization — Command Center UI |
 
 ---
 
