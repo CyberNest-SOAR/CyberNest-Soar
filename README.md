@@ -45,13 +45,6 @@
   <a href="README.md">📘 README</a> •
   <a href="docs/pipelines.md">📡 PIPELINES</a> •
   <a href="docs/api.md">⚡ API</a> •
-  <a href="docs/team_members_and_milestones.docx">👥 TEAM</a>
-</p>
-
-<p align="center">
-  <a href="README.md">📘 README</a> •
-  <a href="docs/pipelines.md">📡 PIPELINES</a> •
-  <a href="docs/api.md">⚡ API</a> •
   <a href="docs/team_members_and_milestones.md">👥 TEAM</a>
 </p>
 
