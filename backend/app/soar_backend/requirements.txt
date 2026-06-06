@@ -7,6 +7,7 @@ pymisp
 async-lru
 python-dotenv
 opensearch-py
+redis==5.2.1
 scikit-learn==1.6.1
 xgboost
 fpdf2

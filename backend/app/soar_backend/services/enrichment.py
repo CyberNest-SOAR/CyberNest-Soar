@@ -14,9 +14,13 @@ import httpx
 import asyncio
 import logging
 from typing import Dict, Any, List
-from async_lru import alru_cache
 from soar_backend.core.config import settings
 from pymisp import PyMISP
+
+try:
+    from app.cache.redis_cache import redis_cached_json
+except Exception:  # pragma: no cover - supports running from backend/app cwd
+    from cache.redis_cache import redis_cached_json
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +59,7 @@ class EnrichmentService:
     # ------------------------------------------------------------------ #
     # VirusTotal                                                          #
     # ------------------------------------------------------------------ #
-    @alru_cache(maxsize=128, ttl=300)
+    @redis_cached_json("enrichment:virustotal", ttl=300)
     async def lookup_virustotal(self, ioc: str) -> Dict[str, Any]:
         """
         Uses the VT IP report endpoint which returns a single object with
@@ -107,7 +111,7 @@ class EnrichmentService:
     # ------------------------------------------------------------------ #
     # AbuseIPDB                                                           #
     # ------------------------------------------------------------------ #
-    @alru_cache(maxsize=128, ttl=300)
+    @redis_cached_json("enrichment:abuseipdb", ttl=300)
     async def lookup_abuseipdb(self, ip: str) -> Dict[str, Any]:
         await self.start()
         headers = {"Key": self.abuse_key, "Accept": "application/json"}
@@ -147,7 +151,7 @@ class EnrichmentService:
     # ------------------------------------------------------------------ #
     # EPSS                                                                #
     # ------------------------------------------------------------------ #
-    @alru_cache(maxsize=128, ttl=300)
+    @redis_cached_json("enrichment:epss", ttl=300)
     async def lookup_epss(self, cve: str) -> Dict[str, Any]:
         await self.start()
         url = f"https://api.first.org/data/v1/epss?cve={cve}"
@@ -183,7 +187,7 @@ class EnrichmentService:
     # ------------------------------------------------------------------ #
     # NVD                                                                 #
     # ------------------------------------------------------------------ #
-    @alru_cache(maxsize=128, ttl=300)
+    @redis_cached_json("enrichment:nvd", ttl=300)
     async def lookup_nvd(self, cve: str) -> Dict[str, Any]:
         await self.start()
         url = f"https://services.nvd.nist.gov/rest/json/cves/2.0?cveId={cve}"
@@ -225,6 +229,7 @@ class EnrichmentService:
             logger.warning("[MISP] ✗ Sync search FAILED for %s: %s", value, exc)
             return []
 
+    @redis_cached_json("enrichment:misp", ttl=300)
     async def search_misp_async(self, value: str) -> List[Dict[str, Any]]:
         """Run the blocking PyMISP search in a thread, capped at _API_TIMEOUT."""
         logger.info("[MISP] Starting async lookup for: %s", value)
@@ -245,7 +250,7 @@ class EnrichmentService:
     # ------------------------------------------------------------------ #
     # CISA KEV (Known Exploited Vulnerabilities)                          #
     # ------------------------------------------------------------------ #
-    @alru_cache(maxsize=64, ttl=3600)
+    @redis_cached_json("enrichment:kev", ttl=3600)
     async def lookup_kev(self, cve: str) -> Dict[str, Any]:
         """
         Fetch the full KEV catalog from CISA and check if a CVE is listed.
@@ -291,7 +296,7 @@ class EnrichmentService:
     # ------------------------------------------------------------------ #
     # URLhaus                                                              #
     # ------------------------------------------------------------------ #
-    @alru_cache(maxsize=128, ttl=300)
+    @redis_cached_json("enrichment:urlhaus", ttl=300)
     async def lookup_urlhaus(self, ioc: str, ioc_type: str = "url") -> Dict[str, Any]:
         """
         Look up a URL or domain on URLhaus.
@@ -336,7 +341,7 @@ class EnrichmentService:
     # ------------------------------------------------------------------ #
     # AlienVault OTX                                                       #
     # ------------------------------------------------------------------ #
-    @alru_cache(maxsize=128, ttl=300)
+    @redis_cached_json("enrichment:otx", ttl=300)
     async def lookup_otx(self, ioc: str, ioc_type: str = "IPv4") -> Dict[str, Any]:
         """
         Look up an indicator on AlienVault OTX.

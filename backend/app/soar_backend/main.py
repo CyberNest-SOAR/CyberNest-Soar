@@ -34,6 +34,10 @@ from services.enrichment import enrichment_service
 from core.config import settings
 >>>>>>> 83a1eb822484b2645de5e14bd1f68707d0d07a8c
 import httpx
+try:
+    from app.cache.redis_cache import close_async_client
+except Exception:  # pragma: no cover - supports running from backend/app cwd
+    from cache.redis_cache import close_async_client
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +75,10 @@ async def lifespan(app: FastAPI):
         pass
     try:
         await enrichment_service.stop()
+    except Exception:
+        pass
+    try:
+        await close_async_client()
     except Exception:
         pass
 

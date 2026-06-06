@@ -51,6 +51,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2025.2
 regex==2024.7.24
+redis==5.2.1
 requests==2.33.1
 requests-oauthlib==2.0.0
 rsa==4.9.1

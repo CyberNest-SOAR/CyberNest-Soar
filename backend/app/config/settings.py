@@ -12,6 +12,14 @@ class Settings(BaseSettings):
         default="postgresql://postgres:postgres@localhost:5432/soar_db",
         description="PostgreSQL connection URL",
     )
+    redis_url: str = Field(
+        default="redis://localhost:6379/0",
+        description="Redis URL used for shared cache entries",
+    )
+    redis_cache_prefix: str = Field(
+        default="cybernest",
+        description="Prefix applied to Redis cache keys",
+    )
     google_client_secret_file: str = Field(
         default="client_secret.json",
         description="Path to Google OAuth client secret JSON file",

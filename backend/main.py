@@ -11,6 +11,10 @@ from app.controllers.classification import router as classification_router
 from app.controllers.emails import router
 from app.services.email_service import EmailService
 from app.config.logging_config import configure_logging
+try:
+    from app.cache.redis_cache import close_async_client
+except Exception:  # pragma: no cover - supports running from backend/app cwd
+    from cache.redis_cache import close_async_client
 
 
 # Configure logging as early as possible so module imports log consistently.
@@ -28,6 +32,10 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         email_service.close()
+        try:
+            await close_async_client()
+        except Exception:
+            pass
 
 
 app = FastAPI(

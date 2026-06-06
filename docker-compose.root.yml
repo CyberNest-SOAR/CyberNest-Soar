@@ -20,6 +20,15 @@ services:
     networks:
       - soc_net
 
+  soar_api:
+    extends:
+      file: backend/infra/docker-compose.yml
+      service: soar_api
+    depends_on:
+      - db
+    networks:
+      - soc_net
+
   pgadmin:
     extends:
       file: backend/infra/docker-compose.yml
@@ -78,15 +87,11 @@ services:
     extends:
       file: sensors/ndr/suricata/suricata1/docker-compose.yml
       service: suricata
-    networks:
-      - soc_net
 
   zeek:
     extends:
       file: sensors/ndr/zeek/docker-compose.yml
       service: zeek
-    networks:
-      - soc_net
 
 
   # -----------------------------
@@ -112,7 +117,7 @@ services:
     networks:
       - soc_net
 
-  thehive_elasticsearch:
+  elasticsearch:
     extends:
       file: services/orchestrator/thehive/docker-compose.yml
       service: elasticsearch
@@ -126,12 +131,12 @@ services:
     networks:
       - soc_net
 
-  cortex:
+  cortex.local:
     extends:
       file: services/orchestrator/thehive/docker-compose.yml
       service: cortex.local
     depends_on:
-      - thehive_elasticsearch
+      - elasticsearch
     networks:
       - soc_net
 
@@ -142,7 +147,7 @@ services:
     depends_on:
       - cassandra
       - minio
-      - cortex
+      - cortex.local
     networks:
       - soc_net
 
@@ -165,7 +170,7 @@ services:
     networks:
       - soc_net
 
-  misp:
+  misp.local:
     extends:
       file: services/orchestrator/thehive/docker-compose.yml
       service: misp.local
@@ -180,7 +185,7 @@ services:
       file: services/orchestrator/thehive/docker-compose.yml
       service: misp-modules
     depends_on:
-      - misp
+      - misp.local
       - redis
     networks:
       - soc_net

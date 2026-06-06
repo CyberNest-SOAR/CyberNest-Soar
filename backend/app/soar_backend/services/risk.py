@@ -1,20 +1,25 @@
-<<<<<<< HEAD
-from soar_backend.schemas.models import UnifiedAlert
-=======
 from __future__ import annotations
 
+from io import BytesIO
 import json
 import logging
-from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Tuple
 
 import joblib
 import pandas as pd
 
-from core.config import settings
-from schemas.models import UnifiedAlert
->>>>>>> 83a1eb822484b2645de5e14bd1f68707d0d07a8c
+try:
+    from core.config import settings
+    from schemas.models import UnifiedAlert
+except Exception:  # pragma: no cover - supports package import style
+    from soar_backend.core.config import settings
+    from soar_backend.schemas.models import UnifiedAlert
+
+try:
+    from app.cache.redis_cache import cache_key, get_bytes, set_bytes
+except Exception:  # pragma: no cover - supports running from backend/app cwd
+    from cache.redis_cache import cache_key, get_bytes, set_bytes
 
 logger = logging.getLogger(__name__)
 
@@ -26,33 +31,46 @@ def _artifact_path(value: Path, fallback_name: str) -> Path:
     return path
 
 
-@lru_cache(maxsize=1)
 def _load_risk_artifacts() -> Tuple[Any | None, Any | None]:
     model_path = _artifact_path(settings.RISK_MODEL_PATH, "base_xgb_model_pipeline.joblib")
     label_encoder_path = _artifact_path(settings.RISK_LABEL_ENCODER_PATH, "label_encoder.joblib")
 
-    model = None
-    label_encoder = None
-
-    if model_path.exists():
-        try:
-            model = joblib.load(model_path)
-            logger.info("Loaded risk model artifact from %s", model_path)
-        except Exception as exc:
-            logger.warning("Failed to load risk model artifact from %s: %s", model_path, exc)
-    else:
-        logger.warning("Risk model artifact not found at %s", model_path)
-
-    if label_encoder_path.exists():
-        try:
-            label_encoder = joblib.load(label_encoder_path)
-            logger.info("Loaded risk label encoder artifact from %s", label_encoder_path)
-        except Exception as exc:
-            logger.warning("Failed to load risk label encoder artifact from %s: %s", label_encoder_path, exc)
-    else:
-        logger.info("Risk label encoder artifact not found at %s", label_encoder_path)
-
+    model = _load_joblib_artifact(model_path, "risk_model")
+    label_encoder = _load_joblib_artifact(label_encoder_path, "risk_label_encoder")
     return model, label_encoder
+
+
+def _load_joblib_artifact(path: Path, label: str) -> Any | None:
+    if not path.exists():
+        logger.warning("%s artifact not found at %s", label, path)
+        return None
+
+    stat = path.stat()
+    key = cache_key(
+        "artifacts:joblib",
+        label,
+        path.resolve(),
+        stat.st_mtime_ns,
+        stat.st_size,
+    )
+
+    cached = get_bytes(key)
+    if cached is not None:
+        try:
+            logger.info("Loaded %s artifact from Redis cache: %s", label, path)
+            return joblib.load(BytesIO(cached))
+        except Exception as exc:
+            logger.warning("Failed to load cached %s artifact from Redis: %s", label, exc)
+
+    try:
+        raw = path.read_bytes()
+        artifact = joblib.load(BytesIO(raw))
+        set_bytes(key, raw, ttl=3600)
+        logger.info("Loaded %s artifact from disk and cached in Redis: %s", label, path)
+        return artifact
+    except Exception as exc:
+        logger.warning("Failed to load %s artifact from %s: %s", label, path, exc)
+        return None
 
 
 def _build_risk_summary(alert: UnifiedAlert) -> str:

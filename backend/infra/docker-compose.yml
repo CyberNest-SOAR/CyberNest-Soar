@@ -17,6 +17,21 @@
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: soar_redis_cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_cache_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   api:
     build:
       context: ..
@@ -33,8 +48,12 @@
       - MODEL_ARTIFACT_PATH=/app/artifacts/phishing_model.joblib
       - VECTORIZER_ARTIFACT_PATH=/app/artifacts/tfidf_vectorizer.joblib
       - TRAINING_DATA_PATH=/app/data/data.csv
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_PREFIX=cybernest
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     volumes:
       # Mount only the data/config/artifacts directories for persistence.
@@ -44,6 +63,32 @@
       - ../artifacts:/app/artifacts:rw
       - ../data:/app/data:rw
       - ../client_secret:/app/client_secret:ro
+      - ../logs:/app/logs:rw
+
+  soar_api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: soar_soar_api
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/soar_db
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_PREFIX=cybernest
+      - OS_HOST=opensearch
+      - OS_PORT=9200
+      - OS_USER=admin
+      - OS_PASS=admin
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../artifacts:/app/artifacts:rw
+      - ../data:/app/data:rw
       - ../logs:/app/logs:rw
 
   pgadmin:
@@ -60,3 +105,4 @@
 
 volumes:
   postgres_data:
+  redis_cache_data:

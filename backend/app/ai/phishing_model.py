@@ -14,8 +14,8 @@ Notes for readers:
 
 from __future__ import annotations
 
+from io import BytesIO
 import re
-from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 import logging
@@ -31,8 +31,42 @@ from sklearn.model_selection import train_test_split
 
 
 from app.services.enrichment_service import enrichment_features  # NEW
+from app.cache.redis_cache import cache_key, get_bytes, set_bytes
 
 log = logging.getLogger(__name__)
+
+
+def _load_joblib_artifact(path: Path, label: str):
+    if not path.exists():
+        log.warning("%s artifact not found at %s", label, path)
+        return None
+
+    stat = path.stat()
+    key = cache_key(
+        "artifacts:joblib",
+        label,
+        path.resolve(),
+        stat.st_mtime_ns,
+        stat.st_size,
+    )
+
+    cached = get_bytes(key)
+    if cached is not None:
+        try:
+            log.info("Loaded %s artifact from Redis cache: %s", label, path)
+            return joblib.load(BytesIO(cached))
+        except Exception as exc:
+            log.warning("Failed to load cached %s artifact from Redis: %s", label, exc)
+
+    try:
+        raw = path.read_bytes()
+        artifact = joblib.load(BytesIO(raw))
+        set_bytes(key, raw, ttl=3600)
+        log.info("Loaded %s artifact from disk and cached in Redis: %s", label, path)
+        return artifact
+    except Exception as exc:
+        log.warning("Failed to load %s artifact from %s: %s", label, path, exc)
+        return None
 
 
 class SklearnDetector:
@@ -58,9 +92,12 @@ class SklearnDetector:
 
         if self.model_path.exists() and self.vectorizer_path.exists():
             try:
-                self.model = joblib.load(self.model_path)
-                self.vectorizer = joblib.load(self.vectorizer_path)
-                log.info("Loaded sklearn artifacts from disk")
+                self.model = _load_joblib_artifact(self.model_path, "phishing_model")
+                self.vectorizer = _load_joblib_artifact(self.vectorizer_path, "phishing_vectorizer")
+                if self.model is not None and self.vectorizer is not None:
+                    log.info("Loaded sklearn artifacts")
+                else:
+                    log.warning("One or more sklearn artifacts failed to load")
             except Exception:
                 log.exception("Failed to load sklearn artifacts; disabling ML detector")
                 self.model = None
@@ -291,7 +328,6 @@ class PhishingDetector:
         return self.sklearn_detector.is_ready()
 
 
-@lru_cache
 def get_detector(
     model_path: str,
     vectorizer_path: str,

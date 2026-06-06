@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     #System Config
     JWT_SECRET: str = "change_me_to_a_secure_random_string"
     DATABASE_URL: str = "postgresql://user:pass@localhost/soar_db"
+    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_CACHE_PREFIX: str = "cybernest"
 
     model_config = SettingsConfigDict(
         env_file=".env", 
