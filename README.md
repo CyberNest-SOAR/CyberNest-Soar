@@ -1,4 +1,6 @@
-# CyberNestSoar — AI-enhansed SOAR (Security Automation and Response)
+# CyberNestSoar — AI-Enhanced SOAR Platform
+
+> **🌿 BRANCH: `cyber`** — Active development branch. All sensor integration, Wazuh pipeline, backend enrichment, and AI model work.
 
 <p align="center">
     <picture>
@@ -41,6 +43,13 @@
 <a href="https://fastapi.tiangolo.com/">  
   <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
 </a>
+</p>
+
+<p align="center">
+  <a href="README.md">📘 README</a> •
+  <a href="docs/pipelines.md">📡 PIPELINES</a> •
+  <a href="docs/api.md">⚡ API</a> •
+  <a href="docs/team_members_and_milestones.md">👥 TEAM</a>
 </p>
 
 # 🛸 [ SYSTEM_MANIFEST: CyberNestSoar ]
