@@ -193,13 +193,29 @@ Quick overview:
 
 Getting started (local dev)
 
-1) Start the Docker stack (root orchestrator):
+1) Start the Docker stack (root orchestrator)
+
+On macOS / Linux (Bash):
 
 ```bash
-docker compose -f docker-compose.root.yml up -d
+./run_all.sh
 ```
 
-2) Ensure the RAG services are running and pull required models into the Ollama container (one-time):
+On Windows (Command Prompt / PowerShell), run the helper batch:
+
+```bat
+start_all.bat
+```
+
+If you prefer to run Docker Compose directly, the equivalent command is:
+
+```bash
+docker compose -f docker-compose.root.yml up -d --build || docker compose -f backend/infra/docker-compose.yml up -d --build
+```
+
+2) Ensure the RAG services are running and pull required models into the Ollama container (one-time)
+
+On Unix:
 
 ```bash
 # Pull embeddings model
@@ -208,6 +224,15 @@ docker compose exec ollama ollama pull nomic-embed-text
 # Pull LLM used for routing (example)
 docker compose exec ollama ollama pull llama3:8b-instruct
 ```
+
+On Windows, use the batch helper to start services and then:
+
+```bat
+docker compose exec ollama ollama pull nomic-embed-text
+docker compose exec ollama ollama pull llama3:8b-instruct
+```
+
+If `docker compose exec` fails (service name differs), run `docker compose ps` to find the container name and use `docker exec -it <container> ollama pull <model>` instead.
 
 3) Install backend Python deps and run the SOAR API (dev):
 
