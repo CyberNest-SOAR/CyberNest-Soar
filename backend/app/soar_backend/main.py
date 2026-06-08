@@ -4,7 +4,7 @@ import sys
 # ── Configure root logger so all enrichment/service logs are visible ──
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
+    format="%(asctime)s │ %(levelname)-7s │ %(name)s │ %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     stream=sys.stdout,
     force=True,
@@ -17,17 +17,12 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 
-from routers import (
-    alerts, risk, patch, filtering, playbooks, intel,
-    data_outputs, graph, ai_analysis, phishing,
-    threat_intel_enhanced, dashboard, monitoring, playbook_config,
-    pipeline_alerts, ui_dashboard, reports,
-)
-from services.collector import collector
-from services.enrichment import enrichment_service
-from services.patch_engine import PatchEngineModels
-from core.config import settings
-import httpx
+from soar_backend.routers import alerts, risk, patch, filtering, playbooks, intel, rag
+from soar_backend.services.collector import collector
+from soar_backend.services.enrichment import enrichment_service
+from soar_backend.core.config import settings
+from app.services.vector_manager import get_vector_manager
+
 try:
     from app.cache.redis_cache import close_async_client
 except Exception:  # pragma: no cover - supports running from backend/app cwd
@@ -35,32 +30,29 @@ except Exception:  # pragma: no cover - supports running from backend/app cwd
 
 logger = logging.getLogger(__name__)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: warn about missing env vars instead of crashing
-    mandatory_vars = ['OS_HOST', 'VT_API_KEY', 'MISP_URL', 'MISP_KEY']
-    missing = [v for v in mandatory_vars if not getattr(settings, v, None)]
-    if missing:
-        logger.warning(f"Missing environment variables: {', '.join(missing)} — some services may be unavailable")
-    
-    # Startup: initialize HTTP clients (errors logged, not fatal)
+    # Startup: initialize vector store and embeddings for RAG
+    try:
+        logger.info("Initializing RAG system (Qdrant + Ollama)...")
+        vector_manager = get_vector_manager()
+        await vector_manager.bootstrap()
+        logger.info("RAG system initialized successfully")
+    except Exception as e:
+        logger.warning("Failed to initialize RAG system: %s", e)
+        # Continue gracefully if RAG fails
+
+    # Startup: initialize HTTP clients
     try:
         await collector.start()
-    except Exception as e:
-        logger.warning(f"collector.start() failed: {e}")
-    try:
         await enrichment_service.start()
     except Exception as e:
-        logger.warning(f"enrichment_service.start() failed: {e}")
-        
-    # Startup: initialize ML models
-    try:
-        PatchEngineModels.initialize()
-    except Exception as e:
-        logger.warning(f"PatchEngineModels.initialize() failed: {e}")
-        
+        logger.warning("Failed to start collectors/enrichment: %s", e)
+
     yield
-    # Shutdown: clean up HTTP clients
+
+    # Shutdown: clean up resources
     try:
         await collector.stop()
     except Exception:
@@ -70,18 +62,24 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
     try:
+        vector_manager = get_vector_manager()
+        await vector_manager.close()
+    except Exception:
+        pass
+    try:
         await close_async_client()
     except Exception:
         pass
 
+
 app = FastAPI(
     title="SOAR Unified API",
-    description="Backend API for Wazuh/OpenSearch SOAR System",
+    description="Backend API for Wazuh/OpenSearch SOAR System with RAG",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
-# Include all team and feature routers
+# Include all team routers
 app.include_router(alerts.router, prefix="/api/v1")
 app.include_router(risk.router, prefix="/api/v1")
 app.include_router(patch.router, prefix="/api/v1")
@@ -89,29 +87,20 @@ app.include_router(filtering.router, prefix="/api/v1")
 app.include_router(playbooks.router, prefix="/api/v1")
 app.include_router(intel.router, prefix="/api/v1")
 
-# New feature routers
-app.include_router(data_outputs.router, prefix="/api/v1")
-app.include_router(graph.router, prefix="/api/v1")
-app.include_router(ai_analysis.router, prefix="/api/v1")
-app.include_router(phishing.router, prefix="/api/v1")
-app.include_router(threat_intel_enhanced.router, prefix="/api/v1")
-app.include_router(dashboard.router, prefix="/api/v1")
-app.include_router(monitoring.router, prefix="/api/v1")
-app.include_router(playbook_config.router, prefix="/api/v1")
-app.include_router(pipeline_alerts.router, prefix="/api/v1")
-app.include_router(ui_dashboard.router, prefix="/api/v1")
-app.include_router(reports.router, prefix="/api/v1")
+# RAG router
+app.include_router(rag.router)
 
-@app.post("/predict-noise")
-async def predict_noise_endpoint(alert: dict):
-    """Testing and validation endpoint for predicting noise on an alert."""
-    from routers.filtering import predict_noise
-    return predict_noise(alert)
 
 @app.get("/")
 async def root():
     return {"status": "SOAR API is online", "version": "v1"}
 
+
 @app.get("/health")
-async def health_check_redirect():
-    raise HTTPException(status_code=307, detail="Moved", headers={"Location": "/api/v1/end-point-health/"})
+async def health_check():
+    return {
+        "status": "healthy",
+        "service": "SOAR API",
+        "version": "v1",
+    }
+

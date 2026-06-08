@@ -38,6 +38,7 @@ from services.patch import get_patch_recommendations
 from services.risk import calculate_risk_score
 from routers.filtering import classify_alert_single, predict_noise
 from schemas.models import UnifiedAlert, IntelResponse, PatchResponse, RiskScoreResponse, FilterResult
+from soar_backend.services.indexer import get_indexer
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +98,14 @@ async def fetch_alerts(
     logger.info("[Alerts] Fetched %d raw hits from OpenSearch (limit=%d, offset=%d)", len(hits), limit, offset)
 
     alerts: List[UnifiedAlert] = [normalizer.from_wazuh(hit) for hit in hits]
+
+    # Index normalized alerts into Qdrant in background (improves routing accuracy)
+    try:
+        indexer = get_indexer()
+        for a in alerts:
+            asyncio.create_task(indexer.index_alert_async(a))
+    except Exception:
+        logger.debug("Indexer unavailable or indexing failed to schedule")
 
     if enrich and alerts:
         logger.info("[Alerts] Enriching %d alerts in parallel…", len(alerts))

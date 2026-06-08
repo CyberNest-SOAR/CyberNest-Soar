@@ -46,6 +46,13 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
     REDIS_CACHE_PREFIX: str = "cybernest"
 
+    #RAG/Vector Store Configuration
+    QDRANT_URL: str = "http://localhost:6333"
+    QDRANT_COLLECTION: str = "cybernest_router"
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    EMBEDDING_MODEL: str = "nomic-embed-text"
+    ROUTING_LLM_MODEL: str = "llama3:8b-instruct"
+
     model_config = SettingsConfigDict(
         env_file=".env", 
         env_file_encoding="utf-8", 

@@ -170,3 +170,78 @@ Feel free to use or adapt it for learning or non-commercial purposes.
 
 
 ### [ SECURITY_NOTICE ] CyberNestSoar is currently under developement. Soon! Monitoring all incoming telemetry for anomalous signatures.
+
+## **RAG System Integration (Semantic Router & Text-to-Query)**
+
+This project now includes a local, containerized Semantic Router and Text-to-Query system that allows security analysts to ask natural-language questions which are routed to the correct data source (PostgreSQL or OpenSearch), translated to executable queries by a local LLM, executed, and then synthesized into an analyst-friendly summary.
+
+**What was added & where**
+- **Docker services:** Qdrant (vector DB) and Ollama (local LLM) — see [backend/infra/docker-compose.yml](backend/infra/docker-compose.yml)
+- **Config:** RAG configuration in [backend/app/config/settings.py](backend/app/config/settings.py) and [backend/app/soar_backend/core/config.py](backend/app/soar_backend/core/config.py)
+- **Schema seed:** Semantic schema docs in [backend/app/core/router_seed.py](backend/app/core/router_seed.py)
+- **Vector manager:** Qdrant + Ollama lifecycle in [backend/app/services/vector_manager.py](backend/app/services/vector_manager.py)
+- **Query generator:** LCEL routing engine in [backend/app/services/query_generator.py](backend/app/services/query_generator.py)
+- **RAG service:** Business logic (execution + synthesis) in [backend/app/soar_backend/services/rag_service.py](backend/app/soar_backend/services/rag_service.py)
+- **Router:** Thin API router in [backend/app/soar_backend/routers/rag.py](backend/app/soar_backend/routers/rag.py)
+- **Docs:** Full user guide in `RAG_SYSTEM.md` at repo root
+- **Deps:** LangChain, Qdrant, Ollama packages added to [backend/requirements.txt](backend/requirements.txt)
+
+Quick overview:
+- User asks a natural-language question to `/api/v1/rag/query`.
+- The LCEL engine retrieves schema context from Qdrant and uses Ollama to generate a structured query (SQL or OpenSearch DSL).
+- The service executes the query against PostgreSQL or OpenSearch (OpenSearch currently stubbed) and synthesizes results with Ollama.
+
+Getting started (local dev)
+
+1) Start the Docker stack (root orchestrator):
+
+```bash
+docker compose -f docker-compose.root.yml up -d
+```
+
+2) Ensure the RAG services are running and pull required models into the Ollama container (one-time):
+
+```bash
+# Pull embeddings model
+docker compose exec ollama ollama pull nomic-embed-text
+
+# Pull LLM used for routing (example)
+docker compose exec ollama ollama pull llama3:8b-instruct
+```
+
+3) Install backend Python deps and run the SOAR API (dev):
+
+```bash
+cd backend
+python -m pip install -r requirements.txt
+uvicorn app.soar_backend.main:app --reload --port 8001
+```
+
+4) Test the RAG endpoint (example):
+
+```bash
+curl -X POST http://localhost:8001/api/v1/rag/query \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Show me all critical incidents from the last 24 hours"}'
+```
+
+Response fields:
+- `routed_query` — structured routing output (target_db, target_source, executable_query, reasoning)
+- `raw_results` — the rows/documents returned by the target database
+- `formatted_answer` — LLM-synthesized analyst summary
+
+Troubleshooting
+- If Qdrant or Ollama fail to initialize, the SOAR API will still start; RAG endpoints will return errors until the services are back up. Check container logs:
+
+```bash
+docker compose logs qdrant
+docker compose logs ollama
+```
+
+- If `ollama pull` fails due to permissions or network, run the command on the host where the Ollama daemon runs or increase container memory.
+
+Notes & Next Steps
+- The OpenSearch execution path is currently a stub returning mock results; replace the stub with `opensearch-py` calls in [backend/app/soar_backend/services/rag_service.py](backend/app/soar_backend/services/rag_service.py) to query your cluster.
+- The ingestion pipeline should be extended to upsert alerts/logs into Qdrant for improved routing accuracy (not yet wired). See `RAG_SYSTEM.md` for detailed development guidance.
+
+If you'd like, I can open a branch, run the stack locally, and exercise the endpoint end-to-end. Tell me whether you want me to run the containers and perform a live test now.

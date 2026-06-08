@@ -56,6 +56,28 @@ class Settings(BaseSettings):
         description="Default CSV dataset for training the phishing detector",
     )
 
+    # RAG/Vector Store Configuration
+    qdrant_url: str = Field(
+        default="http://localhost:6333",
+        description="Qdrant vector database URL",
+    )
+    qdrant_collection: str = Field(
+        default="cybernest_router",
+        description="Name of the Qdrant collection for semantic routing",
+    )
+    ollama_base_url: str = Field(
+        default="http://localhost:11434",
+        description="Ollama local LLM service base URL",
+    )
+    embedding_model: str = Field(
+        default="nomic-embed-text",
+        description="Embedding model to use in Ollama",
+    )
+    routing_llm_model: str = Field(
+        default="llama3:8b-instruct",
+        description="LLM model to use for query generation in Ollama",
+    )
+
     # Enable `.env` loading automatically
     model_config = SettingsConfigDict(
         env_file=".env",
