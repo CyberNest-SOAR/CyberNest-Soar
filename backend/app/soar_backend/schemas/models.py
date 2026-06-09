@@ -103,6 +103,8 @@ class SocReasoningData(BaseModel):
     suppression_hit: Optional[bool] = None
     true_positive: Optional[bool] = None
     noise: Optional[bool] = None
+    prediction: Optional[str] = None
+    confidence_level: Optional[str] = None
     mitre_technique_id: Optional[str] = None
     mitre_technique_name: Optional[str] = None
     mitre_tactic: Optional[str] = None

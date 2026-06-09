@@ -147,7 +147,7 @@ def _build_alert(
         source_type, event_id, host_context.ip_address, severity, description,
     )
 
-    return UnifiedAlert(
+    alert = UnifiedAlert(
         event_id=event_id,
         source=source_type,
         timestamp=timestamp,
@@ -158,6 +158,14 @@ def _build_alert(
         enrichment_data=EnrichmentData(),
         soc_reasoning=_extract_soc_reasoning(clean_raw),
     )
+
+    try:
+        from routers.filtering import predict_noise
+        predict_noise(alert)
+    except Exception as e:
+        logger.warning("Failed to run noise classifier during normalization: %s", e)
+
+    return alert
 
 
 class Normalizer:

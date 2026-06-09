@@ -6,7 +6,7 @@ from soar_backend.schemas.models import FilterRequest, FilterResult, UnifiedAler
 from typing import List
 
 _WORKSPACE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
-_PREDICT_NOISE_PATH = _WORKSPACE_DIR / "ai" / "inference" / "predict_noise.py"
+_PREDICT_NOISE_PATH = _WORKSPACE_DIR / "ai" / "inference" / "predict_noise_v2.py"
 
 spec = importlib.util.spec_from_file_location("predict_noise_module", str(_PREDICT_NOISE_PATH))
 predict_noise_module = importlib.util.module_from_spec(spec)
