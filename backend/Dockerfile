@@ -6,6 +6,9 @@ WORKDIR /app
 
 # Install dependencies
 COPY requirements.txt .
+
+RUN sed -i 's/\r$//' requirements.txt
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy app code (includes artifacts, data, client_secret.json, etc.)

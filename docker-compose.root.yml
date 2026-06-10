@@ -20,15 +20,6 @@ services:
     networks:
       - soc_net
 
-  soar_api:
-    extends:
-      file: backend/infra/docker-compose.yml
-      service: soar_api
-    depends_on:
-      - db
-    networks:
-      - soc_net
-
   pgadmin:
     extends:
       file: backend/infra/docker-compose.yml

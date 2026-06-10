@@ -32,11 +32,11 @@
       timeout: 5s
       retries: 5
 
-  api:
+  ingestion_api:
     build:
       context: ..
       dockerfile: Dockerfile
-    container_name: soar_api
+    container_name: ingestion_api
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -69,7 +69,7 @@
     build:
       context: ..
       dockerfile: Dockerfile
-    container_name: soar_soar_api
+    container_name: soar_api
     restart: unless-stopped
     ports:
       - "8001:8001"
@@ -91,7 +91,7 @@
         condition: service_healthy
       redis:
         condition: service_healthy
-      qdrant:
+      qdrant_healthcheck:
         condition: service_healthy
       ollama:
         condition: service_started
@@ -123,8 +123,18 @@
       QDRANT_API_KEY: ""
     volumes:
       - qdrant_storage:/qdrant/storage
+    # No internal healthcheck here anymore, as it physically lacks a shell environment
+
+  # This dedicated helper container evaluates Qdrant's health externally
+  qdrant_healthcheck:
+    image: curlimages/curl:latest
+    container_name: soar_qdrant_checker
+    # An infinite loop that checks the internal URL. If it fails, this container exits with an error code (1)
+    entrypoint: ["/bin/sh", "-c", "while true; do curl -f http://qdrant:6333/readyz || exit 1; sleep 10; done"]
+    depends_on:
+      - qdrant
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      test: ["CMD", "curl", "-f", "http://qdrant:6333/readyz"]
       interval: 10s
       timeout: 5s
       retries: 5
