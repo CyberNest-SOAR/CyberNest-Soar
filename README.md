@@ -141,17 +141,18 @@ root@cybernest:~$ docker-compose up --detach
 
 ## 🥷 [OPERATIONAL_STRIKE_TEAM]
 
-| Name | Tactical Title | Tools & Modules | Tactical Responsibilities | Operational Description |
+
+| Name | Tactical Title | Tools & Modules | Tactical Responsibilities | Recent Key Contributions |
 | :--- | :--- | :--- | :--- | :--- |
-| **Paula Maged** | SOAR Architect & Team Lead | Wazuh — Suricata — Filebeat — TheHive — FastAPI — Docker | SOAR Pipeline Integration — Sensor Deployment — Backend Enrichment | Architecture Design — Decoder/Rule Engineering — Data Pipeline Orchestration |
-| **Hanaa Ramadan** | NDR Engineer | Zeek — Suricata — Wazuh | Sensor Configuration — Log Pipeline — Wazuh Integration | Zeek Scripting — Suricata Setup — Dependency Management |
-| **Ahmed Ehab** | EDR & NDR Engineer | Arkime — Velociraptor — Docker — Python | Sensor Deployment — Docker Config — API Integration | Arkime/Velociraptor Pipeline — SOAR Service Configuration |
-| **Amir Khaled** | Integration Engineer | Wazuh — Python — Docker | Integration Testing — Validation Scripts — Wazuh Setup | Alert Injection — Pipeline Verification — Cross-Component Testing |
-| **Momen Saif** | AI Team Lead & Frontend | React — Docker — Python — LLMs | Frontend Architecture — Docker Infrastructure — AI Model Integration | Dashboard UI — Build Pipeline — Supabase Migration |
-| **Nayra Ahmed** | ML Engineer | Scikit-learn — XGBoost — Python | ML Model Training — Enrichment Service — Patch Engine | Feature Engineering — Model Optimization — Performance Metrics |
-| **Pavlly Sameh** | AI/ML Engineer | Python — XGBoost — LLMs — ML | Noise Classifier — Alert Filtering — AI Phishing Model | Log Filtration — LLM Reasoning Layer — Model Inference |
-| **Steven Wael** | Data Scientist | Python — XGBoost — FastAPI | Risk Scoring Model — Classification — Backend Endpoints | ML Risk Engine — Response Models — Feedback Integration |
-| **Habiba Karam** | Frontend Developer | React — shadcn | SOAR Dashboard — API Integration — UI Components | Dashboard Pages — Visualization — Command Center UI |
+| [**Paula Maged**](https://github.com/PM-CyberSec) | SOAR Architect & Cybersecurity Team Lead | `Wazuh`, `Suricata`, `Filebeat`, `TheHive`, `FastAPI`, `Docker`, `React`, `soar_backend API`, `enrichment layer` | Architecture Design, soar_backend API Development, Enrichment Layer Engineering, Decoder/Rule Engineering, Data Pipeline Orchestration, SOAR Pipeline Integration | Full SOAR pipeline integration (Wazuh/Suricata/Zeek/Velociraptor/Arkime); SOAR backend API & enrichment layer (VT, AbuseIPDB, MISP, EPSS, NVD, CISA KEV, URLhaus, AlienVault OTX); UI dashboard data pipeline & SOC reasoning bridge; API.md & SECURITY.md documentation; 144 total commits |
+| [**Momen Saif**](https://github.com/Momen959) | AI Team Lead / RAG Engineer | `Qdrant`, `Ollama`, `Docker`, `Python`, `LLMs`, `React` | RAG System Architecture, Vector Search, Docker Infrastructure, AI Model Integration | RAG chatting system: semantic router, Qdrant + Ollama vector search, OpenSearch execution layer, indexer; Windows start_all.bat; caching system; AI model completion; Docker builds; 61 commits |
+| [**Ahmed Ehab**](https://github.com/ahmedtalaat1817) | EDR & NDR Engineer | `Arkime`, `Velociraptor`, `Docker`, `Python`, `Filebeat` | Sensor Deployment, Docker Config, API Integration, Arkime/Velociraptor Pipeline | Arkime sensor deployment & OpenSearch setup; Velociraptor EDR sensor templates; Filebeat integration with Velociraptor logging; Docker compose fixes; 34 commits |
+| [**Nayra Ahmed**](https://github.com/nayra-ahmedaraby) | ML Engineer | `Scikit-learn`, `XGBoost`, `HistGradientBoosting`, `Python`, `Matplotlib` | ML Model Training, Enrichment Service, Patch Engine, Visualization | Phishing email model enhancements & API connection (Wk 1-4); patch engine models & backend integration; ML pipeline visualization with cluster interpretations; enrichment service; performance metrics & graphs; 25 commits |
+| [**Hanaa Ramadan**](https://github.com/Hanaa159) | NDR Engineer | `Zeek`, `Suricata`, `Wazuh`, `Docker` | Sensor Configuration, Log Pipeline, Wazuh Integration, Zeek Scripting | Suricata with classified logs; Zeek configuration updates; Wazuh single-node integration; dependency management; 19 commits |
+| [**Pavlly Sameh**](https://github.com/Pevllo) | AI/ML Engineer | `Python`, `XGBoost`, `LLMs`, `Scikit-learn` | Noise Classifier, Alert Filtering, AI Phishing Model, Log Filtration | ML noise classifier V2 integration; AI phishing model updates; alert filtering router & tests; python path shadowing fix; 10 commits |
+| [**Steven Wael**](https://github.com/Steven-06) | Backend Developer / Phishing API | `Python`, `XGBoost`, `FastAPI` | Phishing Email API, Classification, Backend Endpoints | Phishing email API (Wk 1-4, mostly completed); risk scoring model v1; backend endpoints (feedback, classification); response model updates; structural fixes; 10 commits |
+| [**Habiba Karam**](https://github.com/HabibaKarm) | Frontend Developer | `React`, `shadcn`, `Tailwind` | SOAR Dashboard, API Integration, UI Components | Initial SOAR dashboard implementation; Reporting & Audit page enhancements; API endpoints; clean frontend setup; 9 commits |
+| [**Amir Khaled**](https://github.com/amirkhaled23) | Integration Engineer | `Wazuh`, `Python`, `Docker` | Integration Testing, Validation Scripts, Wazuh Setup, Alert Injection | Integration Stack folder; Wazuh files setup; file uploads; cross-component testing; 6 commits |
 
 ---
 
