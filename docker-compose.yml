@@ -197,8 +197,6 @@ services:
 networks:
   soc_net:
     driver: bridge
-  wazuh:
-    driver: bridge
 
 # Named volumes must match exactly what extended child compose files use.
 # Backend (backend/infra/docker-compose.yml)

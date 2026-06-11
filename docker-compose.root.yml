@@ -78,15 +78,11 @@ services:
     extends:
       file: sensors/ndr/suricata/suricata1/docker-compose.yml
       service: suricata
-    networks:
-      - soc_net
 
   zeek:
     extends:
       file: sensors/ndr/zeek/docker-compose.yml
       service: zeek
-    networks:
-      - soc_net
 
 
   # -----------------------------
@@ -192,10 +188,6 @@ services:
 
 networks:
   soc_net:
-    driver: bridge
-  wazuh:
-    driver: bridge
-  cortex:
     driver: bridge
 
 # Named volumes must match exactly what extended child compose files use.

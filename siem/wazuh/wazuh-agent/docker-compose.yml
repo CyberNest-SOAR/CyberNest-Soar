@@ -4,7 +4,7 @@ services:
     image: wazuh/wazuh-agent:4.14.0
     restart: always
     environment:
-      - WAZUH_MANAGER_SERVER=<WAZUH_MANAGER_IP>
+      - WAZUH_MANAGER_SERVER=${WAZUH_MANAGER_HOST:-wazuh.manager}
     volumes:
       - ./config/wazuh-agent-conf:/wazuh-config-mount/etc/ossec.conf
       - /var/log/suricata:/var/log/suricata
