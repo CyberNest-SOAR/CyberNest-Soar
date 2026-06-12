@@ -12,15 +12,15 @@ from typing import List
 from uuid import uuid4
 import logging
 
-from ..ai.phishing_model import get_detector
-from ..services.enrichment_service import enrichment_features
-from ..client.gmail_api import (
+from app.ai.inference.phishing_model import get_detector
+from app.services.enrichment_service import enrichment_features
+from app.client.gmail_api import (
     get_email_message_details,
     get_email_messages,
     init_gmail_service,
 )
-from ..config.settings import Settings
-from ..models.email_models import (
+from app.config.settings import Settings
+from app.models.email_models import (
     EmailAnalysis,
     EmailCreateResponse,
     EmailPayload,
