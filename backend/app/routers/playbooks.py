@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from schemas.models import PlaybookDecisionRequest, PlaybookDecisionResponse, CaseCreate, UnifiedAlert
-from services.playbooks import get_playbook_decision
-from collectors.thehive_client import create_case
+from app.schemas.models import PlaybookDecisionRequest, PlaybookDecisionResponse, CaseCreate, UnifiedAlert
+from app.services.playbooks import get_playbook_decision
+from app.collectors.thehive_client import create_case
 
 router = APIRouter(prefix="/playbooks", tags=["Team 4: Playbooks"])
 

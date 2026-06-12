@@ -2,8 +2,8 @@ import asyncio
 import logging
 from fastapi import APIRouter
 from typing import List
-from schemas.models import RiskScoreRequest, RiskScoreResponse, UnifiedAlert
-from services.risk import calculate_risk_score
+from app.schemas.models import RiskScoreRequest, RiskScoreResponse, UnifiedAlert
+from app.services.risk import calculate_risk_score
 
 logger = logging.getLogger(__name__)
 

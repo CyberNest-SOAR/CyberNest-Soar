@@ -4,9 +4,16 @@ from pathlib import Path
 from fastapi import APIRouter
 from app.schemas.models import FilterRequest, FilterResult, UnifiedAlert
 from typing import List
+CURRENT_DIR = Path(__file__).resolve().parent
 
-_WORKSPACE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
-_PREDICT_NOISE_PATH = _WORKSPACE_DIR / "ai" / "inference" / "predict_noise.py"
+
+if CURRENT_DIR.parents[1].name == "app":
+    # Inside Docker: /app/routers -> parent is /app -> ai is right next to it
+    _PREDICT_NOISE_PATH = CURRENT_DIR.parent / "ai" / "inference" / "predict_noise_v2.py"
+else:
+    # On Local Windows: Go up to the repository root and look down the standard tree
+    _WORKSPACE_DIR = CURRENT_DIR.parent.parent.parent
+    _PREDICT_NOISE_PATH = _WORKSPACE_DIR / "backend" / "app" / "ai" / "inference" / "predict_noise_v2.py"
 
 spec = importlib.util.spec_from_file_location("predict_noise_module", str(_PREDICT_NOISE_PATH))
 predict_noise_module = importlib.util.module_from_spec(spec)

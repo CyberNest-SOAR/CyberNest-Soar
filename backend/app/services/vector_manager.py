@@ -49,8 +49,6 @@ class VectorStoreManager:
             # Initialize Ollama embeddings
             self.embeddings = OllamaEmbeddings(
                 model=settings.EMBEDDING_MODEL,
-                base_url=settings.OLLAMA_BASE_URL,
-                embed_dim=768,  # nomic-embed-text produces 768-dim vectors
             )
             logger.info("Initialized Ollama embeddings with model: %s", settings.EMBEDDING_MODEL)
 
@@ -78,7 +76,7 @@ class VectorStoreManager:
             self.vector_store = QdrantVectorStore(
                 client=self.client,
                 collection_name=settings.QDRANT_COLLECTION,
-                embedding=self.embeddings,
+                embeddings=self.embeddings,
             )
             logger.info("LangChain QdrantVectorStore initialized")
 

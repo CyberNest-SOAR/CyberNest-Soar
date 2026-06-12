@@ -11,7 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from langchain_ollama import ChatOllama
 
-from app.core.config import settings
+from app.config.settings import settings
 from app.schemas.rag_models import RoutedQueryPayload, RAGQueryResponse
 from app.services.query_generator import get_query_engine
 

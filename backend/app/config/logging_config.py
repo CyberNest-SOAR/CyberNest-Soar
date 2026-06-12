@@ -29,6 +29,7 @@ def configure_logging(level: str | int = logging.INFO) -> None:
     """Configure root logging for the application.
 
     - Creates `backend/logs/soar.log` (Rotating) and a console handler.
+    - Clears existing handlers to avoid duplication with server runners like Uvicorn.
     - Intended to be idempotent and safe to call multiple times.
     """
     _ensure_log_dir()
@@ -39,6 +40,11 @@ def configure_logging(level: str | int = logging.INFO) -> None:
         return
 
     root.setLevel(level)
+
+    # 👈 FIX: Remove existing handlers (like Uvicorn's default console handlers)
+    # to prevent messages from being printed twice.
+    if root.hasHandlers():
+        root.handlers.clear()
 
     fmt = logging.Formatter(
         "%(asctime)s %(levelname)-8s [%(name)s:%(lineno)d] %(message)s",

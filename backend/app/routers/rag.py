@@ -14,7 +14,7 @@ from app.schemas.rag_models import (
 )
 from app.services.rag_service import get_rag_service
 from app.services.vector_manager import get_vector_manager
-from app.core.config import settings
+from app.config.settings import settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["RAG"])

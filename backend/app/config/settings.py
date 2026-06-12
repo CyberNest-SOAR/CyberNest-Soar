@@ -45,8 +45,8 @@ class Settings(BaseSettings):
     qdrant_collection: str = Field(default="cybernest_router", validation_alias="QDRANT_COLLECTION")
     QDRANT_COLLECTION: str = Field(default="cybernest_router", validation_alias="QDRANT_COLLECTION")
 
-    ollama_base_url: str = Field(default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL")
-    OLLAMA_BASE_URL: str = Field(default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL")
+    ollama_host: str = Field(default="http://localhost:11434", validation_alias="OLLAMA_HOST")
+    OLLAMA_HOST: str = Field(default="http://localhost:11434", validation_alias="OLLAMA_HOST")
 
     embedding_model: str = Field(default="nomic-embed-text", validation_alias="EMBEDDING_MODEL")
     EMBEDDING_MODEL: str = Field(default="nomic-embed-text", validation_alias="EMBEDDING_MODEL")

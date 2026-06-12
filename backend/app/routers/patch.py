@@ -2,8 +2,8 @@ import asyncio
 import logging
 from fastapi import APIRouter
 from typing import List
-from schemas.models import UnifiedAlert, PatchResponse
-from services.patch import get_patch_recommendations
+from app.schemas.models import UnifiedAlert, PatchResponse
+from app.services.patch import get_patch_recommendations
 
 logger = logging.getLogger(__name__)
 

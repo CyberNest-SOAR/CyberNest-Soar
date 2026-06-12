@@ -1,6 +1,6 @@
 import requests
 from typing import List, Optional
-from core.config import settings
+from app.config.settings import settings
 
 
 def create_case(

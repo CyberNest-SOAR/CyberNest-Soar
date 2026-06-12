@@ -3,11 +3,11 @@ import logging
 from datetime import datetime
 from fastapi import APIRouter, Body
 from typing import Dict, List, Any
-from schemas.models import MispSyncResponse, UnifiedAlert, IntelResponse, IocLookupRequest, IocLookupResult, HostContext, EnrichmentData
-from services.collector import collector
-from services.enrichment import enrichment_service
-from services.normalizer import normalizer
-from services.intel import enrich_alert_intel
+from app.schemas.models import MispSyncResponse, UnifiedAlert, IntelResponse, IocLookupRequest, IocLookupResult, HostContext, EnrichmentData
+from app.services.collector import collector
+from app.services.enrichment import enrichment_service
+from app.services.normalizer import normalizer
+from app.services.intel import enrich_alert_intel
 
 logger = logging.getLogger(__name__)
 

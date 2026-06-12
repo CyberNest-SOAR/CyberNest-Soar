@@ -14,7 +14,7 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.documents import Document
 from langchain_ollama import ChatOllama
 
-from app.core.config import settings
+from app.config.settings import settings
 from app.schemas.rag_models import RoutedQueryPayload
 from app.services.vector_manager import get_vector_manager
 
