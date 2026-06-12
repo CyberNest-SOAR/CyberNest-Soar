@@ -11,10 +11,10 @@ services:
     networks:
       - soc_net
 
-  api:
+  soar_api:
     extends:
       file: backend/infra/docker-compose.yml
-      service: api
+      service: soar_api
     depends_on:
       - db
     networks:

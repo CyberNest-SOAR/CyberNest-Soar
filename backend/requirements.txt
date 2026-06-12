@@ -25,7 +25,7 @@ joblib==1.4.2
 langchain==0.2.0
 langchain-core>=0.2.20,<0.3.0
 langchain-ollama==0.1.0
-langchain-qdrant==0.1.0
+langchain-qdrant>=0.1.0
 mypy_extensions==1.1.0
 numpy==1.26.4
 oauthlib==3.3.1
