@@ -1,0 +1,4 @@
+-r backend/requirements.txt
+-r backend/app/soar_backend/requirements.txt
+-r dataset_pipeline/requirements.txt
+-r simulation_engine/requirements.txt

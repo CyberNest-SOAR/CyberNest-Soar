@@ -14,8 +14,8 @@ Notes for readers:
 
 from __future__ import annotations
 
-from io import BytesIO
 import re
+from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 import logging
@@ -24,55 +24,15 @@ import joblib
 import numpy as np  # NEW
 import scipy.sparse as sp  # NEW
 import pandas as pd
-try:
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.feature_extraction.text import TfidfVectorizer
-    from sklearn.metrics import classification_report
-    from sklearn.model_selection import train_test_split
-    HAS_SKLEARN = True
-except ImportError:
-    HAS_SKLEARN = False
-    class RandomForestClassifier: pass
-    class TfidfVectorizer: pass
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
 
 
 from app.services.enrichment_service import enrichment_features  # NEW
-from app.cache.redis_cache import cache_key, get_bytes, set_bytes
 
 log = logging.getLogger(__name__)
-
-
-def _load_joblib_artifact(path: Path, label: str):
-    if not path.exists():
-        log.warning("%s artifact not found at %s", label, path)
-        return None
-
-    stat = path.stat()
-    key = cache_key(
-        "artifacts:joblib",
-        label,
-        path.resolve(),
-        stat.st_mtime_ns,
-        stat.st_size,
-    )
-
-    cached = get_bytes(key)
-    if cached is not None:
-        try:
-            log.info("Loaded %s artifact from Redis cache: %s", label, path)
-            return joblib.load(BytesIO(cached))
-        except Exception as exc:
-            log.warning("Failed to load cached %s artifact from Redis: %s", label, exc)
-
-    try:
-        raw = path.read_bytes()
-        artifact = joblib.load(BytesIO(raw))
-        set_bytes(key, raw, ttl=3600)
-        log.info("Loaded %s artifact from disk and cached in Redis: %s", label, path)
-        return artifact
-    except Exception as exc:
-        log.warning("Failed to load %s artifact from %s: %s", label, path, exc)
-        return None
 
 
 class SklearnDetector:
@@ -96,20 +56,11 @@ class SklearnDetector:
         log.debug("SklearnDetector loading artifacts, model_path=%s, vectorizer_path=%s",
                   self.model_path, self.vectorizer_path)
 
-        if not HAS_SKLEARN:
-            log.warning("Scikit-learn is not installed; disabling ML detector")
-            self.model = None
-            self.vectorizer = None
-            return
-
         if self.model_path.exists() and self.vectorizer_path.exists():
             try:
-                self.model = _load_joblib_artifact(self.model_path, "phishing_model")
-                self.vectorizer = _load_joblib_artifact(self.vectorizer_path, "phishing_vectorizer")
-                if self.model is not None and self.vectorizer is not None:
-                    log.info("Loaded sklearn artifacts")
-                else:
-                    log.warning("One or more sklearn artifacts failed to load")
+                self.model = joblib.load(self.model_path)
+                self.vectorizer = joblib.load(self.vectorizer_path)
+                log.info("Loaded sklearn artifacts from disk")
             except Exception:
                 log.exception("Failed to load sklearn artifacts; disabling ML detector")
                 self.model = None
@@ -124,7 +75,7 @@ class SklearnDetector:
             self.vectorizer = None
 
     def is_ready(self) -> bool:
-        return HAS_SKLEARN and self.model is not None and self.vectorizer is not None
+        return self.model is not None and self.vectorizer is not None
 
     # Convert enrichment features to fixed-order numerical vector
     @staticmethod
@@ -202,8 +153,6 @@ class SklearnDetector:
         }
 
     def train(self, data_path: Path) -> Dict[str, str]:
-        if not HAS_SKLEARN:
-            raise RuntimeError("scikit-learn is not installed; training is unavailable.")
         dataset = pd.read_csv(data_path)
 
         # Clean text and map labels
@@ -342,6 +291,7 @@ class PhishingDetector:
         return self.sklearn_detector.is_ready()
 
 
+@lru_cache
 def get_detector(
     model_path: str,
     vectorizer_path: str,
