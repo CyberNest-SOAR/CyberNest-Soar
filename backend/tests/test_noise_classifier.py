@@ -5,7 +5,7 @@ _WORKSPACE_DIR = Path(__file__).resolve().parent.parent.parent
 if str(_WORKSPACE_DIR) not in sys.path:
     sys.path.insert(0, str(_WORKSPACE_DIR))
 
-from ai.inference.predict_noise import predict_noise
+from ai.inference.predict_noise_v2 import predict_noise
 
 
 def test_noise_classifier_actionable():
