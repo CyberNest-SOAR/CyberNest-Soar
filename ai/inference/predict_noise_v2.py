@@ -333,7 +333,7 @@ def predict_noise(alert) -> dict:
         
         output = {
             "prediction": mapped_prediction,
-            "confidence": res["confidence"],
+            "confidence": res["confidence"] if mapped_prediction == "Actionable" else round(1.0 - res["confidence"], 4),
             "confidence_level": res["confidence_level"],
             "requires_llm": res["requires_llm"]
         }

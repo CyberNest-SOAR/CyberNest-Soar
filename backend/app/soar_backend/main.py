@@ -1,5 +1,15 @@
 import logging
 import sys
+from pathlib import Path
+
+# Bootstrap search paths
+_app_dir = Path(__file__).resolve().parent
+if str(_app_dir) not in sys.path:
+    sys.path.insert(0, str(_app_dir))
+_parent_dir = _app_dir.parent
+if str(_parent_dir) not in sys.path:
+    sys.path.insert(0, str(_parent_dir))
+
 
 # ── Configure root logger so all enrichment/service logs are visible ──
 logging.basicConfig(
@@ -93,12 +103,6 @@ app.include_router(playbook_config.router, prefix="/api/v1")
 app.include_router(pipeline_alerts.router, prefix="/api/v1")
 app.include_router(ui_dashboard.router, prefix="/api/v1")
 app.include_router(reports.router, prefix="/api/v1")
-
-@app.post("/predict-noise")
-async def predict_noise_endpoint(alert: dict):
-    """Testing and validation endpoint for predicting noise on an alert."""
-    from routers.filtering import predict_noise
-    return predict_noise(alert)
 
 @app.get("/")
 async def root():
