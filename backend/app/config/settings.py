@@ -54,6 +54,41 @@ class Settings(BaseSettings):
     routing_llm_model: str = Field(default="llama3:8b-instruct", validation_alias="ROUTING_LLM_MODEL")
     ROUTING_LLM_MODEL: str = Field(default="llama3:8b-instruct", validation_alias="ROUTING_LLM_MODEL")
 
+    ollama_url: str = Field(default="http://localhost:11434", validation_alias="OLLAMA_URL")
+    OLLAMA_URL: str = Field(default="http://localhost:11434", validation_alias="OLLAMA_URL")
+
+    ollama_model: str = Field(default="deepseek-r1:8b", validation_alias="OLLAMA_MODEL")
+    OLLAMA_MODEL: str = Field(default="deepseek-r1:8b", validation_alias="OLLAMA_MODEL")
+
+    ollama_timeout_sec: float = Field(default=60.0, validation_alias="OLLAMA_TIMEOUT_SEC")
+    OLLAMA_TIMEOUT_SEC: float = Field(default=60.0, validation_alias="OLLAMA_TIMEOUT_SEC")
+
+    ollama_retries: int = Field(default=3, validation_alias="OLLAMA_RETRIES")
+    OLLAMA_RETRIES: int = Field(default=3, validation_alias="OLLAMA_RETRIES")
+
+    @property
+    def LOG_FILE(self) -> Path:
+        app_root = Path(__file__).resolve().parents[1]
+        log_path = app_root / "logs" / "llm.log"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        return log_path
+
+    @property
+    def OUTPUT_VERDICTS_FILE(self) -> Path:
+        app_root = Path(__file__).resolve().parents[1]
+        out_path = app_root / "output" / "verdicts.json"
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        return out_path
+
+    @property
+    def OLLAMA_BASE_URL(self) -> str:
+        return self.OLLAMA_HOST
+
+    @property
+    def PROMPT_TEMPLATE_FILE(self) -> Path:
+        app_root = Path(__file__).resolve().parents[1]
+        return app_root / "prompts" / "soc_analyst_prompt.txt"
+
     # ==========================================
     # OpenSearch / SOAR Configuration
     # ==========================================

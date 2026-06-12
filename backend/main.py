@@ -11,6 +11,7 @@ from fastapi import FastAPI
 from app.config.settings import settings
 from app.controllers.classification import router as classification_router
 from app.controllers.emails import router as email_router
+from app.controllers.alert_intelligence import router as alert_intel_router
 from app.services.email_service import EmailService
 from app.services.vector_manager import get_vector_manager
 from app.services.collector import collector
@@ -90,6 +91,7 @@ app = FastAPI(
 
 app.include_router(email_router)
 app.include_router(classification_router)
+app.include_router(alert_intel_router)
 
 app.include_router(alerts.router, prefix="/api/v1")
 app.include_router(risk.router, prefix="/api/v1")

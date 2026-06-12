@@ -39,6 +39,9 @@ from app.services.risk import calculate_risk_score
 from app.routers.filtering import classify_alert_single, predict_noise
 from app.schemas.models import UnifiedAlert, IntelResponse, PatchResponse, RiskScoreResponse, FilterResult
 from app.services.indexer import get_indexer
+from app.schemas.alert_intelligence import AlertRequest
+from app.services.alert_intelligence_service import LLMService
+from app.services.playbooks import get_playbook_decision
 
 logger = logging.getLogger(__name__)
 
@@ -170,53 +173,101 @@ async def process_alerts_batch(alerts: List[UnifiedAlert]):
     If the alert is noise, it is suppressed (skipped from downstream processing).
     Otherwise, continues with enrichment, patch recommendation, and risk scoring.
     """
-    # 1. Run noise classifier on all incoming alerts
-    suppressed_results = {}
-    actionable_alerts = []
+    # 1. Threat Enrichment (VT, AbuseIPDB, MISP) on all alerts in parallel
+    enriched_results = await asyncio.gather(
+        *[_enrich_alert(a) for a in alerts],
+        return_exceptions=True,
+    )
+    enriched_alerts = []
+    for original, res in zip(alerts, enriched_results):
+        if isinstance(res, Exception):
+            logger.warning("[Batch] Enrichment failed for %s: %s", original.event_id, res)
+            enriched_alerts.append(original)
+        else:
+            enriched_alerts.append(res)
 
-    for alert in alerts:
+    # 2. Run Noise Reduction Model (XGBoost), Confidence Evaluation, and LLM Service
+    llm_service = LLMService()
+    results = []
+
+    for alert in enriched_alerts:
+        # Predict noise on the enriched alert
         res = predict_noise(alert)
-        if res["prediction"] == "Noise":
-            suppressed_results[alert.event_id] = {
+        # Extract raw probability of being actionable
+        raw_prob = res["confidence"] if res["prediction"] == "Actionable" else round(1.0 - res["confidence"], 4)
+
+        # Prepare AlertRequest
+        vt_score = float((alert.enrichment_data.virus_total or {}).get("score", 0.0) or 0.0)
+        abuse_score = float((alert.enrichment_data.abuse_ipdb or {}).get("score", 0.0) or 0.0)
+        similar_alerts = alert.soc_reasoning.similar_alerts_last_hour or 0
+        maintenance = alert.soc_reasoning.maintenance_window or False
+        admin = alert.soc_reasoning.known_admin_activity or False
+        criticality = alert.soc_reasoning.asset_criticality or "low"
+
+        req = AlertRequest(
+            alert_id=alert.event_id,
+            alert_severity=alert.severity,
+            enrichment_vt_score=vt_score,
+            enrichment_abuse_score=abuse_score,
+            asset_criticality=criticality,
+            similar_alerts_last_hour=similar_alerts,
+            maintenance_window=maintenance,
+            known_admin_activity=admin,
+            noise_confidence=raw_prob
+        )
+
+        # Process through the confidence-based routing service
+        llm_res = llm_service.process_alert(req)
+
+        if llm_res.verdict == "noise":
+            # If noise, we suppress/skip from downstream processing (Risk, Playbooks, TheHive)
+            results.append({
                 "event_id": alert.event_id,
                 "enrichment": None,
                 "patch": None,
                 "risk": None,
+                "playbook": None,
+                "thehive": None,
                 "filter": FilterResult(
                     alert_id=alert.event_id,
                     classification="noise",
-                    confidence=res["confidence"],
-                    summary=f"Suppressed: ML classified as noise ({res['confidence']:.1%})"
+                    confidence=llm_res.confidence,
+                    summary=llm_res.reasoning
                 ).model_dump()
-            }
+            })
         else:
-            actionable_alerts.append(alert)
-
-    # 2. Enrich only actionable alerts in parallel
-    enriched_actionable = []
-    if actionable_alerts:
-        enriched_results = await asyncio.gather(
-            *[_enrich_alert(a) for a in actionable_alerts],
-            return_exceptions=True,
-        )
-        for original, res in zip(actionable_alerts, enriched_results):
-            if isinstance(res, Exception):
-                logger.warning("[Batch] Enrichment failed for %s: %s", original.event_id, res)
-            enriched_actionable.append(original)
-
-    # 3. Process actionable alerts and compile results
-    results = []
-    for alert in alerts:
-        if alert.event_id in suppressed_results:
-            results.append(suppressed_results[alert.event_id])
-        else:
+            # Actionable! Process with Risk Engine, Playbooks, and TheHive.
             patch_res = await get_patch_recommendations(alert)
             risk_res = await calculate_risk_score(alert)
+            playbook_res = await get_playbook_decision(alert)
             
-            # Recalculate noise classifier with enrichment data to get refined prediction
-            refined_res = predict_noise(alert)
-            label = "important" if refined_res["prediction"] == "Actionable" else "noise"
-            
+            # Create a case in TheHive if the playbook recommends it
+            hive_res = None
+            if playbook_res.get("action") == "create_case":
+                severity = alert.severity
+                hive_severity = 4 if severity >= 10 else 3 if severity >= 7 else 2 if severity >= 4 else 1
+                soc = alert.soc_reasoning
+                attack_type = getattr(soc, "attack_type", None) or ""
+                mitre_tactic = getattr(soc, "mitre_tactic", None) or ""
+                source_ip = alert.host_context.ip_address
+                title = f"[{'HIGH' if hive_severity >= 3 else 'MEDIUM' if hive_severity >= 2 else 'LOW'}] {alert.description[:80]}"
+                
+                from app.collectors.thehive_client import create_case
+                try:
+                    hive_res = create_case(
+                        title=title,
+                        severity=hive_severity,
+                        description=alert.description,
+                        tags=[alert.source, attack_type, mitre_tactic] if attack_type else [alert.source],
+                        source_ip=source_ip,
+                        destination_ip="",
+                        attack_type=attack_type,
+                        mitre_tactic=mitre_tactic,
+                    )
+                except Exception as ex:
+                    logger.error("Failed to create TheHive case in batch pipeline for alert %s: %s", alert.event_id, ex)
+                    hive_res = {"status": "error", "detail": str(ex)}
+
             results.append({
                 "event_id": alert.event_id,
                 "enrichment": IntelResponse(
@@ -230,14 +281,17 @@ async def process_alerts_batch(alerts: List[UnifiedAlert]):
                     event_id=alert.event_id,
                     risk_score=risk_res["risk_score"],
                     priority=risk_res["priority"],
+                    predicted_analyst_verdict=risk_res["predicted_analyst_verdict"] if "predicted_analyst_verdict" in risk_res else "actionable",
                     confidence=risk_res["confidence"],
                     features=risk_res["features"],
                 ).model_dump(),
+                "playbook": playbook_res,
+                "thehive": hive_res,
                 "filter": FilterResult(
                     alert_id=alert.event_id,
-                    classification=label,
-                    confidence=refined_res["confidence"],
-                    summary=f"ML classified as {label} ({refined_res['confidence']:.1%})"
+                    classification="important",
+                    confidence=llm_res.confidence,
+                    summary=llm_res.reasoning
                 ).model_dump(),
             })
 

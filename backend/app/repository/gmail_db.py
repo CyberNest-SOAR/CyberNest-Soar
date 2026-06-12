@@ -59,8 +59,12 @@ class EmailRepository:
             cursor.close()
 
     def init_schema(self) -> None:
-        with self.cursor() as cursor:
-            cursor.execute(CREATE_TABLE_SQL)
+        try:
+            with self.cursor() as cursor:
+                cursor.execute(CREATE_TABLE_SQL)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning("Failed to initialize database schema: %s. Proceeding with application startup.", e)
 
     def upsert_email(
         self,

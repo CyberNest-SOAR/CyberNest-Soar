@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from app.ai.phishing_model import PhishingDetector
+from app.ai.inference.phishing_model import PhishingDetector
 
 
 def _build_detector() -> PhishingDetector:
