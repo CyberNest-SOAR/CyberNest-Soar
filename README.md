@@ -41,29 +41,39 @@
 </p>
 
 # 🛸 [ SYSTEM_MANIFEST: CyberNestSoar ]
+```text
 
+                 / \                CyberNestSOAR is a next-generation, autonomous security
+                /   \               operations layer designed to eliminate the tool
+               /  ^  \              fragmentation and alert fatigue paralyzing modern SOC
+              /  / \  \             teams by seamlessly unifying multi-domain security
+             /  /   \  \            signals across endpoints, networks, and ingestion
+            /  /-/ \-\  \           pipelines into a centralized, event-driven orchestration
+           /  /-/   \-\  \          engine. Built on a powerful open-source XDR-style
+          /  /-/-- --\-\  \         framework, the platform introduces intelligent triaging
+         /  /-/--\ /--\-\  \        that replaces rigid legacy alerts with a dynamic machine
+        /__/      .      \__\       learning risk-scoring engine utilizing XGBoost and
+                                    LightGBM models fused with the CVSS, EPSS, and SSVC
+            CyberNestSOAR           frameworks. Furthermore, it leverages adaptive
+      -------------------------     automation through a dual-layer AI and LLM filtering
+       [ AI ENHANCED DEFENSE ]      system to suppress false positives, allowing
+                                    high-confidence threats to trigger autonomous
+                                    containment actions like rapid host isolation while
+                                    seamlessly routing ambiguous data for analyst review.
+                                    By orchestrating proven, high-performance industry tools
+                                    like Wazuh, Zeek, Suricata, and TheHive, CyberNestSOAR
+                                    delivers enterprise-grade, scalable defense pipelines
+                                    with zero vendor lock-in. Ultimately, by replacing
+                                    manual triage with intelligent execution loops, the
+                                    platform drastically optimizes MTTD and MTTR, making
+                                    enterprise-tier, self-executing security operations
+                                    fully accessible to SMEs, MSSPs, and distributed modern
+                                    enterprises.
+
+        ## [ ⌬ ] MODULE_INVENTORY: TECH_STACK
+        ## [ ⚡ ] TACTICAL_ORCHESTRATION
+        ## [ 🧠 ] NEURAL_CORE_LOGIC
 ```
-                     / \
-                    /   \
-                   /  ^  \
-                  /  / \  \
-                 /  /   \  \
-                /  /-- --\  \
-               /  /--   --\  \
-              /  /---   ---\  \
-             /  /----   ----\  \
-            /__/             \__\
-
-                CyberNestSOAR
-          -------------------------
-           [ AI ENHANCED DEFENSE ]
-
-    ## [ ⌬ ]  MODULE_INVENTORY: TECH_STACK
-    ## [ ⚡ ] TACTICAL_ORCHESTRATION
-    ## [ 🧠 ] NEURAL_CORE_LOGIC
-```
-
-**CyberNestSoar** is an AI-enhanced security powerhouse engineered to operate as a full-time, tireless SOC Analyst. Unlike traditional vendor-locked tools, it is built on a modular Docker Compose framework, allowing for seamless deployment across any infrastructure. The platform unifies multi-domain security signals — endpoints, networks, email, and threat intelligence — into a centralized event-driven orchestration engine powered by machine learning (XGBoost, LightGBM) and LLM-based reasoning.
 
 ---
 
