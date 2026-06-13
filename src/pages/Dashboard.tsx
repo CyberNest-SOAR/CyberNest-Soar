@@ -23,6 +23,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { RefreshCw, Zap, CheckCircle } from "lucide-react";
+import { useServerStatusContext } from "@/contexts/ServerStatusContext";
 
 const Grid = WidthProvider(Responsive);
 
@@ -76,17 +77,7 @@ const KPI = ({ title, value, trend, icon: Icon, color, delay }) => (
 
 /* ---------------- DASHBOARD ---------------- */
 export default function Dashboard() {
-  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const check = async () => {
-      try { const res = await fetch("http://0.0.0.0:8000/api/v1/end-point-health/"); setBackendOnline(res.ok); }
-      catch { setBackendOnline(false); }
-    };
-    check();
-    const interval = setInterval(check, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const { isOnline: backendOnline } = useServerStatusContext();
   const { theme } = useTheme();
   const [edit, setEdit] = useState(false);
   const [filters, setFilters] = useState({ phishing: true, ddos: true, brute: true });

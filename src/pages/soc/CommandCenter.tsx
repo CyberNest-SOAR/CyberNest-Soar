@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { PageHeader } from "@/components/PageHeader";
 import { CyberCard } from "@/components/CyberCard";
@@ -37,6 +37,7 @@ import {
   Radar
 } from "recharts";
 import { toast } from "sonner";
+import { useServerStatusContext } from "@/contexts/ServerStatusContext";
 
 interface TopMetrics {
   total_events: number;
@@ -105,25 +106,12 @@ const fallbackDefault: CommandCenterData = {
   }
 };
 
-const API_BASE = "http://0.0.0.0:8000/api/v1";
+const API_BASE = "/api/v1";
 
 export default function CommandCenter() {
   const { data, loading, refetch } = useDashboardData<CommandCenterData>("command-center.json", fallbackDefault);
+  const { isOnline: backendOnline } = useServerStatusContext();
   const [criticalityFilter, setCriticalityFilter] = useState<string>("all");
-  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const check = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/end-point-health/`);
-        setBackendOnline(res.ok);
-      } catch { setBackendOnline(false); }
-    };
-    check();
-    const interval = setInterval(check, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
   const metrics = data.top_metrics;
 
   // Format charts data safely

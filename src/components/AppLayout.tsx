@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,8 @@ import {
 import { ThemeToggle } from "./ThemeToggle";
 import { UserRole } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
+import { useServerStatusContext } from "@/contexts/ServerStatusContext";
+import { ServerStatusBanner } from "./ServerStatusBanner";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -21,24 +22,9 @@ interface AppLayoutProps {
   userRole: UserRole;
 }
 
-const API_BASE = "http://0.0.0.0:8000/api/v1";
-
 const AppLayout = ({ children, onLogout, userRole }: AppLayoutProps) => {
-  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const check = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/end-point-health/`);
-        setBackendOnline(res.ok);
-      } catch {
-        setBackendOnline(false);
-      }
-    };
-    check();
-    const interval = setInterval(check, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const { isOnline, retry } = useServerStatusContext();
+  const backendOnline = isOnline;
   return (
     <div className="flex min-h-screen w-full bg-background relative overflow-hidden font-grotesk">
       {/* Background Aesthetics */}
@@ -57,10 +43,15 @@ const AppLayout = ({ children, onLogout, userRole }: AppLayoutProps) => {
           <div className="flex items-center gap-3">
             <SidebarTrigger className="text-foreground hover:bg-accent/50 rounded-lg transition-colors p-2" />
             <div className="h-4 w-px bg-border/40 mx-2 hidden md:block" />
-            <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={retry}
+              className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
               <span className={`h-2 w-2 rounded-full ${backendOnline === null ? "bg-yellow-500" : backendOnline ? "bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"}`} />
               {backendOnline === null ? "CHECKING..." : backendOnline ? "BACKEND ONLINE" : "BACKEND OFFLINE"}
-            </div>
+            </Button>
           </div>
 
           <div className="absolute left-1/2 -translate-x-1/2 hidden sm:flex items-center justify-center">
@@ -122,6 +113,7 @@ const AppLayout = ({ children, onLogout, userRole }: AppLayoutProps) => {
         </header>
 
         {/* Main Content Area */}
+        <ServerStatusBanner />
         <div className="flex-1 overflow-auto relative">
           <div className="w-full h-full p-4 sm:p-6 lg:p-8">
             {children}

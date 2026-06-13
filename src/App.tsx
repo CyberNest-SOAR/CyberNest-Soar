@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useAuth } from "./hooks/useAuth";
+import { ServerStatusProvider } from "@/contexts/ServerStatusContext";
 
 // Import pages
 import Login from "./pages/Login";
@@ -134,8 +135,10 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <TopProgressBar />
-            <AppContent />
+            <ServerStatusProvider>
+              <TopProgressBar />
+              <AppContent />
+            </ServerStatusProvider>
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>

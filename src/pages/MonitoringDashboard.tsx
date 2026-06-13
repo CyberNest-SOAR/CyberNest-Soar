@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CyberCard } from "@/components/CyberCard";
 import { motion } from "framer-motion";
+import { useServerStatusContext } from "@/contexts/ServerStatusContext";
 
 interface Endpoint {
   id: string;
@@ -31,17 +32,7 @@ interface MonitoredEmail {
 }
 
 const MonitoringDashboard = () => {
-  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const check = async () => {
-      try { const res = await fetch("http://0.0.0.0:8000/api/v1/end-point-health/"); setBackendOnline(res.ok); }
-      catch { setBackendOnline(false); }
-    };
-    check();
-    const interval = setInterval(check, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const { isOnline: backendOnline } = useServerStatusContext();
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
   const [monitoredEmails, setMonitoredEmails] = useState<MonitoredEmail[]>([]);
   const [loading, setLoading] = useState(true);
