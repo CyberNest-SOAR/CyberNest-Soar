@@ -1,9 +1,13 @@
-# CyberNestSoar — AI-Enhanced SOAR Platform
+# CyberNestSoar — AI-enhansed SOAR (Security Automation and Response)
 
 <p align="center">
     <picture>
-        <img width="200" alt="CyberNestSOARlogo" src="https://github.com/user-attachments/assets/36cc11a3-9de5-495a-82e8-8047fa00488f" />
+        <img width="803" height="572" alt="image" src="https://github.com/user-attachments/assets/8fd502a7-10b6-44a5-b5d4-be1360c351e8" />
     </picture>
+</p>
+
+<p align="center">
+#  <strong>Security Orchestration Is A Simphony</strong> #
 </p>
 
 <p align="center">
@@ -36,136 +40,154 @@
 </a>
 </p>
 
-<p align="center">
-  <strong>Security Orchestration Is A Symphony</strong>
-</p>
-<p align="center">
-  <a href="README.md">📘 README</a> •
-  <a href="reports/ARCHITECTURE.md">🏗️ ARCHITECTURE</a> •
-  <a href="reports/DEPLOYMENT.md">🚀 DEPLOYMENT</a> •
-  <a href="reports/API.md">⚡ API</a>
-</p>
+# 🛸 [ SYSTEM_MANIFEST: CyberNestSoar ]
+
+```
+                     / \
+                    /   \
+                   /  ^  \
+                  /  / \  \
+                 /  /   \  \
+                /  /-- --\  \
+               /  /--   --\  \
+              /  /---   ---\  \
+             /  /----   ----\  \
+            /__/             \__\
+
+                CyberNestSOAR
+          -------------------------
+           [ AI ENHANCED DEFENSE ]
+
+    ## [ ⌬ ]  MODULE_INVENTORY: TECH_STACK
+    ## [ ⚡ ] TACTICAL_ORCHESTRATION
+    ## [ 🧠 ] NEURAL_CORE_LOGIC
+```
+
+**CyberNestSoar** is an AI-enhanced security powerhouse engineered to operate as a full-time, tireless SOC Analyst. Unlike traditional vendor-locked tools, it is built on a modular Docker Compose framework, allowing for seamless deployment across any infrastructure. The platform unifies multi-domain security signals — endpoints, networks, email, and threat intelligence — into a centralized event-driven orchestration engine powered by machine learning (XGBoost, LightGBM) and LLM-based reasoning.
 
 ---
 
-## Overview
+## ⚡ [ THE_SOC_LIFECYCLE_LOOP ]
 
-CyberNestSOAR is a next-generation autonomous security operations platform that eliminates tool fragmentation and alert fatigue by unifying multi-domain security signals across endpoints, networks, and ingestion pipelines into a centralized, event-driven orchestration engine.
+CyberNestSoar executes the complete defensive cycle, from initial ingest to post-incident learning:
 
-Built on a powerful open-source XDR-style framework, the platform replaces rigid legacy alerts with a dynamic machine learning risk-scoring engine (XGBoost / LightGBM) fused with CVSS, EPSS, and SSVC frameworks. A dual-layer AI and LLM filtering system suppresses false positives while routing high-confidence threats to autonomous containment actions.
+    DETECTION: Aggregates telemetry across distributed environments — EDR, NDR, and email.
 
-### Key Capabilities
+    ENRICHMENT: Injects threat intelligence (CVSS, EPSS, MISP, VirusTotal) via automated API hooks.
 
-- **Multi-vector Detection:** EDR (osquery, Velociraptor, Wazuh Agent) + NDR (Zeek, Suricata, Arkime) signal aggregation
-- **AI Risk Scoring:** XGBoost/LightGBM classifier evaluating vulnerability severity, exploit probability, asset value, and historical outcomes (score 0–100)
-- **Dual-Layer Log Filtering:** ML pipeline drops verified noise; LLM handles ambiguous anomalies
-- **Adaptive Autonomy:** High-confidence threats trigger autonomous containment; borderline cases route to analyst review
-- **Case Management:** TheHive + Cortex integration for incident lifecycle tracking and observable scanning
-- **Threat Intelligence:** CVSS, EPSS, SSVC, MISP, VirusTotal, AbuseIPDB, URLhaus, AlienVault OTX enrichment
+    TRIAGE: AI-driven priority scoring (0–100) using XGBoost/LightGBM to eliminate "Log Headache".
 
----
+    RESPONSE: Immediate execution of automated IR playbooks — host isolation, connection drops, case creation.
+
+    LEARNING: Feedback loops that refine models based on analyst overrides and mitigated threats.
+
+
+
+## 🧠 [ COGNITIVE_LAYERS (AI_INTEGRATION) ]
+
+The system leverages advanced neural logic to act as a Force Multiplier for security teams:
+
+    [ ⟁ ] AI RISK SCORING ENGINE: XGBoost/LightGBM classifier evaluating severity, exploit probability, asset value, and historical outcomes (score 0–100).
+
+    [ ⌬ ] PREDICTIVE PATCH RECOMMENDATION: Tracks host inventories against exploit vectors to estimate time-to-exploit and enforce patching windows.
+
+    [ ⚙ ] DUAL-LAYER LOG FILTERING: ML pipeline drops verified background noise; LLM reasoning handles ambiguous anomalies with contextual summaries.
+
+    [ ⚡ ] ADAPTIVE AUTONOMY STRATEGY: High-confidence threats trigger autonomous containment; borderline exceptions route to analyst validation loops.
+
+
+
+## ⬢ [ INFRASTRUCTURE_NODES ]
+
+Because CyberNestSoar is Docker-based, it is not tethered to a single vendor. It can be deployed on-prem, in the cloud, or in hybrid environments with zero hardware friction.
+
+    root@cybernest:~$ docker compose -f docker-compose.root.yml up --detach
+    [+] Running 16/16
+     ⠿ Container Wazuh_Manager      Healthy
+     ⠿ Container Wazuh_Indexer      Healthy
+     ⠿ Container Backend_API        Running
+     ⠿ Container TheHive_CaseMgmt   Running
+     ⠿ Container Cortex_Analyzers   Running
+     ⠿ Container MISP_Intel         Running
+     ⠿ Container Suricata_NDR       Running
+     ⠿ Container Zeek_NDR           Running
+     ⠿ Container Velociraptor_EDR   Running
+
+
+
+## ⌬ [ MODULE_INVENTORY: TECH_STACK ]
+
+| Component         | Technology                                        |         PROTOCOL / UTILITY                     |
+| ----------------- | ------------------------------------------------- | ---------------------------------------------- |
+| Endpoint (EDR)    | osquery / Velociraptor / Wazuh Agent              | SQL-based auditing, DFIR artifact collection, endpoint telemetry |
+| Network (NDR)     | Zeek / Suricata / Arkime                          | Metadata extraction, signature IDS/IPS, packet session capture |
+| SIEM Core         | Wazuh Server / OpenSearch                         | Alert correlation, analytics, storage, indexing |
+| Threat Intel      | CVSS / EPSS / SSVC / MISP / VirusTotal / URLhaus / AbuseIPDB / AlienVault OTX | Exploit tracking, dynamic prioritization, IOC enrichment |
+| Orchestration     | Python & Node.js Microservices / FastAPI          | Event-driven webhooks, playbook routing, REST API |
+| Case Management   | TheHive / Cortex                                  | Incident lifecycle, collaborative workflows, observable scanning |
+| AI Neural Engine  | Python (XGBoost / LightGBM / LLMs / scikit-learn) | Risk scoring, predictive response, log classification |
+| Frontend          | React / shadcn / Tailwind                         | Real-time SOC dashboard & visualization |
+| Database          | PostgreSQL / Redis / OpenSearch                   | Persistent storage, caching, analytics |
+| Infrastructure    | Docker / Docker Compose / Kong / NGINX            | Vendor-agnostic containerization, API gateway |
+
+
+
+## 🥷 [OPERATIONAL_STRIKE_TEAM]
+
+| Name   | Tactical Title           | Tools & Modules                          | Tactical Responsibilities                      | Operational Description                                      |
+|--------|--------------------------|------------------------------------------|------------------------------------------------|-------------------------------------------------------------|
+| Paula  | SOAR Architect           | Wazuh, Suricata, Filebeat, TheHive, FastAPI, Docker, React | Architecture Design, Backend API, Enrichment Layer, Decoder/Rule Engineering, Pipeline Integration | Full SOAR pipeline integration (Wazuh/Suricata/Zeek/Velociraptor/Arkime); UI dashboard data pipeline |
+| Momen  | AI Team Lead / RAG Engineer | Qdrant, Ollama, Docker, Python, LLMs, React | RAG System, Vector Search, Docker Infrastructure, AI Model Integration | RAG chatting system: semantic router, Qdrant + Ollama vector search, OpenSearch execution layer |
+| Ahmed  | EDR & NDR Engineer       | Arkime, Velociraptor, Docker, Python, Filebeat | Sensor Deployment, Docker Config, API Integration | Arkime deployment & OpenSearch setup; Velociraptor EDR sensor templates; Filebeat integration |
+| Nayra  | ML Engineer              | Scikit-learn, XGBoost, HistGradientBoosting, Python, Matplotlib | ML Model Training, Enrichment Service, Patch Engine | Phishing email model; patch engine models; ML pipeline visualization; enrichment service |
+| Hanaa  | NDR Engineer             | Zeek, Suricata, Wazuh, Docker            | Sensor Configuration, Log Pipeline, Wazuh Integration | Suricata classified logs; Zeek configuration; Wazuh single-node integration |
+| Pavlly | AI/ML Engineer           | Python, XGBoost, LLMs, Scikit-learn      | Noise Classifier, Alert Filtering, AI Phishing Model | ML noise classifier V2; AI phishing model; alert filtering router & tests |
+| Steven | Backend Developer        | Python, XGBoost, FastAPI                 | Phishing Email API, Classification, Backend Endpoints | Phishing email API; risk scoring model; feedback & classification endpoints |
+| Habiba | Frontend Developer       | React, shadcn, Tailwind                  | SOAR Dashboard, API Integration, UI Components | Initial SOAR dashboard; Reporting & Audit page; API endpoints |
+| Amir   | Integration Engineer     | Wazuh, Python, Docker                    | Integration Testing, Wazuh Setup, Alert Injection | Integration Stack folder; Wazuh files setup; cross-component testing |
+
+
 
 ## Quick Start
 
 ```bash
-# Clone the repository (source code available on the source-code branch)
+# Clone the repository
 git clone https://github.com/CyberNest-SOAR/CyberNest-Soar.git
 
-# Full deployment (all services)
+# Full deployment (all services including sensors)
 docker compose -f docker-compose.root.yml up --detach
 
-# Or minimal stack (core only)
+# Or minimal stack (core SIEM + SOAR only)
 docker compose up --detach
 ```
 
-After startup:
-- **Wazuh Dashboard:** `https://localhost:8443` (or port 443 on root compose)
-- **Backend API:** `http://localhost:8000`
-- **API Docs:** `http://localhost:8000/docs` (Swagger) / `http://localhost:8000/redoc` (ReDoc)
-- **TheHive:** `http://localhost:9000`
-- **MISP:** `http://localhost:8080`
+**Access Points:**
 
-> **Note:** The `source-code` branch contains the full source code, including the FastAPI backend, React frontend, sensor configurations, and pipeline scripts. See [reports/DEPLOYMENT.md](reports/DEPLOYMENT.md) for detailed setup instructions.
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| Wazuh Dashboard | `https://localhost:8443` | `admin` / `SecretPassword` |
+| Backend API | `http://localhost:8000` | — |
+| API Docs | `http://localhost:8000/docs` | Swagger UI |
+| TheHive | `http://localhost:9000` | Configured in .env |
+| MISP | `http://localhost:8080` | Configured in .env |
 
----
 
-## Architecture Overview
-
-```
-SENSORS → COLLECTION → PROCESSING → STORAGE → UI/API
-  │          │             │           │         │
-  ├─ Suricata ─┤           │           │         │
-  ├─ Zeek     ─┤           │           │         │
-  ├─ Velociraptor ─── Wazuh Agent ─ Wazuh Manager ─ Indexer ─ Dashboard
-  ├─ Arkime   ─┤     │                 (OpenSearch)
-  ├─ osquery  ─┘     ├─ Filebeat ───────┘
-  │                  └─ Python Forwarders (direct API)
-  └─ Phishing Feed ───→ Backend API ──→ PostgreSQL
-```
-
-Three ingestion methods feed into Wazuh Indexer (OpenSearch):
-1. **Wazuh Agent** — file monitoring, analysisd decoder/rules pipeline
-2. **Filebeat** — direct log shipping
-3. **Python Forwarders** — HTTP API-based event forwarding
-
-See [reports/ARCHITECTURE.md](reports/ARCHITECTURE.md) for the complete architecture breakdown.
-
----
-
-## Tech Stack
-
-| Component | Technology |
-|-----------|-----------|
-| **EDR** | osquery, Velociraptor, Wazuh Agent |
-| **NDR** | Zeek, Suricata, Arkime |
-| **SIEM** | Wazuh Server, OpenSearch (Wazuh Indexer) |
-| **Threat Intel** | CVSS, EPSS, SSVC, MISP, VirusTotal, AbuseIPDB, URLhaus, AlienVault OTX |
-| **Orchestration** | Python microservices, FastAPI |
-| **Case Management** | TheHive, Cortex |
-| **AI/ML** | XGBoost, LightGBM, LLMs, scikit-learn |
-| **Frontend** | React, shadcn, Tailwind CSS |
-| **Database** | PostgreSQL, OpenSearch |
-| **Infrastructure** | Docker, Docker Compose, Kong/NGINX |
-
----
 
 ## Documentation
 
 | Document | Description |
 |----------|-------------|
-| [reports/ARCHITECTURE.md](reports/ARCHITECTURE.md) | Full system architecture, pipeline mapping, data flow |
-| [reports/DEPLOYMENT.md](reports/DEPLOYMENT.md) | Prerequisites, installation, configuration, running |
-| [reports/API.md](reports/API.md) | API endpoint reference, authentication, examples |
+| [reports/ARCHITECTURE.md](reports/ARCHITECTURE.md) | Full system architecture, pipeline mapping, data flow, port mapping |
+| [reports/DEPLOYMENT.md](reports/DEPLOYMENT.md) | Prerequisites, installation, configuration, running, troubleshooting |
+| [reports/API.md](reports/API.md) | Complete API reference — 140+ endpoints across 25 categories |
 
----
 
-## Project Status
 
-CyberNestSoar is currently under active development as part of the SOAR Project 1 at SUT. This public branch contains documentation and project overview. The full source code is maintained on the `source-code` branch.
-
-### Team
-
-| Name | Role |
-|------|------|
-| [Paula Maged](https://github.com/PM-CyberSec) | SOAR Architect & Team Lead |
-| [Momen Saif](https://github.com/Momen959) | AI Team Lead / RAG Engineer |
-| [Ahmed Ehab](https://github.com/ahmedtalaat1817) | EDR & NDR Engineer |
-| [Nayra Ahmed](https://github.com/nayra-ahmedaraby) | ML Engineer |
-| [Hanaa Ramadan](https://github.com/Hanaa159) | NDR Engineer |
-| [Pavlly Sameh](https://github.com/Pevllo) | AI/ML Engineer |
-| [Steven Wael](https://github.com/Steven-06) | Backend Developer |
-| [Habiba Karam](https://github.com/HabibaKarm) | Frontend Developer |
-| [Amir Khaled](https://github.com/amirkhaled23) | Integration Engineer |
-
----
-
-## License
+## 📟 License
 
 This project is for **educational purposes** as part of the SOAR Project 1 at SUT.
 Feel free to use or adapt it for learning or non-commercial purposes.
 
----
 
-### Security Notice
 
-CyberNestSoar is currently under development. Monitoring all incoming telemetry for anomalous signatures in real-time. For security concerns, please open a GitHub issue.
+### [ SECURITY_NOTICE ] CyberNestSoar is currently under developement. Soon! Monitoring all incoming telemetry for anomalous signatures.
