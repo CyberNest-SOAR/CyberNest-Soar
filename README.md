@@ -40,6 +40,13 @@
 <p align="center">
 #  <strong>Security Orchestration Is A Symphony</strong> #
 
+<p align="center">
+  <a href="README.md">📘 README</a> •
+  <a href="report/ARCHITECTURE.md">📡 ARCHITECTURE</a> •
+  <a href="reports/API.md">⚡ API</a> •
+  <a href="reports/DEPLOYMENT.md">📟 DEPLOYMENT</a> •
+</p>
+
 
 # 🛸 [ SYSTEM_MANIFEST: CyberNestSoar ]
 ```text
