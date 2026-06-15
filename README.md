@@ -42,7 +42,7 @@
 
 <p align="center">
   <a href="README.md">📘 README</a> •
-  <a href="reportS/ARCHITECTURE.md">📡 ARCHITECTURE</a> •
+  <a href="reports/ARCHITECTURE.md">📡 ARCHITECTURE</a> •
   <a href="reports/API.md">⚡ API</a> •
   <a href="reports/DEPLOYMENT.md">📟 DEPLOYMENT</a> •
 </p>
